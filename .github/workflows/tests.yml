@@ -38,4 +38,4 @@ jobs:
               poetry install -vv
       
       - name: Run tests
-      - run: poetry run pytest --cov=pycta tests
+        run: poetry run pytest --cov=pycta tests
