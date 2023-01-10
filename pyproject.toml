@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "py-cta"
+name = "py_cta"
 version = "0.0.0"
 description = "..."
 authors = ["Thomas Schmelzer"]
