@@ -16,8 +16,5 @@ def test_portfolio(prices):
 
     pd.testing.assert_frame_equal(portfolio.position, pd.DataFrame(index=prices.index, columns=prices.keys(), data=1000.0))
 
-    #print(portfolio.profit)
-    #print(portfolio.nav(init_capital=10000))
-
-    returns = portfolio.profit / 10000
+    returns = portfolio.returns(init_capital=10000)
     assert qs.stats.sharpe(returns) == pytest.approx(0.3012828629001599)
