@@ -35,7 +35,7 @@ jobs:
       
       - name: Publish the package to pypi
         run : |
-            poetry config http-basic.pypi ${{ secrets.TWINE_USERNAME }} ${{ secrets.TWINE_PASSWORD }}
+            poetry config http-basic.pypi ${{ secrets.TWINE_TOKEN }} 
             poetry publish
             
         #uses: JRubics/poetry-publish@v1.9
@@ -43,3 +43,4 @@ jobs:
         #   python_version: '3.10'
         #   repository_username: ${{ secrets.TWINE_USERNAME }}
         #   repository_password: ${{ secrets.TWINE_PASSWORD }}
+        # ${{ secrets.TWINE_USERNAME }} ${{ secrets.TWINE_PASSWORD }}
