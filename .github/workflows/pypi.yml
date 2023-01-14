@@ -35,5 +35,5 @@ jobs:
       
       - name: Publish the package to pypi
         run : |
-            poetry config http-basic.pypi ${{ secrets.TWINE_TOKEN }} 
+            poetry config pypi-token.pypi ${{ secrets.TWINE_TOKEN }} 
             poetry publish
