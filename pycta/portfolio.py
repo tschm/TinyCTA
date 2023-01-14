@@ -36,13 +36,15 @@ class Portfolio:
         return (self.prices.pct_change() * self.position.shift(periods=1)).sum(axis=1)
 
     def nav(self, init_capital=None):
-        # common problem for most CTAs.
-        init_capital = init_capital or 100*self.profit.std()
-        # We assume we start every day with the same initial capital!
-        r = self.profit / init_capital
         # We then simply compound the nav!
         # We could also achieve the same by scaling the positions with increasing fundsize...
-        return (1+r).cumprod()
+        return (1+self.returns(init_capital=init_capital)).cumprod()
+
+    def returns(self, init_capital=None):
+        # common problem for most CTAs.
+        init_capital = init_capital or 100 * self.profit.std()
+        # We assume we start every day with the same initial capital!
+        return self.profit / init_capital
 
     # set the position for time t
     def __setitem__(self, t, value):
