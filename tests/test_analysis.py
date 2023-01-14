@@ -1,10 +1,8 @@
 import pytest
-import pandas as pd
 from pycta.analysis import Analysis
 
 @pytest.fixture
-def analysis(resource_dir):
-    prices = pd.read_csv(resource_dir / "test_prices.csv", index_col=0, parse_dates=True, header=0)
+def analysis(prices):
     # we need only one time series
     nav = prices["B"]
     return Analysis(nav)
@@ -16,3 +14,8 @@ def test_std(analysis):
 
 def test_monthlytable(analysis):
     assert analysis.monthlytable["STDev"].loc[2015] == "18.89%"
+
+
+def test_performance(analysis):
+    print(analysis.performance)
+    assert analysis.performance["Max Drawdown"] == "14.58"

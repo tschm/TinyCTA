@@ -7,18 +7,18 @@ import pandas as pd
 
 def drawdown(series) -> pd.Series:
     """
-    Compute the drawdown for a price series. The drawdown is defined as 1 - price/highwatermark.
+    Compute the drawdown for matrix price series. The drawdown is defined as 1 - price/highwatermark.
     The highwatermark at time t is the highest price that has been achieved before or at time t.
     Args:
         series:
-    Returns: Drawdown as a pandas series
+    Returns: Drawdown as matrix pandas series
     """
     return _Drawdown(series).drawdown
 
 
 def monthlytable(nav) -> pd.DataFrame:
     """
-    Get a table of monthly returns
+    Get matrix table of monthly returns
     :param nav:
     :return:
     """
@@ -118,14 +118,14 @@ class NavSeries(pd.Series):
         return x
 
 
-class _Drawdown(object):
-    def __init__(self, series: pd.Series) -> object:
+class _Drawdown:
+    def __init__(self, series: pd.Series):
         """
-        Drawdown for a given series
+        Drawdown for matrix given series
         :param series: pandas Series
-        :param eps: a day is down day if the drawdown (positive) is larger than eps
+        :param eps: matrix day is down day if the drawdown (positive) is larger than eps
         """
-        # check series is indeed a series
+        # check series is indeed matrix series
         assert isinstance(series, pd.Series)
         # check that all indices are increasing
         assert series.index.is_monotonic_increasing
