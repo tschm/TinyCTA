@@ -25,8 +25,9 @@ def test_portfolio(prices):
     returns = nav.pct_change().fillna(0.0)
     assert qs.stats.sharpe(returns) == pytest.approx(0.3012828629001599)
 
+
 def test_keys():
-    prices = pd.DataFrame(index=[1], columns=["A","B"])
+    prices = pd.DataFrame(index=[1], columns=["A", "B"])
     positions = pd.DataFrame(index=[1], columns=["A"])
     with pytest.raises(AssertionError):
         build_portfolio(prices=prices, position=positions)
@@ -40,17 +41,18 @@ def test_index():
 
 
 def test_duplicates():
-    prices = pd.DataFrame(index=[1,1], columns=["A"])
+    prices = pd.DataFrame(index=[1, 1], columns=["A"])
     with pytest.raises(AssertionError):
         build_portfolio(prices=prices)
 
     prices = pd.DataFrame(index=[1], columns=["A"])
-    position = pd.DataFrame(index=[1,1], columns=["A"])
+    position = pd.DataFrame(index=[1, 1], columns=["A"])
 
     with pytest.raises(AssertionError):
         build_portfolio(prices=prices, position=position)
 
+
 def test_monotonic():
-    prices = pd.DataFrame(index=[2,1], columns=["A"])
+    prices = pd.DataFrame(index=[2, 1], columns=["A"])
     with pytest.raises(AssertionError):
         build_portfolio(prices=prices)
