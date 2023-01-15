@@ -36,7 +36,7 @@ jobs:
       - name: Install DeepSource
         run: | 
               curl https://deepsource.io/cli | sh
-              export DEEPSOURCE_DSN=${{ secrets.DEEPSOURCE_DSN }}
+              # export DEEPSOURCE_DSN=${{ secrets.DEEPSOURCE_DSN }}
               
       - name: Install dependencies
         run: | 
@@ -45,6 +45,7 @@ jobs:
       
       - name: Run tests
         run: |
+              export DEEPSOURCE_DSN = ${{ secrets.DEEPSOURCE_DSN }}
               poetry run pytest --cache-clear --cov=./ tests --cov-report xml
               ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
              
