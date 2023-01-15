@@ -34,17 +34,22 @@ jobs:
             virtualenvs-in-project: true
       
       - name: Install DeepSource
-        run: curl https://deepsource.io/cli | sh
-        
+        run: | 
+              curl https://deepsource.io/cli | sh
+              # export DEEPSOURCE_DSN=${{ secrets.DEEPSOURCE_DSN }}
+              
       - name: Install dependencies
         run: | 
               poetry --version
               poetry install -vv
       
       - name: Run tests
-        run: poetry run pytest --cache-clear --cov=tinycta tests > pytest-coverage.txt
-
-      - name: pytest-coverage-commentator
-        uses: coroo/pytest-coverage-commentator@v1.0.2
-        with:
-          pytest-coverage: pytest-coverage.txt
+        run: |
+              export DEEPSOURCE_DSN=${{ secrets.DEEPSOURCE_DSN }}
+              poetry run pytest --cache-clear --cov=./ tests --cov-report xml
+              ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
+             
+      #- name: pytest-coverage-commentator
+      #  uses: coroo/pytest-coverage-commentator@v1.0.2
+      #  with:
+      #    pytest-coverage: pytest-coverage.txt
