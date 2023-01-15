@@ -32,7 +32,10 @@ jobs:
         with:
             virtualenvs-create: true
             virtualenvs-in-project: true
-
+      
+      - name: Install DeepSource
+        run: curl https://deepsource.io/cli | sh
+        
       - name: Install dependencies
         run: | 
               poetry --version
