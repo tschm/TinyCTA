@@ -4,13 +4,13 @@ import numpy as np
 # compute the oscillator
 def osc(prices, fast=32, slow=96, scaling=True):
 
-    diff = prices.ewm(com=fast-1).mean() - prices.ewm(com=slow-1).mean()
+    diff = prices.ewm(com=fast - 1).mean() - prices.ewm(com=slow - 1).mean()
     if scaling:
         s = diff.std()
     else:
         s = 1
 
-    return diff/s
+    return diff / s
 
 
 def returns_adjust(price, com=32, min_periods=300, clip=4.2):
