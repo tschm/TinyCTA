@@ -39,11 +39,13 @@ class Portfolio:
 
     @property
     def profit(self):
-        return (self.prices.pct_change() * self.position.shift(periods=1)).sum(axis=1)
+        return (self.prices.pct_change() * self.position.shift(periods=1))\
+               .sum(axis=1)
 
     def nav(self, init_capital=None):
         # We then simply compound the nav!
-        # We could also achieve the same by scaling the positions with increasing fundsize...
+        # We could also achieve the same by scaling the
+        # positions with increasing fund size...
         return (1 + self.returns(init_capital=init_capital)).cumprod()
 
     def returns(self, init_capital=None):
