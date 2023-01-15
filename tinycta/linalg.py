@@ -12,6 +12,7 @@ def valid(matrix):
     # make sure matrix  is quadratic
     if matrix.shape[0] != matrix.shape[1]:
         raise AssertionError
+
     v = np.isfinite(np.diag(matrix))
     return v, matrix[:, v][v]
 
@@ -30,6 +31,7 @@ def a_norm(vector, matrix=None):
     # make sure matrix is quadratic
     if matrix.shape[0] != matrix.shape[1]:
         raise AssertionError
+
     # make sure the vector has the right number of entries
     if vector.size != matrix.shape[0]:
         raise AssertionError
@@ -54,6 +56,7 @@ def inv_a_norm(vector, matrix=None):
     # make sure matrix is quadratic
     if matrix.shape[0] != matrix.shape[1]:
         raise AssertionError
+
     # make sure the vector has the right number of entries
     if vector.size != matrix.shape[0]:
         raise AssertionError
@@ -78,6 +81,7 @@ def solve(matrix, rhs):
     # make sure matrix is quadratic
     if matrix.shape[0] != matrix.shape[1]:
         raise AssertionError
+
     # make sure the vector rhs has the right number of entries
     if rhs.size != matrix.shape[0]:
         raise AssertionError

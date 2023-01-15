@@ -1,41 +1,34 @@
+from dataclasses import dataclass
+
 import pandas as pd
 
 
-class Portfolio:
-    def __init__(self, prices, position=None):
-        if position is None:
-            position = pd.DataFrame(index=prices.index, columns=prices.keys(), data=0.0)
+def build_portfolio(prices, position=None):
+    if position is None:
+        position = pd.DataFrame(index=prices.index, columns=prices.keys(), data=0.0)
 
-        if not prices.index.equals(position.index):
-            raise AssertionError
-        if set(prices.keys()) != set(position.keys()):
-            raise AssertionError
+    if not prices.index.equals(position.index):
+        raise AssertionError
+    if set(prices.keys()) != set(position.keys()):
+        raise AssertionError
 
-        # avoid duplicates
-        if prices.index.has_duplicates:
-            raise AssertionError("Price Index has duplicates")
-        if position.index.has_duplicates:
-            raise AssertionError("Position Index has duplicates")
+    if prices.index.has_duplicates:
+        raise AssertionError("Price Index has duplicates")
 
-        if not prices.index.is_monotonic_increasing:
-            raise AssertionError("Price Index is not increasing")
-        if not position.index.is_monotonic_increasing:
-            raise AssertionError("Position Index is not increasing")
+    if not prices.index.is_monotonic_increasing:
+        raise AssertionError("Price Index is not increasing")
 
-        self.__prices = prices
-        self.__position = position
+    return _Portfolio(prices=prices, position=position)
 
-    @property
-    def prices(self):
-        return self.__prices
+
+@dataclass(frozen=True)
+class _Portfolio:
+    prices: pd.DataFrame
+    position: pd.DataFrame
 
     @property
     def index(self):
-        return self.__prices.index
-
-    @property
-    def position(self):
-        return self.__position
+        return self.prices.index
 
     @property
     def profit(self):
@@ -55,4 +48,4 @@ class Portfolio:
 
     # set the position for time t
     def __setitem__(self, t, value):
-        self.__position.loc[t] = value
+        self.position.loc[t] = value

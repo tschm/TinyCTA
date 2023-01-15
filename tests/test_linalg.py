@@ -8,6 +8,25 @@ def test_non_quadratic():
     with pytest.raises(AssertionError):
         valid(np.array([[2.0, 1.0]]))
 
+    with pytest.raises(AssertionError):
+        a_norm(vector=np.array([2.0, 1.0]), matrix=np.array([[2.0, 1.0]]))
+
+    with pytest.raises(AssertionError):
+        inv_a_norm(vector=np.array([2.0, 1.0]), matrix=np.array([[2.0, 1.0]]))
+
+    with pytest.raises(AssertionError):
+        solve(matrix=np.array([[2.0, 1.0]]), rhs=np.array([2.0, 1.0]))
+
+
+def test_mismatch():
+    with pytest.raises(AssertionError):
+        a_norm(vector=np.array([1.0, 2.0]), matrix=np.array([[1.0]]))
+
+    with pytest.raises(AssertionError):
+        inv_a_norm(vector=np.array([1.0, 2.0]), matrix=np.array([[1.0]]))
+
+    with pytest.raises(AssertionError):
+        solve(matrix=np.array([[1.0]]), rhs=np.array([1.0, 2.0]))
 
 def test_valid():
     a = np.array([[1.0, np.NaN], [np.NaN, np.NaN]])
