@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from pycta.portfolio import Portfolio
+from tinycta.portfolio import Portfolio
 
 import quantstats as qs
 

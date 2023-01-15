@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from pycta.linalg import valid, a_norm, inv_a_norm, solve
+from tinycta.linalg import valid, a_norm, inv_a_norm, solve
 
 
 def test_non_quadratic():

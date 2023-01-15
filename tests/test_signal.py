@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pycta.signal import shrink2id, returns_adjust, osc
+from tinycta.signal import shrink2id, returns_adjust, osc
 
 
 def test_shrink():
