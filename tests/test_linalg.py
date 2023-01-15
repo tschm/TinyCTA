@@ -1,7 +1,7 @@
-import pytest
 import numpy as np
+import pytest
 
-from tinycta.linalg import valid, a_norm, inv_a_norm, solve
+from tinycta.linalg import a_norm, inv_a_norm, solve, valid
 
 
 def test_non_quadratic():
@@ -10,7 +10,7 @@ def test_non_quadratic():
 
 
 def test_valid():
-    a = np.array([[1.0, np.NaN],[np.NaN, np.NaN]])
+    a = np.array([[1.0, np.NaN], [np.NaN, np.NaN]])
     val, submatrix = valid(a)
 
     np.testing.assert_array_equal(val, np.array([True, False]))
@@ -32,8 +32,8 @@ def test_anorm_without_matrix():
 
 def test_anorm_with_matrix():
     v = np.array([3.0, 4.0])
-    a = 2*np.eye(2)
-    assert a_norm(vector=v, matrix=a) == pytest.approx(np.sqrt(2)*5.0)
+    a = 2 * np.eye(2)
+    assert a_norm(vector=v, matrix=a) == pytest.approx(np.sqrt(2) * 5.0)
 
 
 def test_anorm_all_nan():
@@ -44,8 +44,8 @@ def test_anorm_all_nan():
 
 def test_inv_a_norm():
     v = np.array([3.0, 4.0])
-    a = 0.5*np.eye(2)
-    assert inv_a_norm(vector=v, matrix=a) == pytest.approx(np.sqrt(2)*5.0)
+    a = 0.5 * np.eye(2)
+    assert inv_a_norm(vector=v, matrix=a) == pytest.approx(np.sqrt(2) * 5.0)
 
 
 def test_inv_a_norm_without_matrix():
@@ -61,7 +61,7 @@ def test_inv_a_norm_all_nan():
 
 def test_solve():
     rhs = np.array([3.0, 4.0])
-    matrix = 0.5*np.eye(2)
+    matrix = 0.5 * np.eye(2)
     x = solve(matrix=matrix, rhs=rhs)
 
     np.testing.assert_array_equal(matrix @ x, rhs)

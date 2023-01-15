@@ -14,7 +14,9 @@ class Portfolio:
         assert not position.index.has_duplicates, "Position Index has duplicates"
 
         assert prices.index.is_monotonic_increasing, "Price Index is not increasing"
-        assert position.index.is_monotonic_increasing, "Position Index is not increasing"
+        assert (
+            position.index.is_monotonic_increasing
+        ), "Position Index is not increasing"
 
         self.__prices = prices
         self.__position = position
@@ -38,7 +40,7 @@ class Portfolio:
     def nav(self, init_capital=None):
         # We then simply compound the nav!
         # We could also achieve the same by scaling the positions with increasing fundsize...
-        return (1+self.returns(init_capital=init_capital)).cumprod()
+        return (1 + self.returns(init_capital=init_capital)).cumprod()
 
     def returns(self, init_capital=None):
         # common problem for most CTAs.

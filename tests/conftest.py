@@ -1,7 +1,7 @@
 from pathlib import Path
 
-import pytest
 import pandas as pd
+import pytest
 
 
 @pytest.fixture(scope="session", name="resource_dir")
@@ -12,4 +12,6 @@ def resource_fixture():
 
 @pytest.fixture
 def prices(resource_dir):
-    return pd.read_csv(resource_dir / "test_prices.csv", index_col=0, parse_dates=True, header=0)
+    return pd.read_csv(
+        resource_dir / "test_prices.csv", index_col=0, parse_dates=True, header=0
+    )
