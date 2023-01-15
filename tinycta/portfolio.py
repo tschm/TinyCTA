@@ -39,8 +39,7 @@ class Portfolio:
 
     @property
     def profit(self):
-        return (self.prices.pct_change() * self.position.shift(periods=1))\
-               .sum(axis=1)
+        return (self.prices.pct_change() * self.position.shift(periods=1)).sum(axis=1)
 
     def nav(self, init_capital=None):
         # We then simply compound the nav!
