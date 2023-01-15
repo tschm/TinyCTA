@@ -558,7 +558,7 @@ python-versions = "*"
 
 [[package]]
 name = "yfinance"
-version = "0.2.3"
+version = "0.2.4"
 description = "Download market data from Yahoo! Finance API"
 category = "main"
 optional = false
@@ -1282,6 +1282,6 @@ webencodings = [
     {file = "webencodings-0.5.1.tar.gz", hash = "sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923"},
 ]
 yfinance = [
-    {file = "yfinance-0.2.3-py2.py3-none-any.whl", hash = "sha256:db5c2c2b7a0c9afe7d62d31e917022cf4370b485b6c1729d6035fdbbfbe92e73"},
-    {file = "yfinance-0.2.3.tar.gz", hash = "sha256:9ee57b9d92e4611d820393467a0ab4e764b35a33192054ea6c2d8a49dc494592"},
+    {file = "yfinance-0.2.4-py2.py3-none-any.whl", hash = "sha256:8f7be9d0858668dcba8a8e45778da2c852e61c574ca979419e252401e7164167"},
+    {file = "yfinance-0.2.4.tar.gz", hash = "sha256:7bb0cbcf874116c4febf1a2d930b0d0fe5ac2af91673beb2425cef8d7f20916a"},
 ]
