@@ -34,8 +34,10 @@ jobs:
             virtualenvs-in-project: true
       
       - name: Install DeepSource
-        run: curl https://deepsource.io/cli | sh
-        
+        run: | 
+              curl https://deepsource.io/cli | sh
+              export DEEPSOURCE_DSN=${{ secrets.DEEPSOURCE_DSN }}
+              
       - name: Install dependencies
         run: | 
               poetry --version
