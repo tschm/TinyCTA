@@ -9,7 +9,8 @@ def valid(matrix):
     :return: Tuple of matrix boolean vector indicating if row/column is valid and the valid subset of the matrix
     """
     # make sure matrix  is quadratic
-    assert matrix.shape[0] == matrix.shape[1]
+    if matrix.shape[0] != matrix.shape[1]:
+        raise AssertionError
     v = np.isfinite(np.diag(matrix))
     return v, matrix[:, v][v]
 
@@ -26,9 +27,11 @@ def a_norm(vector, matrix=None):
         return np.linalg.norm(vector[np.isfinite(vector)], 2)
 
     # make sure matrix is quadratic
-    assert matrix.shape[0] == matrix.shape[1]
+    if matrix.shape[0] != matrix.shape[1]:
+        raise AssertionError
     # make sure the vector has the right number of entries
-    assert vector.size == matrix.shape[0]
+    if vector.size != matrix.shape[0]:
+        raise AssertionError
 
     v, mat = valid(matrix)
 
@@ -48,9 +51,11 @@ def inv_a_norm(vector, matrix=None):
         return np.linalg.norm(vector[np.isfinite(vector)], 2)
 
     # make sure matrix is quadratic
-    assert matrix.shape[0] == matrix.shape[1]
+    if matrix.shape[0] != matrix.shape[1]:
+        raise AssertionError
     # make sure the vector has the right number of entries
-    assert vector.size == matrix.shape[0]
+    if vector.size != matrix.shape[0]:
+        raise AssertionError
 
     v, mat = valid(matrix)
 
@@ -70,9 +75,11 @@ def solve(matrix, rhs):
     :return: The solution vector x (which may contain NaNs
     """
     # make sure matrix is quadratic
-    assert matrix.shape[0] == matrix.shape[1]
+    if matrix.shape[0] != matrix.shape[1]:
+        raise AssertionError
     # make sure the vector rhs has the right number of entries
-    assert rhs.size == matrix.shape[0]
+    if rhs.size != matrix.shape[0]:
+        raise AssertionError
 
     x = np.nan * np.ones(rhs.size)
     v, mat = valid(matrix)

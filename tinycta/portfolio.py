@@ -6,17 +6,21 @@ class Portfolio:
         if position is None:
             position = pd.DataFrame(index=prices.index, columns=prices.keys(), data=0.0)
 
-        assert prices.index.equals(position.index)
-        assert set(prices.keys()) == set(position.keys())
+        if not prices.index.equals(position.index):
+            raise AssertionError
+        if set(prices.keys()) != set(position.keys()):
+            raise AssertionError
 
         # avoid duplicates
-        assert not prices.index.has_duplicates, "Price Index has duplicates"
-        assert not position.index.has_duplicates, "Position Index has duplicates"
+        if prices.index.has_duplicates:
+            raise AssertionError("Price Index has duplicates")
+        if position.index.has_duplicates:
+            raise AssertionError("Position Index has duplicates")
 
-        assert prices.index.is_monotonic_increasing, "Price Index is not increasing"
-        assert (
-            position.index.is_monotonic_increasing
-        ), "Position Index is not increasing"
+        if not prices.index.is_monotonic_increasing:
+            raise AssertionError("Price Index is not increasing")
+        if not position.index.is_monotonic_increasing:
+            raise AssertionError("Position Index is not increasing")
 
         self.__prices = prices
         self.__position = position
