@@ -19,9 +19,7 @@ class Portfolio:
 
         if not prices.index.is_monotonic_increasing:
             raise AssertionError("Price Index is not increasing")
-        if not (
-            position.index.is_monotonic_increasing
-        ):
+        if not (position.index.is_monotonic_increasing):
             raise AssertionError("Position Index is not increasing")
 
         self.__prices = prices
