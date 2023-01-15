@@ -34,8 +34,7 @@ def a_norm(vector, matrix=None):
 
     if v.any():
         return np.sqrt(np.dot(vector[v], np.dot(mat, vector[v])))
-    else:
-        return np.nan
+    return np.nan
 
 
 def inv_a_norm(vector, matrix=None):
@@ -57,8 +56,7 @@ def inv_a_norm(vector, matrix=None):
 
     if v.any():
         return np.sqrt(np.dot(vector[v], np.linalg.solve(mat, vector[v])))
-    else:
-        return np.nan
+    return np.nan
 
 
 def solve(matrix, rhs):
