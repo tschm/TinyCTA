@@ -3,7 +3,6 @@ import numpy as np
 
 # compute the oscillator
 def osc(prices, fast=32, slow=96, scaling=True):
-    #f,g = 1 - 1/fast, 1-1/slow
 
     diff = prices.ewm(com=fast-1).mean() - prices.ewm(com=slow-1).mean()
     if scaling:
