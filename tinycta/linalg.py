@@ -6,7 +6,8 @@ def valid(matrix):
     Construct the valid subset of matrix (correlation) matrix matrix
     :param matrix: n x n matrix
 
-    :return: Tuple of matrix boolean vector indicating if row/column is valid and the valid subset of the matrix
+    :return: Tuple of matrix boolean vector indicating if row/column
+    is valid and the valid subset of the matrix
     """
     # make sure matrix  is quadratic
     if matrix.shape[0] != matrix.shape[1]:
