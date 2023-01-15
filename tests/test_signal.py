@@ -1,13 +1,13 @@
 import numpy as np
 import pytest
 
-from tinycta.signal import shrink2id, returns_adjust, osc
+from tinycta.signal import osc, returns_adjust, shrink2id
 
 
 def test_shrink():
     matrix = np.array([[1.0, 1.0], [1.0, 1.0]])
     s = shrink2id(matrix=matrix, lamb=0.3)
-    np.testing.assert_array_equal(s, np.array([[1.0, 0.3],[0.3, 1.0]]))
+    np.testing.assert_array_equal(s, np.array([[1.0, 0.3], [0.3, 1.0]]))
 
 
 def test_returns_adjust(prices):
