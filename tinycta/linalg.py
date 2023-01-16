@@ -93,5 +93,3 @@ def solve(matrix, rhs):
         x[v] = np.linalg.solve(mat, rhs[v])
 
     return x
-
-
