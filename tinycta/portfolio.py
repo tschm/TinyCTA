@@ -4,6 +4,17 @@ import pandas as pd
 
 
 def build_portfolio(prices, position=None):
+    """
+    build a portfolio
+
+    Args:
+        prices: a dataframe of prices
+        position: if given a dataframe of cash positions
+
+    Returns:
+        a portfolio object
+
+    """
     if position is None:
         position = pd.DataFrame(index=prices.index, columns=prices.keys(), data=0.0)
 
