@@ -54,7 +54,7 @@ jobs:
         with:
             python-version: 3.10
       
-            - name: Install Poetry
+      - name: Install Poetry
         uses: snok/install-poetry@v1.3.3
         with:
             virtualenvs-create: true
@@ -69,6 +69,7 @@ jobs:
         run: | 
               poetry --version
               poetry install -vv
+      
       - name: Run tests
         run: |
               export DEEPSOURCE_DSN=${{ secrets.DEEPSOURCE_DSN }}
