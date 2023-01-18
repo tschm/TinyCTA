@@ -36,6 +36,7 @@ def build_portfolio(prices, position=None):
 @dataclass(frozen=True)
 class _Portfolio:
     """Portfolio"""
+
     prices: pd.DataFrame
     position: pd.DataFrame
 
