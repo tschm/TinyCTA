@@ -39,6 +39,7 @@ class _Portfolio:
 
     @property
     def index(self):
+        """index, e.g. timestamps in portfolio"""
         return self.prices.index
 
     @property
@@ -47,11 +48,20 @@ class _Portfolio:
         Profit of a portfolio
 
         Returns:
-            Timeseries of profits, e.g. prices-%-change * position (in currency units) of yesterday
+            Timeseries of profits, e.g. prices-%-change * position
+            (in currency units) of yesterday
         """
         return (self.prices.pct_change() * self.position.shift(periods=1)).sum(axis=1)
 
     def nav(self, init_capital=None):
+        """
+        nav, e.g. compounded returns
+
+        Args:
+            init_capital: initial (and constant) capital or 100*std of profits
+        Returns:
+            nav
+        """
         # We then simply compound the nav!
         # We could also achieve the same by scaling the
         # positions with increasing fund size...
@@ -65,7 +75,8 @@ class _Portfolio:
             init_capital: if not given use 100 * standard deviation of profits
 
         Returns:
-            Profit / init_capital. The initial capital is kept constant throughout a backtest.
+            Profit / init_capital. The initial capital is kept constant
+            throughout a backtest.
         """
 
         # common problem for most CTAs.
