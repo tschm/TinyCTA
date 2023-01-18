@@ -1,3 +1,4 @@
+"""linear algebra"""
 import numpy as np
 
 
