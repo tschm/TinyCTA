@@ -35,6 +35,8 @@ def build_portfolio(prices, position=None):
 
 @dataclass(frozen=True)
 class _Portfolio:
+    """Portfolio"""
+
     prices: pd.DataFrame
     position: pd.DataFrame
 
@@ -87,4 +89,12 @@ class _Portfolio:
 
     # set the position for time t
     def __setitem__(self, t, value):
+        """
+        set cash position at time t
+
+        Args:
+            t: index, e.g. time t
+            value: cash position, e.g. a series
+
+        """
         self.position.loc[t] = value
