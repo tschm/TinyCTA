@@ -6,6 +6,9 @@ from tinycta.portfolio import build_portfolio
 
 
 def test_portfolio(prices):
+    """
+    build portfolio from price
+    """
     portfolio = build_portfolio(prices=prices)
     pd.testing.assert_frame_equal(portfolio.prices, prices)
 
@@ -27,6 +30,9 @@ def test_portfolio(prices):
 
 
 def test_keys():
+    """
+    mismatch in keys
+    """
     prices = pd.DataFrame(index=[1], columns=["A", "B"])
     positions = pd.DataFrame(index=[1], columns=["A"])
     with pytest.raises(AssertionError):
@@ -34,6 +40,9 @@ def test_keys():
 
 
 def test_index():
+    """
+    mismatch in index
+    """
     prices = pd.DataFrame(index=[1], columns=["A"])
     positions = pd.DataFrame(index=[2], columns=["A"])
     with pytest.raises(AssertionError):
@@ -41,6 +50,9 @@ def test_index():
 
 
 def test_duplicates():
+    """
+    duplicate in index
+    """
     prices = pd.DataFrame(index=[1, 1], columns=["A"])
     with pytest.raises(AssertionError):
         build_portfolio(prices=prices)
@@ -53,6 +65,9 @@ def test_duplicates():
 
 
 def test_monotonic():
+    """
+    index not increasing
+    """
     prices = pd.DataFrame(index=[2, 1], columns=["A"])
     with pytest.raises(AssertionError):
         build_portfolio(prices=prices)
