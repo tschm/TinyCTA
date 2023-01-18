@@ -32,6 +32,12 @@ class _Portfolio:
 
     @property
     def profit(self):
+        """
+        Profit of a portfolio
+
+        Returns:
+            Timeseries of profits, e.g. prices-%-change * position (in currency units) of yesterday
+        """
         return (self.prices.pct_change() * self.position.shift(periods=1)).sum(axis=1)
 
     def nav(self, init_capital=None):
@@ -41,6 +47,16 @@ class _Portfolio:
         return (1 + self.returns(init_capital=init_capital)).cumprod()
 
     def returns(self, init_capital=None):
+        """
+        Relative returns of a portfolio
+
+        Args:
+            init_capital: if not given use 100 * standard deviation of profits
+
+        Returns:
+            Profit / init_capital. The initial capital is kept constant throughout a backtest.
+        """
+
         # common problem for most CTAs.
         init_capital = init_capital or 100 * self.profit.std()
         # We assume we start every day with the same initial capital!
