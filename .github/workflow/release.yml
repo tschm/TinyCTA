@@ -6,9 +6,15 @@ on:
     - '[0-9]+.[0-9]+.[0-9]'
 
 jobs:
+
   release:
     runs-on: ubuntu-latest
 
+    permissions:
+      # This permission is required for trusted publishing.
+      id-token: write
+      contents: read
+    
     # Steps represent matrix sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -26,12 +32,18 @@ jobs:
       
       - name: Change version in pyproject.toml
         run: |
-            echo ${{  github.ref_name }}
             poetry version ${{  github.ref_name }}
             poetry build
-            cat pyproject.toml      
       
       - name: Publish the package to pypi
         run : |
             poetry config pypi-token.pypi ${{ secrets.TWINE_TOKEN }} 
             poetry publish
+      
+      - name: Mint token
+        id: mint
+        uses: tschm/token-mint-action@v1.0.0
+
+      - name: Publish the package with poetry
+        run: |
+          poetry publish -u __token__ -p '${{ steps.mint.outputs.api-token }}'
