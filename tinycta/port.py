@@ -4,9 +4,14 @@ import pandas as pd
 
 def build_portfolio(prices, cashposition=None):
     assert isinstance(prices, pd.DataFrame)
+    assert prices.index.is_monotonic_increasing
+    assert prices.index.is_unique
 
     if cashposition is None:
-        cashposition = pd.DataFrame(index=prices.index, columns=prices.columns, data=0.0, dtype=float)
+        cashposition = pd.DataFrame(index=prices.index, columns=prices.columns, dtype=float)
+    else:
+        assert cashposition.index.is_monotonic_increasing
+        assert cashposition.index.is_unique
 
     assert set(cashposition.index).issubset(set(prices.index))
     assert set(cashposition.columns).issubset(set(prices.columns))
