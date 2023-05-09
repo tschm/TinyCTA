@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+
 import pandas as pd
 
 
@@ -8,7 +9,9 @@ def build_portfolio(prices, cashposition=None):
     assert prices.index.is_unique
 
     if cashposition is None:
-        cashposition = pd.DataFrame(index=prices.index, columns=prices.columns, dtype=float)
+        cashposition = pd.DataFrame(
+            index=prices.index, columns=prices.columns, dtype=float
+        )
     else:
         assert cashposition.index.is_monotonic_increasing
         assert cashposition.index.is_unique
@@ -37,7 +40,7 @@ class _FuturesPortfolio:
     def __iter__(self):
         for before, now in zip(self.index[:-1], self.index[1:]):
             # valuation of the current cashposition
-            #price_diff = self.prices.loc[now] - self.prices.loc[before]
+            # price_diff = self.prices.loc[now] - self.prices.loc[before]
 
             yield before, now
 
@@ -68,5 +71,7 @@ class _FuturesPortfolio:
         return self.profit.ne(0).idxmax()
 
     def truncate(self, before=None, after=None):
-        return _FuturesPortfolio(prices = self.prices.truncate(before=before, after=after),
-                                 cashposition = self.cashposition.truncate(before=before, after=after))
+        return _FuturesPortfolio(
+            prices=self.prices.truncate(before=before, after=after),
+            cashposition=self.cashposition.truncate(before=before, after=after),
+        )

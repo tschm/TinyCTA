@@ -2,7 +2,6 @@
 import pandas as pd
 import pytest
 
-
 from tinycta.port import build_portfolio
 
 
@@ -21,7 +20,6 @@ def test_portfolio(prices):
         portfolio.cashposition,
         pd.DataFrame(index=prices.index, columns=prices.keys(), data=1000.0),
     )
-
 
 
 def test_duplicates():
