@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+
 import pandas as pd
 
 
@@ -6,14 +7,18 @@ def build_portfolio(prices, constracts=None, aum=1e6):
     assert isinstance(prices, pd.DataFrame)
 
     if constracts is None:
-        constracts = pd.DataFrame(index=prices.index, columns=prices.columns, data=0.0, dtype=float)
+        constracts = pd.DataFrame(
+            index=prices.index, columns=prices.columns, data=0.0, dtype=float
+        )
 
     assert set(constracts.index).issubset(set(prices.index))
     assert set(constracts.columns).issubset(set(prices.columns))
 
     prices = prices[constracts.columns].loc[constracts.index]
 
-    return _FuturesPortfolio(contracts=constracts, prices=prices.ffill(), aum=float(aum))
+    return _FuturesPortfolio(
+        contracts=constracts, prices=prices.ffill(), aum=float(aum)
+    )
 
 
 @dataclass(frozen=True)
@@ -33,7 +38,7 @@ class _FuturesPortfolio:
     def __iter__(self):
         for before, now in zip(self.index[:-1], self.index[1:]):
             # valuation of the current position
-            #price_diff = self.prices.loc[now] - self.prices.loc[before]
+            # price_diff = self.prices.loc[now] - self.prices.loc[before]
 
             yield before, now
 
@@ -49,9 +54,9 @@ class _FuturesPortfolio:
 
     @property
     def profit(self) -> pd.Series:
-         """
-         Profit
-         """
-         price_changes = self.prices.ffill().diff()
-         previous_stocks = self.contracts.shift(1).fillna(0.0)
-         return (previous_stocks * price_changes).sum(axis=1)
+        """
+        Profit
+        """
+        price_changes = self.prices.ffill().diff()
+        previous_stocks = self.contracts.shift(1).fillna(0.0)
+        return (previous_stocks * price_changes).sum(axis=1)
