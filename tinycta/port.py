@@ -2,25 +2,24 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 
-def build_portfolio(prices, constracts=None, aum=1e6):
+def build_portfolio(prices, cashposition=None):
     assert isinstance(prices, pd.DataFrame)
 
-    if constracts is None:
-        constracts = pd.DataFrame(index=prices.index, columns=prices.columns, data=0.0, dtype=float)
+    if cashposition is None:
+        cashposition = pd.DataFrame(index=prices.index, columns=prices.columns, data=0.0, dtype=float)
 
-    assert set(constracts.index).issubset(set(prices.index))
-    assert set(constracts.columns).issubset(set(prices.columns))
+    assert set(cashposition.index).issubset(set(prices.index))
+    assert set(cashposition.columns).issubset(set(prices.columns))
 
-    prices = prices[constracts.columns].loc[constracts.index]
+    prices = prices[cashposition.columns].loc[cashposition.index]
 
-    return _FuturesPortfolio(contracts=constracts, prices=prices.ffill(), aum=float(aum))
+    return _FuturesPortfolio(cashposition=cashposition, prices=prices.ffill())
 
 
 @dataclass(frozen=True)
 class _FuturesPortfolio:
     prices: pd.DataFrame
-    contracts: pd.DataFrame
-    aum: float = 1e6
+    cashposition: pd.DataFrame
 
     @property
     def index(self):
@@ -32,26 +31,37 @@ class _FuturesPortfolio:
 
     def __iter__(self):
         for before, now in zip(self.index[:-1], self.index[1:]):
-            # valuation of the current position
+            # valuation of the current cashposition
             #price_diff = self.prices.loc[now] - self.prices.loc[before]
 
             yield before, now
 
-    def __setitem__(self, key, position):
-        assert isinstance(position, pd.Series)
-        assert set(position.index).issubset(set(self.assets))
+    def __setitem__(self, key, cashposition):
+        assert isinstance(cashposition, pd.Series)
+        assert set(cashposition.index).issubset(set(self.assets))
 
-        self.contracts.loc[key, position.index] = position / self.prices.loc[key]
+        self.cashposition.loc[key, cashposition.index] = cashposition
 
     def __getitem__(self, item):
         assert item in self.index
-        return self.contracts.loc[item]
+        return self.cashposition.loc[item]
+
+    def nav(self, aum) -> pd.Series:
+        """
+        Profit
+        """
+        return self.profit.cumsum() + aum
 
     @property
-    def profit(self) -> pd.Series:
-         """
-         Profit
-         """
-         price_changes = self.prices.ffill().diff()
-         previous_stocks = self.contracts.shift(1).fillna(0.0)
-         return (previous_stocks * price_changes).sum(axis=1)
+    def profit(self):
+        price_changes = self.prices.ffill().pct_change()
+        previous_position = self.cashposition.shift(1)
+        return (previous_position * price_changes).sum(axis=1)
+
+    @property
+    def start(self):
+        return self.profit.ne(0).idxmax()
+
+    def truncate(self, before=None, after=None):
+        return _FuturesPortfolio(prices = self.prices.truncate(before=before, after=after),
+                                 cashposition = self.cashposition.truncate(before=before, after=after))

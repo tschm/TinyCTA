@@ -51,7 +51,7 @@ class _Portfolio:
         Profit of a portfolio
 
         Returns:
-            Timeseries of profits, e.g. prices-%-change * position
+            Timeseries of profits, e.g. prices-%-change * cashposition
             (in currency units) of yesterday
         """
         return (self.prices.pct_change() * self.position.shift(periods=1)).sum(axis=1)
@@ -87,14 +87,14 @@ class _Portfolio:
         # We assume we start every day with the same initial capital!
         return self.profit / init_capital
 
-    # set the position for time t
+    # set the cashposition for time t
     def __setitem__(self, t, value):
         """
-        set cash position at time t
+        set cash cashposition at time t
 
         Args:
             t: index, e.g. time t
-            value: cash position, e.g. a series
+            value: cash cashposition, e.g. a series
 
         """
         self.position.loc[t] = value

@@ -15,16 +15,16 @@ def test_shrink():
 def test_returns_adjust(prices):
     """adjusted returns"""
     r = prices.apply(returns_adjust, min_periods=2)
-    assert r.std()["C"] == pytest.approx(1.0047100385667558)
+    assert r.std()["-9186993121995610806"] == pytest.approx(0.9771085360599361)
 
 
 def test_osc_scaling(prices):
     """oscillator with scaling"""
     x = prices.apply(osc)
-    assert x.std()["C"] == 1.0
+    assert x.std()["-9186993121995610806"] == 1.0
 
 
 def test_osc_no_scaling(prices):
     """oscillator without scaling"""
     x = prices.apply(osc, scaling=False)
-    assert x.std()["C"] == pytest.approx(1401.1333534321523)
+    assert x.std()["-9186993121995610806"] == pytest.approx(1.7559634754674203)

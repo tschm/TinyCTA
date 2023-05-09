@@ -1,4 +1,6 @@
 .idea
+# with original names
+tests/resources/Prices.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

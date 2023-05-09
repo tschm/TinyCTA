@@ -9,6 +9,7 @@ packages = [{include = "tinycta"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9.0"
+pandas = "*"
 QuantStats = "*"
 
 [tool.poetry.dev-dependencies]
