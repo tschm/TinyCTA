@@ -4,23 +4,7 @@ import pytest
 import quantstats as qs
 
 from tinycta.port import build_portfolio
-from tinycta.signal import returns_adjust
-
-
-def filter(price, volatility=32,clip=4.2, min_periods=100):
-    r = np.log(price).diff()
-    vola = r.ewm(com=volatility, min_periods=min_periods).std()
-    price_adj = (r/vola).clip(-clip, clip).cumsum()
-    return price_adj
-
-
-def osc(prices, fast=32, slow=96, scaling=True):
-    diff = prices.ewm(com=fast-1).mean() - prices.ewm(com=slow-1).mean()
-    if scaling:
-        s = diff.std()
-    else:
-        s = 1
-    return diff/s
+from tinycta.signal import returns_adjust, osc
 
 
 # take two moving averages and apply the sign-function, adjust by volatility
