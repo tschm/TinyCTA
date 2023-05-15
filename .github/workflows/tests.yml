@@ -37,7 +37,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - uses: tschm/.github/actions/setup-environment@main
+      - uses: tschm/tschm/.github/actions/setup-environment@main
         with:
           os: ${{ runner.os }}
           python-version: ${{ matrix.python-version }}
@@ -53,7 +53,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - uses: tschm/.github/actions/setup-environment@main
+      - uses: tschm/tschm/.github/actions/setup-environment@main
         with:
           os: ${{ runner.os }}
           python-version: '3.10'
