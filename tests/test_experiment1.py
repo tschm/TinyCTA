@@ -34,7 +34,6 @@ def test_portfolio(prices):
 def test_month(prices):
     """test the month table"""
     portfolio = build_portfolio(prices=prices, cashposition=1e6 * f(prices))
-    returns = portfolio.profit / portfolio.profit.std()
 
     table = 100*monthlytable(portfolio.nav(aum=1e6).pct_change())
     assert table["YTD"].loc[1973] == pytest.approx(231.72540665897102)
