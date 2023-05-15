@@ -19,4 +19,5 @@ def prices(resource_dir):
 
     if not frame.index.is_monotonic_increasing:
         raise AssertionError
+
     return frame
