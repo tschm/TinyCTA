@@ -20,20 +20,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - uses: tschm/.github/actions/setup-environment@main
+      - uses: tschm/.github/actions/release@main
         with:
           os: ${{ runner.os }}
           python-version: "3.10"
-      
-      - name: Change version in pyproject.toml
-        run: |
-            poetry version ${{  github.ref_name }}
-            poetry build
-      
-      - name: Mint token
-        id: mint
-        uses: tschm/token-mint-action@v1.0.2
-
-      - name: Publish the package with poetry
-        run: |
-          poetry publish -u __token__ -p '${{ steps.mint.outputs.api-token }}'
