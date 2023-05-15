@@ -27,5 +27,6 @@ def prices(resource_dir):
         resource_dir / "Prices_hashed.csv", index_col=0, header=0
     )
 
-    assert frame.index.is_monotonic_increasing
+    if not frame.index.is_monotonic_increasing:
+        raise AssertionError
     return frame

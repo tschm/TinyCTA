@@ -3,18 +3,25 @@ import pandas as pd
 
 
 def build_portfolio(prices, cashposition=None):
-    assert isinstance(prices, pd.DataFrame)
-    assert prices.index.is_monotonic_increasing
-    assert prices.index.is_unique
+    if not isinstance(prices, pd.DataFrame):
+        raise AssertionError
+    if not prices.index.is_monotonic_increasing:
+        raise AssertionError
+    if not prices.index.is_unique:
+        raise AssertionError
 
     if cashposition is None:
         cashposition = pd.DataFrame(index=prices.index, columns=prices.columns, dtype=float)
     else:
-        assert cashposition.index.is_monotonic_increasing
-        assert cashposition.index.is_unique
+        if not cashposition.index.is_monotonic_increasing:
+            raise AssertionError
+        if not cashposition.index.is_unique:
+            raise AssertionError
 
-    assert set(cashposition.index).issubset(set(prices.index))
-    assert set(cashposition.columns).issubset(set(prices.columns))
+    if not set(cashposition.index).issubset(set(prices.index)):
+        raise AssertionError
+    if not set(cashposition.columns).issubset(set(prices.columns)):
+        raise AssertionError
 
     prices = prices[cashposition.columns].loc[cashposition.index]
 
@@ -42,13 +49,16 @@ class _FuturesPortfolio:
             yield before, now
 
     def __setitem__(self, key, cashposition):
-        assert isinstance(cashposition, pd.Series)
-        assert set(cashposition.index).issubset(set(self.assets))
+        if not isinstance(cashposition, pd.Series):
+            raise AssertionError
+        if not set(cashposition.index).issubset(set(self.assets)):
+            raise AssertionError
 
         self.cashposition.loc[key, cashposition.index] = cashposition
 
     def __getitem__(self, item):
-        assert item in self.index
+        if item not in self.index:
+            raise AssertionError
         return self.cashposition.loc[item]
 
     def nav(self, aum) -> pd.Series:
