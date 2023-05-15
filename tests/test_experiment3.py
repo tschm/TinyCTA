@@ -9,6 +9,9 @@ from tinycta.signal import returns_adjust, osc
 
 # take two moving averages and apply the sign-function, adjust by volatility
 def f(prices, slow=96, fast=32, vola=96, clip=3):
+    """
+    construct cash position
+    """
     # construct a fake-price, those fake-prices have homescedastic returns
     price_adj = returns_adjust(prices, com=vola, min_periods=100, clip=clip).cumsum()
     # compute mu
@@ -17,5 +20,11 @@ def f(prices, slow=96, fast=32, vola=96, clip=3):
 
 
 def test_portfolio(prices):
+    """
+    test portfolio
+
+    Args:
+        prices: adjusted prices of futures
+    """
     portfolio = build_portfolio(prices=prices, cashposition=1e6*f(prices))
     assert qs.stats.sharpe(portfolio.profit) == pytest.approx(0.8626112376600886)

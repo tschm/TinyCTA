@@ -11,6 +11,9 @@ from tinycta.signal import returns_adjust, osc, shrink2id
 correlation = 200
 
 def f(prices, vola=96, clip=4.2, corr=200, shrinkage=0.5):
+    """
+    construct cash position
+    """
     returns_adj = prices.apply(returns_adjust, com=vola, clip=clip)
 
     # this is a lot faster than Pandas...
@@ -30,5 +33,11 @@ def f(prices, vola=96, clip=4.2, corr=200, shrinkage=0.5):
     return pd.DataFrame(index=prices.index, columns=prices.keys(), data=position)
 
 def test_portfolio(prices):
+    """
+    test portfolio
+
+    Args:
+        prices: adjusted prices of futures
+    """
     portfolio = build_portfolio(prices=prices, cashposition=1e6*f(prices))
     assert qs.stats.sharpe(portfolio.profit) == pytest.approx(1.2778671597915794)
