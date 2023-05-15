@@ -37,20 +37,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - uses: tschm/.github/actions/setup-environment@main
         with:
-            python-version: ${{ matrix.python-version }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.3.3
-        with:
-            virtualenvs-create: false
-              
-      - name: Install dependencies
-        run: | 
-              poetry --version
-              poetry install -vv
+          os: ${{ runner.os }}
+          python-version: ${{ matrix.python-version }}
       
       - name: Run tests
         run: |
@@ -63,25 +53,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - uses: tschm/.github/actions/setup-environment@main
         with:
-            python-version: '3.10'
-      
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.3.3
-        with:
-            virtualenvs-create: false
-            
+          os: ${{ runner.os }}
+          python-version: '3.10'
+
       - name: Install DeepSource
         run: | 
               curl https://deepsource.io/cli | sh
-              # export DEEPSOURCE_DSN=${{ secrets.DEEPSOURCE_DSN }}
-      
-      - name: Install dependencies
-        run: | 
-              poetry --version
-              poetry install -vv
       
       - name: Run tests
         run: |
