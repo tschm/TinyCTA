@@ -18,14 +18,12 @@ def prices(resource_dir):
     #     resource_dir / "Prices.csv", index_col=0, header=0
     # )
 
-    #frame.index = pd.to_datetime(frame.index, format="%d/%m/%Y")
-    #assert frame.index.is_monotonic_increasing
-    #frame.columns = [hash(column) for column in frame.columns]
-    #frame.to_csv(resource_dir / "Prices_hashed.csv")
+    # frame.index = pd.to_datetime(frame.index, format="%d/%m/%Y")
+    # assert frame.index.is_monotonic_increasing
+    # frame.columns = [hash(column) for column in frame.columns]
+    # frame.to_csv(resource_dir / "Prices_hashed.csv")
 
-    frame = pd.read_csv(
-        resource_dir / "Prices_hashed.csv", index_col=0, header=0
-    )
+    frame = pd.read_csv(resource_dir / "Prices_hashed.csv", index_col=0, header=0)
 
     if not frame.index.is_monotonic_increasing:
         raise AssertionError
