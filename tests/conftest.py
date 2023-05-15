@@ -16,8 +16,7 @@ def prices(resource_dir):
     """prices fixture"""
 
     frame = pd.read_csv(resource_dir / "Prices_hashed.csv",
-                        index_col=0, header=0,
-                        parse_dates=True)
+                        index_col=0, header=0, parse_dates=True)
 
     if not frame.index.is_monotonic_increasing:
         raise AssertionError
