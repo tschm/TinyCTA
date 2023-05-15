@@ -34,6 +34,7 @@ def build_portfolio(prices, cashposition=None):
 
 @dataclass(frozen=True)
 class _FuturesPortfolio:
+    """Portfolio"""
     prices: pd.DataFrame
     cashposition: pd.DataFrame
 
