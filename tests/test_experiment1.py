@@ -32,6 +32,7 @@ def test_portfolio(prices):
 
 
 def test_month(prices):
+    """test the month table"""
     portfolio = build_portfolio(prices=prices, cashposition=1e6 * f(prices))
     returns = portfolio.profit / portfolio.profit.std()
 
