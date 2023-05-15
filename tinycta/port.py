@@ -15,9 +15,12 @@ def build_portfolio(prices, cashposition=None):
     Returns:
         _FuturesPortfolio object
     """
-    assert isinstance(prices, pd.DataFrame)
-    assert prices.index.is_monotonic_increasing
-    assert prices.index.is_unique
+    if not isinstance(prices, pd.DataFrame):
+        raise AssertionError
+    if not prices.index.is_monotonic_increasing:
+        raise AssertionError
+    if not prices.index.is_unique:
+        raise AssertionError
 
     if cashposition is None:
         cashposition = pd.DataFrame(
@@ -70,14 +73,17 @@ class _FuturesPortfolio:
 
     def __setitem__(self, t, cashposition):
         """set cashposition at time t"""
-        assert isinstance(cashposition, pd.Series)
-        assert set(cashposition.index).issubset(set(self.assets))
+        if not isinstance(cashposition, pd.Series):
+            raise AssertionError
+        if not set(cashposition.index).issubset(set(self.assets)):
+            raise AssertionError
 
         self.cashposition.loc[t, cashposition.index] = cashposition
 
     def __getitem__(self, item):
         """get cashposition at time t"""
-        assert item in self.index
+        if item not in self.index:
+            raise AssertionError
         return self.cashposition.loc[item]
 
     def nav(self, aum) -> pd.Series:
