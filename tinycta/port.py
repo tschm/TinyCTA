@@ -85,7 +85,8 @@ class _FuturesPortfolio:
     @property
     def profit(self):
         """
-        Daily profits, has to be cashposition yesterday x return in % between (yesterday, today)
+        Daily profits, has to be cashposition yesterday times
+                                 return in % between (yesterday, today)
         """
         price_changes = self.prices.ffill().pct_change()
         previous_position = self.cashposition.shift(1)
