@@ -36,7 +36,8 @@ def monthlytable(returns: pd.Series):
         return (1.0 + rets).prod() - 1.0
 
     # Works better in the first month
-    # Compute all the intramonth-returns, instead of reapplying some monthly resampling of the NAV
+    # Compute all the intramonth-returns
+    # instead of reapplying some monthly resampling of the NAV
     return_monthly = returns.groupby([returns.index.year, returns.index.month]).apply(
         _compound
     )
