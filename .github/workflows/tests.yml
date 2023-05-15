@@ -36,7 +36,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-
       - uses: tschm/tschm/.github/actions/setup-environment@main
         with:
           os: ${{ runner.os }}
@@ -52,7 +51,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-
       - uses: tschm/tschm/.github/actions/setup-environment@main
         with:
           os: ${{ runner.os }}
