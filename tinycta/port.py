@@ -24,11 +24,15 @@ def build_portfolio(prices, cashposition=None):
             index=prices.index, columns=prices.columns, dtype=float
         )
     else:
-        assert cashposition.index.is_monotonic_increasing
-        assert cashposition.index.is_unique
+        if not cashposition.index.is_monotonic_increasing:
+            raise AssertionError
+        if not cashposition.index.is_unique:
+            raise AssertionError
 
-    assert set(cashposition.index).issubset(set(prices.index))
-    assert set(cashposition.columns).issubset(set(prices.columns))
+    if not set(cashposition.index).issubset(set(prices.index)):
+        raise AssertionError
+    if not set(cashposition.columns).issubset(set(prices.columns)):
+        raise AssertionError
 
     prices = prices[cashposition.columns].loc[cashposition.index]
 
