@@ -15,10 +15,7 @@ def resource_fixture():
 def prices(resource_dir):
     """prices fixture"""
 
-
-    frame = pd.read_csv(
-        resource_dir / "Prices_hashed.csv", index_col=0, header=0
-    )
+    frame = pd.read_csv(resource_dir / "Prices_hashed.csv", index_col=0, header=0)
 
     assert frame.index.is_monotonic_increasing
     return frame
