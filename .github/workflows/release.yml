@@ -14,13 +14,13 @@ jobs:
       # This permission is required for trusted publishing.
       id-token: write
       contents: read
-    
+
     # Steps represent matrix sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - uses: tschm/tschm/.github/actions/release@main
+      - uses: tschm/.github/actions/release@main
         with:
           os: ${{ runner.os }}
-          python-version: "3.10"
+          python-version: "3.11"
