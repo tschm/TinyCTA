@@ -7,12 +7,9 @@ import pandas as pd
 import pytest
 import quantstats as qs
 
-from tinycta.linalg import inv_a_norm
-from tinycta.linalg import solve
+from tinycta.linalg import inv_a_norm, solve
 from tinycta.port import build_portfolio
-from tinycta.signal import osc
-from tinycta.signal import returns_adjust
-from tinycta.signal import shrink2id
+from tinycta.signal import osc, returns_adjust, shrink2id
 
 correlation = 200
 

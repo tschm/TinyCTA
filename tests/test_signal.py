@@ -5,9 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from tinycta.signal import osc
-from tinycta.signal import returns_adjust
-from tinycta.signal import shrink2id
+from tinycta.signal import osc, returns_adjust, shrink2id
 
 
 def test_shrink():
