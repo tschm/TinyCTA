@@ -1,8 +1,14 @@
+# -*- coding: utf-8 -*-
 """test linalg"""
+from __future__ import annotations
+
 import numpy as np
 import pytest
 
-from tinycta.linalg import a_norm, inv_a_norm, solve, valid
+from tinycta.linalg import a_norm
+from tinycta.linalg import inv_a_norm
+from tinycta.linalg import solve
+from tinycta.linalg import valid
 
 
 def test_non_quadratic():

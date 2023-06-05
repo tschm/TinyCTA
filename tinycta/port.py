@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 """Portfolio"""
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 import pandas as pd

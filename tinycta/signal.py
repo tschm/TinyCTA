@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 """signal"""
+from __future__ import annotations
+
 import numpy as np
 
 
