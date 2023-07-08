@@ -35,7 +35,7 @@ clean:  ## Clean up caches and build artifacts
 
 .PHONY: coverage
 coverage: ## test and coverage
-	@poetry run coverage run --source=cvx/. -m pytest
+	@poetry run coverage run --source=${KERNEL} -m pytest
 	@poetry run coverage report -m
 	@poetry run coverage html
 
