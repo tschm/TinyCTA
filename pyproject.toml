@@ -10,7 +10,7 @@ packages = [{include = "tinycta"}]
 [tool.poetry.dependencies]
 python = ">=3.9.0,<3.12"
 pandas = "*"
-QuantStats = "*"
+# QuantStats = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "7.4.0"
