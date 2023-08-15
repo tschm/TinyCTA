@@ -4,10 +4,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from tinycta.linalg import a_norm
-from tinycta.linalg import inv_a_norm
-from tinycta.linalg import solve
-from tinycta.linalg import valid
+from tinycta.linalg import a_norm, inv_a_norm, solve, valid
 
 
 def test_non_quadratic():

@@ -6,8 +6,7 @@ import pytest
 import quantstats as qs
 
 from tinycta.port import build_portfolio
-from tinycta.signal import osc
-from tinycta.signal import returns_adjust
+from tinycta.signal import osc, returns_adjust
 
 
 # take two moving averages and apply the sign-function, adjust by volatility
