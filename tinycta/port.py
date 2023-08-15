@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Portfolio"""
 from __future__ import annotations
 
@@ -68,11 +67,7 @@ class _FuturesPortfolio:
 
     def __iter__(self):
         """Iterate over indizes in portfolio"""
-        for before, now in zip(self.index[:-1], self.index[1:]):
-            # valuation of the current cashposition
-            # price_diff = self.prices.loc[now] - self.prices.loc[before]
-
-            yield before, now
+        yield from zip(self.index[:-1], self.index[1:])
 
     def __setitem__(self, t, cashposition):
         """set cashposition at time t"""

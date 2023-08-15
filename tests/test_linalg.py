@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """test linalg"""
 from __future__ import annotations
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """test signal"""
 from __future__ import annotations
 
