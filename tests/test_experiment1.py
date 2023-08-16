@@ -5,7 +5,6 @@ import numpy as np
 import pytest
 
 from tests.conftest import sharpe_ratio
-
 from tinycta.month import monthlytable
 from tinycta.port import build_portfolio
 

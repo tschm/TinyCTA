@@ -6,7 +6,6 @@ import pandas as pd
 import pytest
 
 from tests.conftest import sharpe_ratio
-
 from tinycta.linalg import inv_a_norm, solve
 from tinycta.port import build_portfolio
 from tinycta.signal import osc, returns_adjust, shrink2id
