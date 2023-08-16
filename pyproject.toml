@@ -14,11 +14,11 @@ pandas = "*"
 [tool.poetry.dev-dependencies]
 pytest = "7.4.0"
 pytest-cov = "*"
-mock = "*"
+#mock = "*"
 
 [tool.poetry.group.dev.dependencies]
 cvxpy = "*"
-loguru = "*"
+#loguru = "*"
 
 [build-system]
 requires = ["poetry>=1.0.2"]
