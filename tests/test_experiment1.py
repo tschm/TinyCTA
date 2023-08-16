@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-import quantstats as qs
 
+from tests.conftest import sharpe_ratio
 from tinycta.month import monthlytable
 from tinycta.port import build_portfolio
 
@@ -28,8 +28,8 @@ def test_portfolio(prices):
     """
     portfolio = build_portfolio(prices=prices, cashposition=1e6 * f(prices))
 
-    assert qs.stats.sharpe(portfolio.profit) == pytest.approx(0.5527420886866333)
-    assert qs.stats.sharpe(
+    assert sharpe_ratio(portfolio.profit) == pytest.approx(0.5527420886866333)
+    assert sharpe_ratio(
         portfolio.truncate(before=portfolio.start).profit
     ) == pytest.approx(0.5548581162109552)
 

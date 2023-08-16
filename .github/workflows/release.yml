@@ -1,26 +1,23 @@
-name: Release
+name: Upload Python Package
 
 on:
-  push:
-    tags:
-    - '[0-9]+.[0-9]+.[0-9]'
+  release:
+    types: [published]
 
 jobs:
-
-  release:
+  deploy:
     runs-on: ubuntu-latest
+    environment: release
 
     permissions:
       # This permission is required for trusted publishing.
       id-token: write
       contents: read
 
-    # Steps represent matrix sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - uses: tschm/.github/actions/release@main
+      - uses: cvxgrp/.github/actions/release@main
         with:
           os: ${{ runner.os }}
           python-version: "3.11"

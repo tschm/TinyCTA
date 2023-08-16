@@ -4,8 +4,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
-import quantstats as qs
 
+from tests.conftest import sharpe_ratio
 from tinycta.linalg import inv_a_norm, solve
 from tinycta.port import build_portfolio
 from tinycta.signal import osc, returns_adjust, shrink2id
@@ -44,4 +44,4 @@ def test_portfolio(prices):
         prices: adjusted prices of futures
     """
     portfolio = build_portfolio(prices=prices, cashposition=1e6 * f(prices))
-    assert qs.stats.sharpe(portfolio.profit) == pytest.approx(1.2778671597915794)
+    assert sharpe_ratio(portfolio.profit) == pytest.approx(1.2778671597915794)

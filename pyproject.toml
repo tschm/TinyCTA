@@ -10,17 +10,12 @@ packages = [{include = "tinycta"}]
 [tool.poetry.dependencies]
 python = ">=3.9.0,<3.12"
 pandas = "*"
-QuantStats = "*"
+# QuantStats = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "7.4.0"
 pytest-cov = "*"
 mock = "*"
-
-[tool.poetry.group.jupyter.dependencies]
-jupyterlab = "*"
-jupyter-book = "*"
-pyyaml = "6.0"
 
 [tool.poetry.group.dev.dependencies]
 yfinance = "*"
