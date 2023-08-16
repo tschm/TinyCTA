@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tinycta.port import build_portfolio
+from tinycta.port import build_portfolio, Aggregate
 
 
 @pytest.fixture()
@@ -55,7 +55,12 @@ def test_monotonic():
 
 
 def test_monthly(portfolio):
-    assert portfolio.monthly["YTD"][2022] == pytest.approx(55.004591)
+    assert portfolio.monthly(Aggregate.COMPOUND)["YTD"][2022] == pytest.approx(
+        55.004591
+    )
+    assert portfolio.monthly(Aggregate.CUMULATIVE)["YTD"][2022] == pytest.approx(
+        52.861904028489384
+    )
 
 
 def test_start(portfolio):
@@ -137,4 +142,3 @@ def test_metrics(portfolio):
     )
 
     pd.testing.assert_series_equal(pd.Series(portfolio.metrics()), target)
-    pd.testing.assert_series_equal(pd.Series(portfolio.metrics2()), target)

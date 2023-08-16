@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from tinycta.month import monthlytable
+from tinycta.month import monthlytable, Aggregate
 
 
 def build_portfolio(prices, cashposition=None, aum=1e6):
@@ -132,10 +132,9 @@ class _FuturesPortfolio:
             aum=self.aum,
         )
 
-    @property
-    def monthly(self):
+    def monthly(self, f: Aggregate = Aggregate.CUMULATIVE):
         """monthly returns"""
-        return 100 * monthlytable(self.returns)
+        return 100 * monthlytable(self.returns, f)
 
     def metrics(self, days=252):
         """metrics"""
@@ -147,15 +146,15 @@ class _FuturesPortfolio:
             "Annualized Return (%)": 100 * days * self.returns.mean(),
         }
 
-    def metrics2(self, days=252):
-        return {
-            "Sharpe": np.sqrt(days) * self.profit.mean() / self.profit.std(),
-            "Kurtosis": self.profit.kurtosis(),
-            "Skewness": self.profit.skew(),
-            "Annualized Volatility (%)": 100
-            * np.sqrt(days)
-            * self.profit.std()
-            / self.aum,
-            "Annualized Return (%)": 100 * days * self.profit.mean() / self.aum,
-        }
-        # return self.returns().resample("M").sum()
+    # def metrics2(self, days=252):
+    #     return {
+    #         "Sharpe": np.sqrt(days) * self.profit.mean() / self.profit.std(),
+    #         "Kurtosis": self.profit.kurtosis(),
+    #         "Skewness": self.profit.skew(),
+    #         "Annualized Volatility (%)": 100
+    #         * np.sqrt(days)
+    #         * self.profit.std()
+    #         / self.aum,
+    #         "Annualized Return (%)": 100 * days * self.profit.mean() / self.aum,
+    #     }
+    #     # return self.returns().resample("M").sum()
