@@ -6,6 +6,11 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
+pd.options.plotting.backend = "plotly"
+
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+
 from tinycta.month import monthlytable, Aggregate
 
 
@@ -158,3 +163,22 @@ class _FuturesPortfolio:
     #         "Annualized Return (%)": 100 * days * self.profit.mean() / self.aum,
     #     }
     #     # return self.returns().resample("M").sum()
+
+    def plot(self, com=100, **kwargs):
+        fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.02)
+
+        #fig.append_trace(
+        fig.add_trace(go.Scatter(x=self.nav_accum.index, y=self.nav_accum, name="NAV accumulated"), row=1, col=1)
+        fig.add_trace(go.Scatter(x=self.nav_accum.index, y=self.returns.ewm(com=com).std(), name="Volatility"), row=2, col=1)
+            #portfolio.nav_accum.plot(), row=1, col=1)
+
+        fig.update_layout(
+            {
+                "title": "NAV Accumulated",
+                "xaxis": {"title": "Time"},
+                "yaxis": {"title": "NAV"},
+                "showlegend": True,
+            }
+        )
+
+        return fig

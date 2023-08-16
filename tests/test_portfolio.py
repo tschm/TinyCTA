@@ -142,3 +142,10 @@ def test_metrics(portfolio):
     )
 
     pd.testing.assert_series_equal(pd.Series(portfolio.metrics()), target)
+
+from tinycta.plot import plot
+
+def test_plot(portfolio):
+    fig = portfolio.plot()
+    fig.show()
+    assert fig
