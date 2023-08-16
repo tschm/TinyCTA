@@ -92,11 +92,18 @@ class _FuturesPortfolio:
         return self.cashposition.loc[item]
 
     @property
-    def nav(self) -> pd.Series:
+    def nav_accum(self) -> pd.Series:
         """
         NAV, e.g. cumsum of daily profits and aum
         """
         return self.profit.cumsum() + self.aum
+
+    @property
+    def nav_compound(self) -> pd.Series:
+        """
+        NAV, e.g. cumprod of the returns
+        """
+        return self.aum * (1 + self.returns).cumprod()
 
     @property
     def returns(self) -> pd.Series:
@@ -138,5 +145,17 @@ class _FuturesPortfolio:
             "Skewness": self.returns.skew(),
             "Annualized Volatility (%)": 100 * np.sqrt(days) * self.returns.std(),
             "Annualized Return (%)": 100 * days * self.returns.mean(),
+        }
+
+    def metrics2(self, days=252):
+        return {
+            "Sharpe": np.sqrt(days) * self.profit.mean() / self.profit.std(),
+            "Kurtosis": self.profit.kurtosis(),
+            "Skewness": self.profit.skew(),
+            "Annualized Volatility (%)": 100
+            * np.sqrt(days)
+            * self.profit.std()
+            / self.aum,
+            "Annualized Return (%)": 100 * days * self.profit.mean() / self.aum,
         }
         # return self.returns().resample("M").sum()

@@ -78,7 +78,8 @@ def test_truncate(portfolio):
 
 
 def test_nav(portfolio):
-    assert portfolio.nav[-1] == pytest.approx(96213100.91697493)
+    assert portfolio.nav_accum[-1] == pytest.approx(96213100.91697493)
+    assert portfolio.nav_compound[-1] == pytest.approx(6057029955.177139)
 
 
 def test_set(portfolio):
@@ -136,3 +137,4 @@ def test_metrics(portfolio):
     )
 
     pd.testing.assert_series_equal(pd.Series(portfolio.metrics()), target)
+    pd.testing.assert_series_equal(pd.Series(portfolio.metrics2()), target)
