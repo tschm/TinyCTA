@@ -28,5 +28,12 @@ def prices(resource_dir):
     return frame
 
 
+@pytest.fixture()
+def position(resource_dir):
+    return pd.read_csv(
+        resource_dir / "cashposition.csv", index_col=0, header=0, parse_dates=True
+    )
+
+
 def sharpe_ratio(ts):
     return np.sqrt(252) * ts.mean() / ts.std()
