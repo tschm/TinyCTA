@@ -3,10 +3,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import numpy as np
 import pandas as pd
 
+from tinycta.month import monthlytable
 
-def build_portfolio(prices, cashposition=None):
+
+def build_portfolio(prices, cashposition=None, aum=1e6):
     """
     Build portfolio using prices and cash positions
 
@@ -41,7 +44,7 @@ def build_portfolio(prices, cashposition=None):
 
     prices = prices[cashposition.columns].loc[cashposition.index]
 
-    return _FuturesPortfolio(cashposition=cashposition, prices=prices.ffill())
+    return _FuturesPortfolio(cashposition=cashposition, prices=prices.ffill(), aum=aum)
 
 
 @dataclass(frozen=True)
@@ -50,6 +53,7 @@ class _FuturesPortfolio:
 
     prices: pd.DataFrame
     cashposition: pd.DataFrame
+    aum: float = 1e6
 
     @property
     def index(self):
@@ -71,6 +75,9 @@ class _FuturesPortfolio:
 
     def __setitem__(self, t, cashposition):
         """set cashposition at time t"""
+        if t not in self.index:
+            raise AssertionError
+
         if not isinstance(cashposition, pd.Series):
             raise AssertionError
         if not set(cashposition.index).issubset(set(self.assets)):
@@ -84,15 +91,17 @@ class _FuturesPortfolio:
             raise AssertionError
         return self.cashposition.loc[item]
 
-    def nav(self, aum) -> pd.Series:
+    @property
+    def nav(self) -> pd.Series:
         """
         NAV, e.g. cumsum of daily profits and aum
         """
-        return self.profit.cumsum() + aum
+        return self.profit.cumsum() + self.aum
 
-    def returns(self, aum) -> pd.Series:
-        return self.profit / aum
-        
+    @property
+    def returns(self) -> pd.Series:
+        return self.profit / self.aum
+
     @property
     def profit(self):
         """
@@ -113,4 +122,21 @@ class _FuturesPortfolio:
         return _FuturesPortfolio(
             prices=self.prices.truncate(before=before, after=after),
             cashposition=self.cashposition.truncate(before=before, after=after),
+            aum=self.aum,
         )
+
+    @property
+    def monthly(self):
+        """monthly returns"""
+        return 100 * monthlytable(self.returns)
+
+    def metrics(self, days=252):
+        """metrics"""
+        return {
+            "Sharpe": np.sqrt(days) * self.returns.mean() / self.returns.std(),
+            "Kurtosis": self.returns.kurtosis(),
+            "Skewness": self.returns.skew(),
+            "Annualized Volatility (%)": 100 * np.sqrt(days) * self.returns.std(),
+            "Annualized Return (%)": 100 * days * self.returns.mean(),
+        }
+        # return self.returns().resample("M").sum()

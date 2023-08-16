@@ -1,10 +1,16 @@
 """test portfolio"""
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from tinycta.port import build_portfolio
+
+
+@pytest.fixture()
+def portfolio(prices, position):
+    return build_portfolio(prices=prices, cashposition=position, aum=1e7)
 
 
 def test_portfolio(prices):
@@ -46,3 +52,87 @@ def test_monotonic():
     prices = pd.DataFrame(index=[2, 1], columns=["A"])
     with pytest.raises(AssertionError):
         build_portfolio(prices=prices)
+
+
+def test_monthly(portfolio):
+    assert portfolio.monthly["YTD"][2022] == pytest.approx(55.004591)
+
+
+def test_start(portfolio):
+    assert portfolio.start == pd.Timestamp("1970-05-25")
+
+
+def test_get(portfolio):
+    with pytest.raises(AssertionError):
+        portfolio[pd.Timestamp("2082-05-25")]
+
+    pd.testing.assert_series_equal(
+        portfolio[pd.Timestamp("1970-05-25")],
+        portfolio.cashposition.loc[pd.Timestamp("1970-05-25")],
+    )
+
+
+def test_truncate(portfolio):
+    reduced = portfolio.truncate(before=pd.Timestamp("2000-01-01"))
+    assert reduced.start == pd.Timestamp("2000-01-04")
+
+
+def test_nav(portfolio):
+    assert portfolio.nav[-1] == pytest.approx(96213100.91697493)
+
+
+def test_set(portfolio):
+    with pytest.raises(AssertionError):
+        portfolio[pd.Timestamp("2082-05-25")] = pd.Series(
+            index=portfolio.assets, data=1.0
+        )
+
+    with pytest.raises(AssertionError):
+        portfolio[portfolio.start] = 2.0
+
+    with pytest.raises(AssertionError):
+        portfolio[portfolio.start] = pd.Series(index=["A"], data=2.0)
+
+
+def test_iter(portfolio):
+    for t, s in portfolio:
+        assert t < s
+
+
+def test_build():
+    with pytest.raises(AssertionError):
+        build_portfolio(prices=np.random.rand(100, 10))
+
+    with pytest.raises(AssertionError):
+        build_portfolio(
+            prices=pd.DataFrame(index=[1, 2], columns=["A", "B"], data=2.0),
+            cashposition=pd.DataFrame(index=[2, 1], columns=["A", "B"], data=2.0),
+        )
+
+    with pytest.raises(AssertionError):
+        build_portfolio(
+            prices=pd.DataFrame(index=[1, 2], columns=["A", "B"], data=2.0),
+            cashposition=pd.DataFrame(index=[1, 2], columns=["A", "B", "C"], data=2.0),
+        )
+
+    with pytest.raises(AssertionError):
+        build_portfolio(
+            prices=pd.DataFrame(index=[1, 2], columns=["A", "B"], data=2.0),
+            cashposition=pd.DataFrame(index=[1, 2, 3], columns=["A", "B"], data=2.0),
+        )
+
+
+def test_metrics(portfolio):
+    print(portfolio.metrics())
+
+    target = pd.Series(
+        {
+            "Sharpe": 0.5511187319241556,
+            "Kurtosis": 30.54402394742987,
+            "Skewness": 0.4912251491984351,
+            "Annualized Volatility (%)": 28.34214576383152,
+            "Annualized Return (%)": 15.619887433372406,
+        }
+    )
+
+    pd.testing.assert_series_equal(pd.Series(portfolio.metrics()), target)
