@@ -3,7 +3,6 @@
 SHELL=/bin/bash
 
 UNAME=$(shell uname -s)
-KERNEL=$(shell poetry version | cut -d' ' -f1)
 
 .PHONY: install
 install:  ## Install a virtual environment
@@ -23,7 +22,7 @@ clean:  ## Clean up caches and build artifacts
 
 .PHONY: coverage
 coverage: ## test and coverage
-	@poetry run coverage run --source=${KERNEL} -m pytest
+	@poetry run coverage run --source=tinycta -m pytest
 	@poetry run coverage report -m
 	@poetry run coverage html
 
