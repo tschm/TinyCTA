@@ -90,6 +90,9 @@ class _FuturesPortfolio:
         """
         return self.profit.cumsum() + aum
 
+    def returns(self, aum) -> pd.Series:
+        return self.profit / aum
+        
     @property
     def profit(self):
         """
