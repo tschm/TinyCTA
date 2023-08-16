@@ -18,7 +18,7 @@ test: install ## Run tests
 
 .PHONY: clean
 clean:  ## Clean up caches and build artifacts
-	@git clean -X -d -f
+	@git clean -X -d -f --exclude="!tests/resources/*"
 
 .PHONY: coverage
 coverage: ## test and coverage
