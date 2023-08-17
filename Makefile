@@ -10,7 +10,7 @@ install:  ## Install a virtual environment
 
 .PHONY: fmt
 fmt:  ## Run autoformatting and linting
-	@poetry run install pre-commit
+	@poetry run pip install pre-commit
 	@poetry run pre-commit run --all-files
 
 .PHONY: test
