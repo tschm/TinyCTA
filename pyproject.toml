@@ -12,9 +12,9 @@ python = ">=3.9.0,<3.12"
 pandas = "*"
 plotly = "*"
 
-[tool.poetry.dev-dependencies]
-pytest = "*"
-pytest-cov = "*"
+#[tool.poetry.dev-dependencies]
+#pytest = "*"
+#pytest-cov = "*"
 
 [build-system]
 requires = ["poetry>=1.0.2"]
