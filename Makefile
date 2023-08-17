@@ -14,6 +14,7 @@ fmt:  ## Run autoformatting and linting
 
 .PHONY: test
 test: install ## Run tests
+	@poetry run pip install pytest pytest-cov
 	@poetry run pytest
 
 .PHONY: clean
