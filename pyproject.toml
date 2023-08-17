@@ -12,10 +12,6 @@ python = ">=3.9.0,<3.12"
 pandas = "*"
 plotly = "*"
 
-[tool.poetry.dev-dependencies]
-pytest = "7.4.0"
-pytest-cov = "*"
-
 [build-system]
 requires = ["poetry>=1.0.2"]
 build-backend = "poetry.masonry.api"
