@@ -9,6 +9,7 @@ import pandas as pd
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
+from tinycta.drawdown import drawdown
 from tinycta.month import monthlytable, Aggregate
 
 pd.options.plotting.backend = "plotly"
@@ -165,9 +166,8 @@ class _FuturesPortfolio:
     #     # return self.returns().resample("M").sum()
 
     def plot(self, com=100, **kwargs):
-        fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.02)
+        fig = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.02)
 
-        # fig.append_trace(
         fig.add_trace(
             go.Scatter(
                 x=self.nav_accum.index, y=self.nav_accum, name="NAV accumulated"
@@ -184,13 +184,20 @@ class _FuturesPortfolio:
             row=2,
             col=1,
         )
+
+        dd = drawdown(self.nav_accum)
+
+        fig.add_trace(
+            go.Scatter(x=dd.index, y=dd, name="Drawdown", fill="tozeroy"),
+            row=3,
+            col=1,
+        )
         # portfolio.nav_accum.plot(), row=1, col=1)
 
         fig.update_layout(
             {
                 "title": "NAV Accumulated",
                 "xaxis": {"title": "Time"},
-                "yaxis": {"title": "NAV"},
                 "showlegend": True,
             }
         )
