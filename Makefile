@@ -25,6 +25,7 @@ clean:  ## Clean up caches and build artifacts
 
 .PHONY: coverage
 coverage: install ## test and coverage
+	@poetry run pip install pytest pytest-cov
 	@poetry run coverage run --source=tinycta -m pytest
 	@poetry run coverage report -m
 	@poetry run coverage html
