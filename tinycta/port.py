@@ -166,21 +166,35 @@ class _FuturesPortfolio:
     #     # return self.returns().resample("M").sum()
 
     def plot(self, com=100, **kwargs):
+        def scatter(ts, name):
+            return go.Scatter(
+                x=ts.index,
+                y=ts,
+                name=name,
+                fill="tozeroy",
+            )
+
         fig = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.02)
 
         fig.add_trace(
-            go.Scatter(
-                x=self.nav_accum.index, y=self.nav_accum, name="NAV accumulated"
-            ),
+            scatter(self.nav_accum, "NAV accumulated"),
+            # go.Scatter(
+            #    x=self.nav_accum.index,
+            #    y=self.nav_accum,
+            #    name="NAV accumulated",
+            #    fill="tozeroy"
+            # ),
             row=1,
             col=1,
         )
         fig.add_trace(
-            go.Scatter(
-                x=self.nav_accum.index,
-                y=self.returns.ewm(com=com).std(),
-                name="Volatility",
-            ),
+            scatter(self.returns.ewm(com=com).std(), "Volatility"),
+            # go.Scatter(
+            #    x=self.nav_accum.index,
+            #    y=self.returns.ewm(com=com).std(),
+            #    name="Volatility",
+            #    fill="tozeroy"
+            # ),
             row=2,
             col=1,
         )
@@ -188,11 +202,14 @@ class _FuturesPortfolio:
         dd = drawdown(self.nav_accum)
 
         fig.add_trace(
-            go.Scatter(x=dd.index, y=dd, name="Drawdown", fill="tozeroy"),
+            scatter(dd, "Drawdown"),
+            # go.Scatter(x=dd.index,
+            #           y=dd,
+            #           name="Drawdown",
+            #           fill="tozeroy"),
             row=3,
             col=1,
         )
-        # portfolio.nav_accum.plot(), row=1, col=1)
 
         fig.update_layout(
             {
