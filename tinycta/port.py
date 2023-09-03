@@ -14,6 +14,7 @@
 """Portfolio"""
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 
 import numpy as np
@@ -134,7 +135,9 @@ class _FuturesPortfolio:
         Daily profits, has to be cashposition yesterday times
                                  return in % between (yesterday, today)
         """
-        price_changes = self.prices.ffill().pct_change()
+        with warnings.catch_warnings():
+            warnings.simplefilter(action="ignore", category=FutureWarning)
+            price_changes = self.prices.ffill().pct_change()
         previous_position = self.cashposition.shift(1)
         return (previous_position * price_changes).sum(axis=1)
 
@@ -165,19 +168,6 @@ class _FuturesPortfolio:
             "Annualized Return (%)": 100 * days * self.returns.mean(),
         }
 
-    # def metrics2(self, days=252):
-    #     return {
-    #         "Sharpe": np.sqrt(days) * self.profit.mean() / self.profit.std(),
-    #         "Kurtosis": self.profit.kurtosis(),
-    #         "Skewness": self.profit.skew(),
-    #         "Annualized Volatility (%)": 100
-    #         * np.sqrt(days)
-    #         * self.profit.std()
-    #         / self.aum,
-    #         "Annualized Return (%)": 100 * days * self.profit.mean() / self.aum,
-    #     }
-    #     # return self.returns().resample("M").sum()
-
     def plot(self, com=100, **kwargs):
         def scatter(ts, name):
             return go.Scatter(
@@ -191,23 +181,11 @@ class _FuturesPortfolio:
 
         fig.add_trace(
             scatter(self.nav_accum, "NAV accumulated"),
-            # go.Scatter(
-            #    x=self.nav_accum.index,
-            #    y=self.nav_accum,
-            #    name="NAV accumulated",
-            #    fill="tozeroy"
-            # ),
             row=1,
             col=1,
         )
         fig.add_trace(
             scatter(self.returns.ewm(com=com).std(), "Volatility"),
-            # go.Scatter(
-            #    x=self.nav_accum.index,
-            #    y=self.returns.ewm(com=com).std(),
-            #    name="Volatility",
-            #    fill="tozeroy"
-            # ),
             row=2,
             col=1,
         )
@@ -216,10 +194,6 @@ class _FuturesPortfolio:
 
         fig.add_trace(
             scatter(dd, "Drawdown"),
-            # go.Scatter(x=dd.index,
-            #           y=dd,
-            #           name="Drawdown",
-            #           fill="tozeroy"),
             row=3,
             col=1,
         )
