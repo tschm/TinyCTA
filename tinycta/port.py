@@ -198,11 +198,7 @@ class _FuturesPortfolio:
         )
 
         fig.update_layout(
-            {
-                "title": title,
-                "xaxis": {"title": "Time"},
-                "showlegend": True,
-            }
+            {"title": title, "showlegend": True, "autosize": True, "height": 800}
         )
 
         return fig
