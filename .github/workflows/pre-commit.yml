@@ -23,3 +23,9 @@ jobs:
     # Uncomment once the package is public
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v2
+
+    - name: GitHub Pages action
+      uses: JamesIves/github-pages-deploy-action@v4.4.3
+      with:
+        branch: test              # The branch the action should deploy to.
+        folder: artifacts/tests   # The folder the action should deploy.
