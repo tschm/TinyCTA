@@ -26,7 +26,7 @@ jobs:
       with:
         files: artifacts/tests/coverage/coverage.info
         format: lcov
-        
+
     - name: GitHub Pages action
       uses: JamesIves/github-pages-deploy-action@v4.4.3
       with:
