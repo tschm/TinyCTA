@@ -168,7 +168,7 @@ class _FuturesPortfolio:
             "Annualized Return (%)": 100 * days * self.returns.mean(),
         }
 
-    def plot(self, com=100, title="", **kwargs):
+    def plot(self, com=100, title="", height=800, **kwargs):
         def scatter(ts, name):
             return go.Scatter(
                 x=ts.index,
@@ -198,7 +198,7 @@ class _FuturesPortfolio:
         )
 
         fig.update_layout(
-            {"title": title, "showlegend": True, "autosize": True, "height": 800}
+            {"title": title, "showlegend": True, "autosize": True, "height": height}
         )
 
         return fig
