@@ -184,7 +184,7 @@ class _FuturesPortfolio:
             row=1,
             col=1,
         )
-        
+
         fig.add_trace(
             scatter(self.returns.ewm(com=com).std(), "Volatility"),
             row=2,
