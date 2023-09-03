@@ -40,3 +40,12 @@ repos:
     hooks:
       - id: poetry-check
       - id: poetry-lock
+
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.4
+    hooks:
+        - id: insert-license
+          files: ^(tinycta)
+          args:
+            ['--license-filepath', 'copyright.txt', '--no-extra-eol']
+
