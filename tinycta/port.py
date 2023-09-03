@@ -168,7 +168,7 @@ class _FuturesPortfolio:
             "Annualized Return (%)": 100 * days * self.returns.mean(),
         }
 
-    def plot(self, com=100, **kwargs):
+    def plot(self, com=100, title="", **kwargs):
         def scatter(ts, name):
             return go.Scatter(
                 x=ts.index,
@@ -184,23 +184,22 @@ class _FuturesPortfolio:
             row=1,
             col=1,
         )
+        
         fig.add_trace(
             scatter(self.returns.ewm(com=com).std(), "Volatility"),
             row=2,
             col=1,
         )
 
-        dd = drawdown(self.nav_accum)
-
         fig.add_trace(
-            scatter(dd, "Drawdown"),
+            scatter(drawdown(self.nav_accum), "Drawdown"),
             row=3,
             col=1,
         )
 
         fig.update_layout(
             {
-                "title": "NAV Accumulated",
+                "title": title,
                 "xaxis": {"title": "Time"},
                 "showlegend": True,
             }
