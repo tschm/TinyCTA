@@ -2,7 +2,8 @@
 
 [![PyPI version](https://badge.fury.io/py/tinycta.svg)](https://badge.fury.io/py/tinycta)
 [![Apache 2.0 License](https://img.shields.io/badge/License-APACHEv2-brightgreen.svg)](https://github.com/tschm/tinycta/blob/master/LICENSE)
-[![PyPI download month](https://img.shields.io/pypi/dm/tinycta.svg)](https://pypi.python.org/pypi/tinycta/)
+[![Downloads](https://static.pepy.tech/personalized-badge/tinycta?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/tinycta)
+
 [![Coverage Status](https://coveralls.io/repos/github/tschm/TinyCTA/badge.png?branch=main)](https://coveralls.io/github/tschm/TinyCTA?branch=main)
 
 Underlying package for the 10-line cta
