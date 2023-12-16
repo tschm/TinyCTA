@@ -40,3 +40,4 @@ def test_metrics(portfolio):
 # todo: move interpolation to utils in cvxSimulator
 # todo: move month to utils in cvxSimulator
 # todo: remove types
+# todo: make cvxSimulator a dev dependency

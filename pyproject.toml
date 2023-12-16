@@ -10,13 +10,13 @@ packages = [{include = "tinycta"}]
 [tool.poetry.dependencies]
 python = ">=3.9.0,<3.13"
 pandas = "*"
-plotly = "*"
-cvxsimulator = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
 pytest-cov = "*"
 pre-commit = "*"
+plotly = "*"
+cvxsimulator = "*"
 
 [build-system]
 requires = ["poetry>=1.6.0"]
