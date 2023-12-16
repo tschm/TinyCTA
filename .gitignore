@@ -1,3 +1,6 @@
+.ruff_cache
+htmlcov
+
 .idea
 # with original names
 tests/resources/Prices.csv
