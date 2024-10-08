@@ -43,7 +43,7 @@ def test_valid():
     """
     Valid submatrices
     """
-    a = np.array([[1.0, np.NaN], [np.NaN, np.NaN]])
+    a = np.array([[1.0, np.nan], [np.nan, np.nan]])
     val, submatrix = valid(a)
 
     np.testing.assert_array_equal(val, np.array([True, False]))
@@ -83,7 +83,7 @@ def test_anorm_all_nan():
     a-norm with matrix but all NaNs
     """
     v = np.array([3.0, 4.0])
-    a = np.NaN * np.eye(2)
+    a = np.nan * np.eye(2)
     assert np.isnan(a_norm(vector=v, matrix=a))
 
 
@@ -109,7 +109,7 @@ def test_inv_a_norm_all_nan():
     inv-a-norm with matrix a but all NaNs
     """
     v = np.array([3.0, 4.0])
-    a = np.NaN * np.eye(2)
+    a = np.nan * np.eye(2)
     assert np.isnan(inv_a_norm(vector=v, matrix=a))
 
 
