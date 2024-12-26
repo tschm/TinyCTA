@@ -12,15 +12,15 @@ jobs:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         python-version: ['3.9', '3.10', '3.11', '3.12' ]
-        exclude:
-          - os: windows-latest
-            python-version: '3.12'
+        #exclude:
+        #  - os: windows-latest
+        #    python-version: '3.12'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - uses: cvxgrp/.github/actions/test@main
+      - uses: cvxgrp/.github/actions/test@v1.1.0
         with:
           python-version: ${{ matrix.python-version }}
