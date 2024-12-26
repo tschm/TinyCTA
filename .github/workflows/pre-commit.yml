@@ -16,7 +16,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: cvxgrp/.github/actions/coverage@main
+    - uses: cvxgrp/.github/actions/coverage@v1.1.0
       with:
         source-folder: 'tinycta'
 
