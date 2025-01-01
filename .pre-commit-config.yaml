@@ -48,3 +48,13 @@ repos:
     hooks:
       - id: actionlint
         args: [-ignore, SC]
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.23
+    hooks:
+      - id: validate-pyproject
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.29.0
+    hooks:
+      - id: typos
