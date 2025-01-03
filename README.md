@@ -8,6 +8,8 @@
 
 Underlying package for the 10-line cta
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/tschm/TinyCTA)
+
 ## Poetry
 
 We assume you share already the love for [Poetry](https://python-poetry.org).
