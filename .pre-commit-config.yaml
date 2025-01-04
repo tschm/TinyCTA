@@ -29,7 +29,7 @@ repos:
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.30.0
     hooks:
-      - id: check-dependabot
+      - id: check-renovate
         args: [ "--verbose" ]
 
       - id: check-github-workflows
@@ -58,3 +58,9 @@ repos:
     rev: v1.29.4
     hooks:
       - id: typos
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.0
+    hooks:
+    - id: bandit
+      args: ["-c", "pyproject.toml", "-r"]

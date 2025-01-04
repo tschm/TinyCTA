@@ -35,3 +35,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["tinycta"]
+
+[tool.bandit]
+exclude_dirs = [".venv", "tests"]
+skips = ["B307"]
