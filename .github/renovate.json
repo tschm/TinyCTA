@@ -7,9 +7,11 @@
     "**/.python-version"
   ],
   "lockFileMaintenance": {
-    "enabled": true
+    "enabled": true,
+    "automerge": true
   },
   "pre-commit": {
-    "enabled": true
+    "enabled": true,
+    "automerge": true
   }
 }
