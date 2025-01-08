@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: cvxgrp/.github/actions/uv/coverage@v2.0.0
+      - uses: cvxgrp/.github/actions/uv/coverage@v2.0.1
         with:
           source-folder: 'tinycta'
 
