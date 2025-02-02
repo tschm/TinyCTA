@@ -10,16 +10,16 @@ Underlying package for the 10-line cta
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/tschm/TinyCTA)
 
-## Poetry
+## uv
 
-We assume you share already the love for [Poetry](https://python-poetry.org).
-Once you have installed poetry you can perform
+Starting with
 
 ```bash
 make install
 ```
 
-to replicate the virtual environment we have defined in pyproject.toml.
+will install uv and create the virtual environment
+defined in pyproject.toml.
 
 ## Jupyter
 
