@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: "Build the virtual environment"
         uses: cvxgrp/.github/actions/uv/environment@v2.1.0
-        
+
       - uses: cvxgrp/.github/actions/coverage@v2.1.0
         with:
           source-folder: 'tinycta'
@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: "Build the virtual environment"
         uses: cvxgrp/.github/actions/uv/environment@v2.1.0
-        
+
       - uses: cvxgrp/.github/actions/deptry@v2.1.0
         with:
           source-folder: 'tinycta'
