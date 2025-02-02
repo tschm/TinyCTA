@@ -17,3 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: cvxgrp/.github/actions/uv/pre-commit@v2.0.17
+
+  deptry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cvxgrp/.github/actions/uv/deptry@v2.0.17
+        with:
+          source-folder: 'tinycta'
