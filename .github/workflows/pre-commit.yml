@@ -7,7 +7,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: cvxgrp/.github/actions/uv/coverage@v2.0.17
+      - name: "Build the virtual environment"
+        uses: cvxgrp/.github/actions/uv/environment@v2.1.0
+        
+      - uses: cvxgrp/.github/actions/coverage@v2.1.0
         with:
           source-folder: 'tinycta'
           tests-folder: 'tests'
@@ -16,11 +19,14 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: cvxgrp/.github/actions/uv/pre-commit@v2.0.17
+      - uses: cvxgrp/.github/actions/pre-commit@v2.1.0
 
   deptry:
     runs-on: ubuntu-latest
     steps:
-      - uses: cvxgrp/.github/actions/uv/deptry@v2.0.17
+      - name: "Build the virtual environment"
+        uses: cvxgrp/.github/actions/uv/environment@v2.1.0
+        
+      - uses: cvxgrp/.github/actions/deptry@v2.1.0
         with:
           source-folder: 'tinycta'
