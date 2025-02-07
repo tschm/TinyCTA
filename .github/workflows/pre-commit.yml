@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Build the virtual environment"
-        uses: cvxgrp/.github/actions/environment@v2.2.1
+        uses: cvxgrp/.github/actions/environment@v2.2.2
 
-      - uses: cvxgrp/.github/actions/coverage@v2.2.1
+      - uses: cvxgrp/.github/actions/coverage@v2.2.2
         with:
           source-folder: 'tinycta'
           tests-folder: 'tests'
@@ -19,7 +19,7 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: cvxgrp/.github/actions/pre-commit@v2.2.1
+      - uses: cvxgrp/.github/actions/pre-commit@v2.2.2
 
   deptry:
     runs-on: ubuntu-latest
