@@ -27,6 +27,6 @@ jobs:
       - name: "Build the virtual environment"
         uses: tschm/cradle/actions/environment@v0.1.56
 
-      - uses: cvxgrp/.github/actions/deptry@v2.2.2
+      - uses: tschm/cradle/actions/deptry@v0.1.56
         with:
           source-folder: 'tinycta'
