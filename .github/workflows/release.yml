@@ -27,3 +27,26 @@ jobs:
         uses: tschm/cradle/actions/build@v0.1.57
         with:
           tag: ${{ needs.tagging.outputs.new_tag }}
+
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release
+
+    permissions:
+      contents: read
+      # This permission is required for trusted publishing.
+      id-token: write
+
+    steps:
+      - name: Checkout [${{ github.repository }}]
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
