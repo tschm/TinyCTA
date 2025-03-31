@@ -11,7 +11,7 @@ dependencies = [
 [project.urls]
 repository = "https://github.com/tschm/tinycta"
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "pytest-cov>=6.0.0",
     "pytest>=8.3.3",
@@ -39,3 +39,7 @@ packages = ["tinycta"]
 [tool.bandit]
 exclude_dirs = [".venv", "tests"]
 skips = ["B307"]
+
+[tool.deptry]
+# see https://deptry.com/usage/#pep-621-dev-dependency-groups
+pep621_dev_dependency_groups = ["dev"]
