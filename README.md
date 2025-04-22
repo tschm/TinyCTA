@@ -5,6 +5,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/tinycta?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/tinycta)
 [![Coverage Status](https://coveralls.io/repos/github/tschm/TinyCTA/badge.png?branch=main)](https://coveralls.io/github/tschm/TinyCTA?branch=main)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/tschm/TinyCTA/main.svg)](https://results.pre-commit.ci/latest/github/tschm/TinyCTA/main)
+[![CodeFactor](https://www.codefactor.io/repository/github/tschm/TinyCTA/badge)](https://www.codefactor.io/repository/github/tschm/TinyCTA)
 
 Underlying package for the 10-line cta
 
