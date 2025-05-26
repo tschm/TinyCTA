@@ -1,52 +1,68 @@
+# Workflow for creating a new version tag, building the package, and publishing to PyPI
 name: Bump version and publish
 
+# This workflow is manually triggered via the GitHub Actions UI
 on:
   workflow_dispatch:
 
+# Permissions needed for creating tags and releases
 permissions:
-  contents: write
+  contents: write  # Allows writing to repository contents (for tagging)
 
 jobs:
+  # Job for creating a new version tag
   tagging:
     runs-on: ubuntu-latest
+    # Define outputs that can be used by other jobs
     outputs:
-      new_tag: ${{ steps.tag_step.outputs.new_tag }}
+      new_tag: ${{ steps.tag_step.outputs.new_tag }}  # The new version tag
 
     steps:
+      # Step 1: Generate a new version tag based on semantic versioning
       - name: Generate Tag
-        id: tag_step
+        id: tag_step  # ID used to reference this step's outputs
         uses: tschm/cradle/actions/tag@v0.1.68
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Token for GitHub API access
 
+  # Job for building the package distribution
   build:
     runs-on: ubuntu-latest
+    # This job depends on the tagging job
     needs: tagging
     steps:
+      # Build the Python package using the new tag as the version
       - name: build
         uses: tschm/cradle/actions/build@v0.1.68
         with:
-          tag: ${{ needs.tagging.outputs.new_tag }}
+          tag: ${{ needs.tagging.outputs.new_tag }}  # Use the tag from the previous job
 
 
+  # Job for publishing the package to PyPI
   publish:
+    # This job depends on the build job
     needs: build
     runs-on: ubuntu-latest
+    # Use the 'release' environment which may have specific secrets
     environment: release
 
+    # Permissions needed for PyPI publishing
     permissions:
-      contents: read
-      # This permission is required for trusted publishing.
-      id-token: write
+      contents: read  # Read access to repository contents
+      # This permission is required for trusted publishing to PyPI
+      id-token: write  # Write access to the OIDC token
 
     steps:
+      # Step 1: Check out the repository code
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
+      # Step 2: Download the built package artifacts from the build job
       - uses: actions/download-artifact@v4
         with:
-          name: dist
-          path: dist
+          name: dist  # Name of the artifact to download
+          path: dist  # Path where to save the downloaded artifact
 
+      # Step 3: Publish the package to PyPI using trusted publishing
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@release/v1  # Official PyPI publishing action
