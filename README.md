@@ -21,14 +21,3 @@ make install
 
 will install uv and create the virtual environment
 defined in pyproject.toml.
-
-## Jupyter
-
-We install [JupyterLab](https://jupyter.org) on fly within the aforementioned
-virtual environment. Executing
-
-```bash
-make jupyter
-```
-
-will install and start the jupyter lab.
