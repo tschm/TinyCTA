@@ -1,4 +1,4 @@
-# TinyCTA
+# 📈 TinyCTA
 
 [![PyPI version](https://badge.fury.io/py/tinycta.svg)](https://badge.fury.io/py/tinycta)
 [![Apache 2.0 License](https://img.shields.io/badge/License-APACHEv2-brightgreen.svg)](https://github.com/tschm/tinycta/blob/master/LICENSE)
@@ -7,11 +7,9 @@
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/tschm/TinyCTA/main.svg)](https://results.pre-commit.ci/latest/github/tschm/TinyCTA/main)
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/TinyCTA/badge)](https://www.codefactor.io/repository/github/tschm/TinyCTA)
 
-Underlying package for the 10-line cta
+📦 Underlying package for the 10-line cta
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/tschm/TinyCTA)
-
-## uv
+## 🔧 uv
 
 Starting with
 
