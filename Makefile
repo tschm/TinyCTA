@@ -49,8 +49,8 @@ test: install ## Run all tests
 	@printf "$(BLUE)Running tests...$(RESET)\n"
 	# Install pytest without using the pip cache
 	@uv pip install --no-cache-dir pytest
-	# Run pytest on all tests in the src/tests directory
-	@uv run pytest src/tests
+	# Run pytest on all tests in the tests directory
+	@uv run pytest tests
 
 ##@ Cleanup
 # This section contains targets for cleaning up the project
