@@ -18,7 +18,7 @@ from __future__ import annotations
 import numpy as np
 
 
-def valid(matrix):
+def valid(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
     Construct the valid subset of a matrix
     :param matrix: n x n matrix
@@ -35,12 +35,12 @@ def valid(matrix):
 
 
 # that's somewhat not needed...
-def a_norm(vector, matrix=None):
+def a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
     """
     Compute the matrix-norm of matrix vector
     :param vector: the n x 1 vector
     :param matrix: n x n matrix
-    :return:
+    :return: The matrix norm as a float
     """
     if matrix is None:
         return np.linalg.norm(vector[np.isfinite(vector)], 2)
@@ -60,12 +60,12 @@ def a_norm(vector, matrix=None):
     return np.nan
 
 
-def inv_a_norm(vector, matrix=None):
+def inv_a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
     """
     Compute the matrix-norm of matrix vector
     :param vector: the n x 1 vector
     :param matrix: n x n matrix
-    :return:
+    :return: The inverse matrix norm as a float
     """
     if matrix is None:
         return np.linalg.norm(vector[np.isfinite(vector)], 2)
@@ -85,7 +85,7 @@ def inv_a_norm(vector, matrix=None):
     return np.nan
 
 
-def solve(matrix, rhs):
+def solve(matrix: np.ndarray, rhs: np.ndarray) -> np.ndarray:
     """
     Solve the linear system matrix*x = b
     Note that only the same subset of the rows and columns of matrix might be "warm"
@@ -93,7 +93,7 @@ def solve(matrix, rhs):
     :param matrix: n x n matrix
     :param rhs: n x 1 vector
 
-    :return: The solution vector x (which may contain NaNs
+    :return: The solution vector x (which may contain NaNs)
     """
     # make sure matrix is quadratic
     if matrix.shape[0] != matrix.shape[1]:

@@ -16,10 +16,11 @@
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 
 
 # compute the oscillator
-def osc(prices, fast=32, slow=96, scaling=True):
+def osc(prices: pd.DataFrame, fast: int = 32, slow: int = 96, scaling: bool = True) -> pd.DataFrame:
     """
     oscillator
 
@@ -31,7 +32,7 @@ def osc(prices, fast=32, slow=96, scaling=True):
         Strictly speacking this step is forward looking.
 
     Returns:
-        oscillator
+        oscillator as a DataFrame
     """
     diff = prices.ewm(com=fast - 1).mean() - prices.ewm(com=slow - 1).mean()
     if scaling:
@@ -42,7 +43,7 @@ def osc(prices, fast=32, slow=96, scaling=True):
     return diff / s
 
 
-def returns_adjust(price, com=32, min_periods=300, clip=4.2):
+def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, clip: float = 4.2) -> pd.DataFrame:
     """
     volatility adjust the log-returns by a moving volatility, winsorize
     Args:
@@ -52,13 +53,13 @@ def returns_adjust(price, com=32, min_periods=300, clip=4.2):
         clip: winsorize at this level
 
     Returns:
-        volatility adjusted and winsorized returns
+        volatility adjusted and winsorized returns as a DataFrame
     """
     r = np.log(price).diff()
     return (r / r.ewm(com=com, min_periods=min_periods).std()).clip(-clip, +clip)
 
 
-def shrink2id(matrix, lamb=1.0):
+def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
     """
     Simple shrinkage towards the identity
 
