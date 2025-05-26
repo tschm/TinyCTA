@@ -1,5 +1,7 @@
 # Workflow for continuous integration testing across multiple platforms and Python versions
 name: "CI"
+permissions:
+  contents: read
 
 # Trigger this workflow on any push to the repository
 on:
