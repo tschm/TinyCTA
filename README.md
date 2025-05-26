@@ -4,7 +4,6 @@
 [![Apache 2.0 License](https://img.shields.io/badge/License-APACHEv2-brightgreen.svg)](https://github.com/tschm/tinycta/blob/master/LICENSE)
 [![Downloads](https://static.pepy.tech/personalized-badge/tinycta?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/tinycta)
 [![Coverage Status](https://coveralls.io/repos/github/tschm/TinyCTA/badge.png?branch=main)](https://coveralls.io/github/tschm/TinyCTA?branch=main)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/tschm/TinyCTA/main.svg)](https://results.pre-commit.ci/latest/github/tschm/TinyCTA/main)
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/TinyCTA/badge)](https://www.codefactor.io/repository/github/tschm/TinyCTA)
 
 📦 A lightweight Python package for implementing Commodity
@@ -97,21 +96,21 @@ shrunk_matrix = shrink2id(matrix, lamb=0.5)
 
 ### Signal Processing
 
-- `osc(prices, fast=32, slow=96, scaling=True)`
+- `osc(prices, fast=32, slow=96, scaling=True)`:
    Creates an oscillator based on the difference between fast and slow moving averages
-- `returns_adjust(price, com=32, min_periods=300, clip=4.2)`
+- `returns_adjust(price, com=32, min_periods=300, clip=4.2)`:
    Adjusts log-returns by volatility and applies winsorization
-- `shrink2id(matrix, lamb=1.0)`
+- `shrink2id(matrix, lamb=1.0)`:
    Performs shrinkage of a matrix towards the identity matrix
 
 ### Linear Algebra
 
-- `valid(matrix)`
+- `valid(matrix)`:
 Constructs a valid subset of a matrix by filtering out rows/columns with NaN values
-- `a_norm(vector, matrix=None)`
+- `a_norm(vector, matrix=None)`:
 Computes the matrix-norm of a vector with respect to a matrix
 - `inv_a_norm(vector, matrix=None)`: Computes the inverse matrix-norm of a vector
-- `solve(matrix, rhs)`
+- `solve(matrix, rhs)`:
 Solves a linear system of equations, handling matrices with NaN values
 
 ## 🛠️ Development
