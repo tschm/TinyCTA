@@ -1,25 +1,35 @@
-#    Copyright 2023 Thomas Schmelzer
+#    Copyright (c) 2023 Thomas Schmelzer
 #
-#    Licensed under the Apache License, Version 2.0 (the "License");
-#    you may not use this file except in compliance with the License.
-#    You may obtain a copy of the License at
+#    Permission is hereby granted, free of charge, to any person obtaining a copy
+#    of this software and associated documentation files (the "Software"), to deal
+#    in the Software without restriction, including without limitation the rights
+#    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#    copies of the Software, and to permit persons to whom the Software is
+#    furnished to do so, subject to the following conditions:
 #
-#        http://www.apache.org/licenses/LICENSE-2.0
+#    The above copyright notice and this permission notice shall be included in all
+#    copies or substantial portions of the Software.
+# Copyright (c) 2023 Thomas Schmelzer
 #
-#    Unless required by applicable law or agreed to in writing, software
-#    distributed under the License is distributed on an "AS IS" BASIS,
-#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#    See the License for the specific language governing permissions and
-#    limitations under the License.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 """signal"""
 
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 
 
 # compute the oscillator
-def osc(prices, fast=32, slow=96, scaling=True):
+def osc(prices: pd.DataFrame, fast: int = 32, slow: int = 96, scaling: bool = True) -> pd.DataFrame:
     """
     oscillator
 
@@ -31,7 +41,7 @@ def osc(prices, fast=32, slow=96, scaling=True):
         Strictly speacking this step is forward looking.
 
     Returns:
-        oscillator
+        oscillator as a DataFrame
     """
     diff = prices.ewm(com=fast - 1).mean() - prices.ewm(com=slow - 1).mean()
     if scaling:
@@ -42,7 +52,7 @@ def osc(prices, fast=32, slow=96, scaling=True):
     return diff / s
 
 
-def returns_adjust(price, com=32, min_periods=300, clip=4.2):
+def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, clip: float = 4.2) -> pd.DataFrame:
     """
     volatility adjust the log-returns by a moving volatility, winsorize
     Args:
@@ -52,13 +62,13 @@ def returns_adjust(price, com=32, min_periods=300, clip=4.2):
         clip: winsorize at this level
 
     Returns:
-        volatility adjusted and winsorized returns
+        volatility adjusted and winsorized returns as a DataFrame
     """
     r = np.log(price).diff()
     return (r / r.ewm(com=com, min_periods=min_periods).std()).clip(-clip, +clip)
 
 
-def shrink2id(matrix, lamb=1.0):
+def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
     """
     Simple shrinkage towards the identity
 
