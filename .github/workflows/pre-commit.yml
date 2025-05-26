@@ -1,5 +1,7 @@
 # Workflow for running pre-commit checks, tests, and dependency analysis
 name: pre-commit
+permissions:
+  contents: read
 
 # Trigger this workflow on any push to the repository
 on:
