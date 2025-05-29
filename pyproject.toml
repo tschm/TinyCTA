@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 requires-python = ">=3.10"
 dependencies = [
-    "numpy>=2.2.1",
+    "numpy>=2.0.0",
     "pandas>=2.2.3"
 ]
 [project.urls]
