@@ -26,10 +26,10 @@ jobs:
       # Step 1: Set up the Python environment with dependencies
       # This step uses the specified Python version from the matrix
       - name: "Build the virtual environment"
-        uses: tschm/cradle/actions/environment@v0.1.68
+        uses: tschm/cradle/actions/environment@v0.1.69
         with:
           python-version: ${{ matrix.python-version }}
 
       # Step 2: Run tests
       # This step runs pytest to ensure the code works on all platforms and Python versions
-      - uses: tschm/cradle/actions/test@v0.1.68
+      - uses: tschm/cradle/actions/test@v0.1.69
