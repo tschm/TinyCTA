@@ -14,11 +14,11 @@ jobs:
     steps:
       # Step 1: Set up the Python environment with dependencies
       - name: "Build the virtual environment"
-        uses: tschm/cradle/actions/environment@v0.1.68
+        uses: tschm/cradle/actions/environment@v0.1.69
 
       # Step 2: Run tests and generate coverage reports
       # This step runs pytest with coverage and uploads results to Coveralls
-      - uses: tschm/cradle/actions/coverage@v0.1.68
+      - uses: tschm/cradle/actions/coverage@v0.1.69
         with:
           source-folder: 'tinycta'  # Folder containing source code to measure coverage
           tests-folder: 'tests'     # Folder containing tests to run
@@ -30,7 +30,7 @@ jobs:
     steps:
       # Run all pre-commit hooks defined in .pre-commit-config.yaml
       # This includes linters, formatters, and other code quality tools
-      - uses: tschm/cradle/actions/pre-commit@v0.1.68
+      - uses: tschm/cradle/actions/pre-commit@v0.1.69
 
   # Job for analyzing dependencies with deptry
   deptry:
@@ -38,10 +38,10 @@ jobs:
     steps:
       # Step 1: Set up the Python environment with dependencies
       - name: "Build the virtual environment"
-        uses: tschm/cradle/actions/environment@v0.1.68
+        uses: tschm/cradle/actions/environment@v0.1.69
 
       # Step 2: Run deptry to check for dependency issues
       # Deptry analyzes imports and requirements to find unused or missing dependencies
-      - uses: tschm/cradle/actions/deptry@v0.1.68
+      - uses: tschm/cradle/actions/deptry@v0.1.69
         with:
           source-folder: 'tinycta'  # Folder to analyze for dependency issues
