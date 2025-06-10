@@ -34,12 +34,10 @@ install: venv ## Install all dependencies using uv
 # Format and lint the code using pre-commit hooks (depends on venv target)
 fmt: venv ## Run code formatting and linting
 	@printf "$(BLUE)Running formatters and linters...$(RESET)\n"
-	# Install pre-commit without using the pip cache
-	@uv pip install --no-cache-dir pre-commit
 	# Install pre-commit hooks into the git repository
-	@uv run pre-commit install
+	@uvx pre-commit install
 	# Run all pre-commit hooks on all files, regardless of git status
-	@uv run pre-commit run --all-files
+	@uvx pre-commit run --all-files
 
 ##@ Testing
 # This section contains targets for running tests
