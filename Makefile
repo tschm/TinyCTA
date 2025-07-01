@@ -34,8 +34,6 @@ install: venv ## Install all dependencies using uv
 # Format and lint the code using pre-commit hooks (depends on venv target)
 fmt: venv ## Run code formatting and linting
 	@printf "$(BLUE)Running formatters and linters...$(RESET)\n"
-	# Install pre-commit hooks into the git repository
-	@uvx pre-commit install
 	# Run all pre-commit hooks on all files, regardless of git status
 	@uvx pre-commit run --all-files
 
