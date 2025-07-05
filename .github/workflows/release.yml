@@ -21,7 +21,7 @@ jobs:
       # Step 1: Generate a new version tag based on semantic versioning
       - name: Generate Tag
         id: tag_step  # ID used to reference this step's outputs
-        uses: tschm/cradle/actions/tag@v0.1.75
+        uses: tschm/cradle/actions/tag@v0.1.80
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}  # Token for GitHub API access
 
@@ -33,7 +33,7 @@ jobs:
     steps:
       # Build the Python package using the new tag as the version
       - name: build
-        uses: tschm/cradle/actions/build@v0.1.75
+        uses: tschm/cradle/actions/build@v0.1.80
         with:
           tag: ${{ needs.tagging.outputs.new_tag }}  # Use the tag from the previous job
 
