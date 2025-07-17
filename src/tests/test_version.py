@@ -1,4 +1,4 @@
-import tinycta
+from src import tinycta
 
 
 def test_version():

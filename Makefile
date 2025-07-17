@@ -1,75 +1,93 @@
-# Colors for pretty output - ANSI escape codes for colored terminal output
-BLUE := \033[36m  # Cyan color for highlighting commands and targets
-BOLD := \033[1m   # Bold text for headings
-RESET := \033[0m  # Reset formatting
+# Colors for pretty output
+BLUE := \033[36m
+BOLD := \033[1m
+GREEN := \033[32m
+RESET := \033[0m
 
-# Set the default target to run when 'make' is called without arguments
+include .env
+export $(shell sed 's/=.*//' .env)
+
 .DEFAULT_GOAL := help
 
-# Declare phony targets (targets that don't represent files)
-# This prevents conflicts with any files named the same as these targets
-.PHONY: help verify install fmt test clean
+.PHONY: help verify install fmt lint test build check marimo clean docs
 
 ##@ Development Setup
-# This section contains targets for setting up the development environment
 
-# Create a Python virtual environment using uv (a fast Python package installer and resolver)
-venv:
+uv:
 	@printf "$(BLUE)Creating virtual environment...$(RESET)\n"
-	# Download and install uv from astral.sh
 	@curl -LsSf https://astral.sh/uv/install.sh | sh
-	# Create a virtual environment with Python 3.12
-	@uv venv --python 3.12
 
-# Install all project dependencies (depends on venv target)
-install: venv ## Install all dependencies using uv
+install: uv ## Install all dependencies using uv
 	@printf "$(BLUE)Installing dependencies...$(RESET)\n"
-	# Synchronize dependencies from pyproject.toml, including dev dependencies and all extras
-	# The --frozen flag ensures reproducible installations
-	@uv sync --dev --all-extras --frozen
+	@uv venv --python 3.12
+	@uv sync --all-extras --frozen
 
 ##@ Code Quality
-# This section contains targets for maintaining code quality
 
-# Format and lint the code using pre-commit hooks (depends on venv target)
-fmt: venv ## Run code formatting and linting
-	@printf "$(BLUE)Running formatters and linters...$(RESET)\n"
-	# Run all pre-commit hooks on all files, regardless of git status
+fmt: uv ## Run code formatters only
+	@printf "$(BLUE)Running formatters...$(RESET)\n"
+	@uvx ruff format src
+
+lint: uv ## Run linters only
+	@printf "$(BLUE)Running linters...$(RESET)\n"
 	@uvx pre-commit run --all-files
 
-##@ Testing
-# This section contains targets for running tests
+check: lint test ## Run all checks (lint and test)
+	@printf "$(GREEN)All checks passed!$(RESET)\n"
 
-# Run all tests in the project (depends on install target)
+##@ Testing
+
 test: install ## Run all tests
 	@printf "$(BLUE)Running tests...$(RESET)\n"
-	# Install pytest without using the pip cache
-	@uv pip install --no-cache-dir pytest
-	# Run pytest on all tests in the tests directory
-	@uv run pytest tests
+	@uv run pytest $(TESTS_FOLDER) --cov=$(SOURCE_FOLDER) --cov-report=term
+
+##@ Building
+
+build: install ## Build the package
+	@printf "$(BLUE)Building package...$(RESET)\n"
+	@uv pip install hatch
+	@uv run hatch build
+
+##@ Documentation
+
+docs: install ## Build documentation
+	@printf "$(BLUE)Building documentation...$(RESET)\n"
+	@uv pip install pdoc
+	@{ \
+		uv run pdoc -o pdoc $(SOURCE_FOLDER); \
+		if command -v xdg-open >/dev/null 2>&1; then \
+			xdg-open "pdoc/index.html"; \
+		elif command -v open >/dev/null 2>&1; then \
+			open "pdoc/index.html"; \
+		else \
+			echo "Documentation generated. Open pdoc/index.html manually"; \
+		fi; \
+	}
 
 ##@ Cleanup
-# This section contains targets for cleaning up the project
 
-# Clean up generated files and directories
 clean: ## Clean generated files and directories
 	@printf "$(BLUE)Cleaning project...$(RESET)\n"
-	# Use git clean to remove all untracked files that are ignored by git
-	# -d: remove untracked directories
-	# -X: remove only files ignored by git
-	# -f: force removal
 	@git clean -d -X -f
+	@rm -rf dist build *.egg-info .coverage .pytest_cache
+	@printf "$(BLUE)Removing local branches with no remote counterpart...$(RESET)\n"
+	@git fetch -p
+	@git branch -vv | grep ': gone]' | awk '{print $$1}' | xargs -r git branch -D
+
+##@ Marimo & Jupyter
+
+marimo: uv ## Start a Marimo server
+	@printf "$(BLUE)Start Marimo server...$(RESET)\n"
+	@uvx marimo edit --sandbox $(MARIMO_FOLDER)
+
+#run-marimo: uv ## Run the Marimo notebook from the command line
+#	@printf "$(BLUE)Running Marimo notebook...$(RESET)\n"
+#	@uvx marimo run --sandbox book/marimo/demo.py
 
 ##@ Help
-# This section contains targets for displaying help information
 
-# Display help information about available targets
 help: ## Display this help message
 	@printf "$(BOLD)Usage:$(RESET)\n"
 	@printf "  make $(BLUE)<target>$(RESET)\n\n"
 	@printf "$(BOLD)Targets:$(RESET)\n"
-	# Parse the Makefile to extract and display target descriptions
-	# - Looks for lines with pattern: target: ## description
-	# - Also formats section headers that start with ##@
-	# - Uses the BLUE and BOLD colors defined at the top of the file
 	@awk 'BEGIN {FS = ":.*##"; printf ""} /^[a-zA-Z_-]+:.*?##/ { printf "  $(BLUE)%-15s$(RESET) %s\n", $$1, $$2 } /^##@/ { printf "\n$(BOLD)%s$(RESET)\n", substr($$0, 5) }' $(MAKEFILE_LIST)

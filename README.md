@@ -50,7 +50,7 @@ virtual environment with all dependencies.
 
 ```python
 import pandas as pd
-from tinycta.signal import osc
+from src.tinycta.signal import osc
 
 # Load price data
 prices = pd.read_csv('prices.csv', index_col=0, parse_dates=True)
@@ -66,7 +66,7 @@ custom_oscillator = prices.apply(osc, fast=16, slow=64, scaling=False)
 
 ```python
 import pandas as pd
-from tinycta.signal import returns_adjust
+from src.tinycta.signal import returns_adjust
 
 # Load price data
 prices = pd.read_csv('prices.csv', index_col=0, parse_dates=True)
@@ -79,7 +79,7 @@ adjusted_returns = prices.apply(returns_adjust)
 
 ```python
 import numpy as np
-from tinycta.linalg import solve, shrink2id
+from src.tinycta.linalg import solve, shrink2id
 
 # Create a matrix and right-hand side vector
 matrix = np.array([[1.0, 0.5], [0.5, 1.0]])
