@@ -1,0 +1,33 @@
+name: "UPDATE"
+
+on:
+  push
+
+permissions:
+  contents: write
+
+
+jobs:
+  update:
+    if: github.repository != 'tschm/.config-templates'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: tschm/cradle/actions/updater@v0.3.04
+        with:
+          ref: 'main'
+          repository: 'tschm/.config-templates'
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update configuration files from template"
+            git push
+          fi
