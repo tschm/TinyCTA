@@ -6,19 +6,9 @@ on:
 permissions:
   contents: write
 
-#inputs:
-#  repository:
-#    description: 'GitHub repository to download templates from'
-#    required: false
-#    default: 'tschm/.config-templates'
-#  ref:
-#    description: 'Branch or tag to download templates from'
-#    required: false
-#    default: 'v0.3.01'
-
 
 jobs:
-  pre-commit:
+  update:
     if: github.repository != 'tschm/.config-templates'
     runs-on: ubuntu-latest
     steps:
