@@ -9,7 +9,7 @@
 #
 #    The above copyright notice and this permission notice shall be included in all
 #    copies or substantial portions of the Software.
-"""linear algebra"""
+"""linear algebra."""
 
 from __future__ import annotations
 
@@ -17,12 +17,27 @@ import numpy as np
 
 
 def valid(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Construct the valid subset of a matrix
-    :param matrix: n x n matrix
+    """Validates and processes a square matrix.
 
-    :return: Tuple of matrix boolean vector indicating if row/column
-    is valid and the valid subset of the matrix
+    This function checks if the input matrix is square (i.e., has the same number
+    of rows and columns). It also validates that the diagonal elements of the
+    matrix are finite. If the matrix does not meet these criteria, an error is
+    raised. If valid, it returns a boolean array indicating the validity of the
+    diagonal elements and a sub-matrix with only the valid rows and columns.
+
+    Parameters:
+    matrix (np.ndarray): A NumPy array representing the input matrix to be
+                         validated and processed.
+
+    Returns:
+    tuple[np.ndarray, np.ndarray]: A tuple where the first element is a boolean
+                                    array indicating which diagonal elements are
+                                    finite, and the second element is a sub-matrix
+                                    containing only the rows and columns
+                                    corresponding to finite diagonal elements.
+
+    Raises:
+    AssertionError: If the input matrix is not square.
     """
     # make sure matrix  is quadratic
     if matrix.shape[0] != matrix.shape[1]:
@@ -34,11 +49,34 @@ def valid(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
 # that's somewhat not needed...
 def a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
-    """
-    Compute the matrix-norm of matrix vector
-    :param vector: the n x 1 vector
-    :param matrix: n x n matrix
-    :return: The matrix norm as a float
+    """Calculate the generalized norm of a vector optionally using a matrix.
+
+    The function computes the Euclidean norm of the vector if no matrix is
+    provided. If a matrix is provided, it computes the generalized norm
+    of the vector with respect to the quadratic form defined by the matrix.
+    The function ensures both the matrix and vector meet certain validity
+    conditions before proceeding with calculations.
+
+    Parameters:
+    vector: np.ndarray
+        The input vector. Must be a one-dimensional numpy array.
+
+    matrix: np.ndarray | None, optional
+        An optional square matrix defining the quadratic form to calculate the
+        generalized norm. If provided, its size must match the size of the
+        input vector. If None, the function computes the standard Euclidean
+        norm of the vector.
+
+    Raises:
+    AssertionError
+        If the matrix is not square or if its dimensions do not align with
+        the size of the input vector.
+
+    Returns:
+    float
+        The norm of the vector calculated using the given quadratic form
+        defined by the matrix, or the Euclidean norm if no matrix is supplied.
+        If the computation is invalid, returns NaN.
     """
     if matrix is None:
         return np.linalg.norm(vector[np.isfinite(vector)], 2)
@@ -59,11 +97,32 @@ def a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
 
 
 def inv_a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
-    """
-    Compute the matrix-norm of matrix vector
-    :param vector: the n x 1 vector
-    :param matrix: n x n matrix
-    :return: The inverse matrix norm as a float
+    """Calculates the inverse A-norm of a given vector using an optional matrix.
+
+    If the matrix is not provided, it defaults to calculating the Euclidean norm of the
+    finite entries in the vector. If the matrix is provided, it checks that the
+    matrix is square and that the dimensions are compatible with the vector before
+    computing the norm.
+
+    Parameters
+    ----------
+    vector : np.ndarray
+        The input vector for which the norm is to be calculated.
+    matrix : np.ndarray | None, optional
+        An optional square matrix used for computing the norm. If not provided,
+        the function computes the Euclidean norm.
+
+    Returns:
+    -------
+    float
+        The computed norm as a float value. If no valid entries exist for the
+        calculation, it returns 'np.nan'.
+
+    Raises:
+    ------
+    AssertionError
+        If the matrix is not square or if the vector's size is incompatible with
+        the matrix's dimensions.
     """
     if matrix is None:
         return np.linalg.norm(vector[np.isfinite(vector)], 2)
@@ -84,14 +143,27 @@ def inv_a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
 
 
 def solve(matrix: np.ndarray, rhs: np.ndarray) -> np.ndarray:
-    """
-    Solve the linear system matrix*x = b
-    Note that only the same subset of the rows and columns of matrix might be "warm"
+    """Solve a linear system of equations using parts of a given matrix marked as valid.
 
-    :param matrix: n x n matrix
-    :param rhs: n x 1 vector
+    This function solves a linear system Ax = b for the subset of the system where
+    certain rows and columns of the square matrix A, and corresponding entries of
+    the right-hand side vector b, are marked as valid. The solution is computed for
+    the valid subset using NumPy's linear algebra solver. The input matrix must be
+    a square matrix, and the size of the vector must match the number of rows (or
+    columns) of the matrix.
 
-    :return: The solution vector x (which may contain NaNs)
+    Parameters:
+    matrix: np.ndarray
+        A square matrix (2D array) representing the coefficients of the linear
+        system.
+    rhs: np.ndarray
+        A 1D array representing the right-hand side vector of the equation. Its
+        size must match the number of rows in the matrix.
+
+    Returns:
+    np.ndarray
+        A 1D array containing the solution to the system for the valid subset. If
+        no valid rows or columns exist, the array will contain only NaN values.
     """
     # make sure matrix is quadratic
     if matrix.shape[0] != matrix.shape[1]:
