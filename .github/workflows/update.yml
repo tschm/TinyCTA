@@ -24,8 +24,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download templates
-        shell: bash
-        run: |
-          echo "Downloading templates from tschm/.config-templates@v0.1.4"
-          curl -L -o templates.zip https://github.com/tschm/.config-templates/archive/refs/tags/v0.1.4.zip
+      - uses: tschm/cradle/actions/updater@v0.3.04
