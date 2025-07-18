@@ -1,0 +1,31 @@
+name: "UPDATE"
+
+on:
+  push
+
+permissions:
+  contents: write
+
+#inputs:
+#  repository:
+#    description: 'GitHub repository to download templates from'
+#    required: false
+#    default: 'tschm/.config-templates'
+#  ref:
+#    description: 'Branch or tag to download templates from'
+#    required: false
+#    default: 'v0.3.01'
+
+
+jobs:
+  pre-commit:
+    if: github.repository != 'tschm/.config-templates'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download templates
+        shell: bash
+        run: |
+          echo "Downloading templates from tschm/.config-templates@v0.1.4"
+          curl -L -o templates.zip https://github.com/tschm/.config-templates/archive/refs/tags/v0.1.4.zip
