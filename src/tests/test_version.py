@@ -1,6 +1,6 @@
 """Tests for the version."""
 
-from src import tinycta
+import tinycta
 
 
 def test_version():

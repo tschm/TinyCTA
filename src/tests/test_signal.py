@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.tinycta.signal import osc, returns_adjust, shrink2id
+from tinycta.signal import osc, returns_adjust, shrink2id
 
 
 def test_shrink() -> None:
