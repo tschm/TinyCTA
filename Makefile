@@ -95,16 +95,7 @@ docs: install ## Build documentation
 	@printf "$(BLUE)Building documentation...$(RESET)\n"
 	@if [ -f "pyproject.toml" ]; then \
 		uv pip install pdoc; \
-		{ \
-			uv run pdoc -o _pdoc $(SOURCE_FOLDER); \
-			if command -v xdg-open >/dev/null 2>&1; then \
-				xdg-open "_pdoc/index.html"; \
-			elif command -v open >/dev/null 2>&1; then \
-				open "_pdoc/index.html"; \
-			else \
-				echo "Documentation generated. Open pdoc/index.html manually"; \
-			fi; \
-		}; \
+		uv run pdoc -o _pdoc $(SOURCE_FOLDER); \
 	else \
 		printf "$(BLUE)No pyproject.toml found, skipping docs$(RESET)\n"; \
 	fi
@@ -145,7 +136,7 @@ marimushka: install ## Export Marimo notebooks to HTML
 	touch _marimushka/.nojekyll
 
 # Build the combined book
-book: test docs marimushka
+book:    #test docs marimushka
 
 	@echo "Building combined documentation..."
 	mkdir -p _book

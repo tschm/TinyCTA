@@ -36,6 +36,18 @@ jobs:
       # Check out the repository code
       - uses: actions/checkout@v4
 
+      - name: "Make the docs"
+        run: |
+          make docs
+
+      - name: "Make the tests"
+        run: |
+          make tests
+
+      - name: "Make the notebooks"
+        run: |
+          make marimushka
+
       - name: "Make the book"
         run: |
           make book
