@@ -42,7 +42,7 @@ jobs:
 
       - name: "Make the tests"
         run: |
-          make tests
+          make test
 
       - name: "Make the notebooks"
         run: |

@@ -137,7 +137,6 @@ marimushka: install ## Export Marimo notebooks to HTML
 
 # Build the combined book
 book:    #test docs marimushka
-
 	@echo "Building combined documentation..."
 	mkdir -p _book
 
