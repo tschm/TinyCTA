@@ -7,7 +7,7 @@ BOLD := \033[1m
 GREEN := \033[32m
 RESET := \033[0m
 
-SOURCE_FOLDER := src
+SOURCE_FOLDER := src/$(shell find src -mindepth 1 -maxdepth 1 -type d -not -path "*/\.*" | head -1 | sed 's|^src/||')
 TESTS_FOLDER := tests
 MARIMO_FOLDER := book/marimo
 OPTIONS ?=
