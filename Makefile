@@ -115,10 +115,12 @@ marimushka: install ## Export Marimo notebooks to HTML
 
 	@if [ ! -d "$(MARIMO_FOLDER)" ]; then \
 		printf "$(BLUE)Warning: Directory $(MARIMO_FOLDER) does not exist$(RESET)\n"; \
+		echo "<html><head><title>Marimo Notebooks</title></head><body><h1>Marimo Notebooks</h1><p>No notebooks directory found.</p></body></html>" > _marimushka/index.html; \
 	else \
 		py_files=$$(find "$(MARIMO_FOLDER)" -name "*.py" | tr '\n' ' '); \
 		if [ -z "$$py_files" ]; then \
 			printf "$(BLUE)No Python files found in $(MARIMO_FOLDER)$(RESET)\n"; \
+			echo "<html><head><title>Marimo Notebooks</title></head><body><h1>Marimo Notebooks</h1><p>No notebooks found.</p></body></html>" > _marimushka/index.html; \
 		else \
 			printf "$(BLUE)Found Python files: $$py_files$(RESET)\n"; \
 			for py_file in $$py_files; do \
@@ -152,7 +154,7 @@ book: test docs marimushka
 	@if [ -d _pdoc ]; then \
 		mkdir -p _book/pdoc; \
 		cp -r _pdoc/* _book/pdoc; \
-		echo '"API": "./pdoc/index.html"' > _book/links.json; \
+		echo '{"API": "./pdoc/index.html"}' > _book/links.json; \
 	else \
 		echo '{}' > _book/links.json; \
 	fi
@@ -183,7 +185,19 @@ book: test docs marimushka
 	@cat _book/links.json
 
 	@echo "Generating landing page with uvx minibook..."
-	uvx minibook@v0.0.16 --title $(BOOK_TITLE) --subtitle $(BOOK_SUBTITLE) --links "$$(cat _book/links.json)" --output "_book"
+	@echo "Parsing links:"
+	@if [ -f "_book/links.json" ]; then \
+		if jq empty _book/links.json 2>/dev/null; then \
+			echo "JSON is valid, using it directly"; \
+			uvx minibook@v0.0.16 --title $(BOOK_TITLE) --subtitle $(BOOK_SUBTITLE) --links "$$(cat _book/links.json)" --output "_book"; \
+		else \
+			echo "JSON parsing failed, falling back to legacy format"; \
+			uvx minibook@v0.0.16 --title $(BOOK_TITLE) --subtitle $(BOOK_SUBTITLE) --output "_book"; \
+		fi; \
+	else \
+		echo "links.json not found, using default settings"; \
+		uvx minibook@v0.0.16 --title $(BOOK_TITLE) --subtitle $(BOOK_SUBTITLE) --output "_book"; \
+	fi
 
 	# Create .nojekyll file to prevent GitHub Pages from processing with Jekyll
 	touch "_book/.nojekyll"
