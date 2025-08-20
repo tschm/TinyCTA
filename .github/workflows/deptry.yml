@@ -28,6 +28,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Render the project
+        if: hashFiles('tests/resources/values.yml') != ''
         run: |
           pip install copier
           
