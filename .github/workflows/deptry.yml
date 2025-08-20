@@ -27,6 +27,26 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Render the project
+        if: hashFiles('tests/resources/values.yml') != ''
+        run: |
+          pip install copier
+          
+          # Render the current folder in-place
+          copier copy . . \
+            --data-file ./tests/resources/values.yml \
+            --force \
+            --overwrite \
+            --quiet
+          
+          # Delete all remaining .jinja files
+          find . -type f -name "*.jinja" -exec rm -f {} +
+          
+          # Delete all folders that still contain {{ ... }}
+          find . -depth -type d -name "*{{*}}*" -exec rm -rf {} +
+          
+          ls -R 
+          
       - name: Check for pyproject.toml
         id: check_file
         run: |
