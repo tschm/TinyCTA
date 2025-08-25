@@ -19,12 +19,13 @@ runs:
       uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{ inputs.python-version }}
+        cache-dependency-glob: "**/*requirements*.txt,**/*requirements*.in,**/*constraints*.txt,**/*constraints*.in,**/pyproject.toml,**/uv.lock"
       
     - name: Install Task
       uses: arduino/setup-task@v2
       with:
         version: 3.x
-        #repo-token: ${{ secrets.GITHUB_TOKEN }}
+        repo-token: ${{ github.token }}
     
     - name: Render the project
       if: hashFiles('tests/resources/render.yml') != ''
