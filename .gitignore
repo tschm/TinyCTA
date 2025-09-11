@@ -14,8 +14,6 @@ _marimushka
 # .env file for configuration, e.g. OpenBB
 .env
 
-quantstats.md
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
