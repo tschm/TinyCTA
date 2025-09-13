@@ -30,7 +30,7 @@ jobs:
       # Use the composite action to render the project
       - name: Setup the project
         shell: bash
-        run: ./.github/setup_project.sh
+        run: ./.github/scripts/setup_project.sh
         #uses: ./.github/actions/setup-project
 
       - name: Lint

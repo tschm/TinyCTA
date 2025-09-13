@@ -29,7 +29,7 @@ jobs:
       - name: Setup the project
         shell: bash
         run: |
-          ./.github/setup_project.sh
+          ./.github/scripts/setup_project.sh
           echo "PYPROJECT_EXISTS=$PYPROJECT_EXISTS" >> $GITHUB_ENV
 
         #uses: ./.github/actions/setup-project
