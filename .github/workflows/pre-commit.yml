@@ -26,7 +26,7 @@ jobs:
 
     # Use astral's uv container
     container:
-      image: ghcr.io/astral-uv/uv:3.12-bookworm-slim
+      image: ghcr.io/astral-uv/uv:3.12
       # Make sure we have all the tools needed for CI
       options: --user root
 
