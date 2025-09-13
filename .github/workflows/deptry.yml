@@ -22,17 +22,22 @@ jobs:
   deptry_analysis:
     name: Check dependencies with deptry
     runs-on: ubuntu-latest
+
+    # Use astral's uv container
+    container:
+      image: astral/uv:3.12-bookworm-slim
+      # Make sure we have all the tools needed for CI
+      options: --user root
+
     steps:
       - uses: actions/checkout@v5
 
-      # Use the composite action to setup the project and check for pyproject.toml
+      # Run the setup script
       - name: Setup the project
         shell: bash
         run: |
           ./.github/scripts/setup_project.sh
           echo "PYPROJECT_EXISTS=$PYPROJECT_EXISTS" >> $GITHUB_ENV
-
-        #uses: ./.github/actions/setup-project
 
       - name: Run deptry
         if: env.PYPROJECT_EXISTS == 'true'

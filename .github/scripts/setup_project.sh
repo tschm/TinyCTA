@@ -33,9 +33,17 @@ fi
 if [[ -f "pyproject.toml" ]]; then
     echo "PYPROJECT_EXISTS=true"
     export PYPROJECT_EXISTS=true
+    # Export to GitHub Actions environment if running in GitHub Actions
+    if [[ -n "${GITHUB_ENV:-}" ]]; then
+        echo "PYPROJECT_EXISTS=true" >> $GITHUB_ENV
+    fi
 else
     echo "PYPROJECT_EXISTS=false"
     export PYPROJECT_EXISTS=false
+    # Export to GitHub Actions environment if running in GitHub Actions
+    if [[ -n "${GITHUB_ENV:-}" ]]; then
+        echo "PYPROJECT_EXISTS=false" >> $GITHUB_ENV
+    fi
 fi
 
 # -----------------------------
@@ -59,6 +67,8 @@ fi
 # -----------------------------
 uv pip install go-task-bin
 uv run task --version
+
+uv pip install uv
 
 
 echo "Setup completed."
