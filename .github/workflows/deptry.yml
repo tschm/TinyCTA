@@ -35,5 +35,5 @@ jobs:
         #uses: ./.github/actions/setup-project
 
       - name: Run deptry
-        if: env.PYPROJECT_EXISTS == 'true'
+        if: env.PYPROJECT_EXISTS
         run: uv run task quality:deptry
