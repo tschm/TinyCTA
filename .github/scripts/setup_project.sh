@@ -10,9 +10,9 @@ RENDER_FILE="${RENDER_FILE:-tests/resources/render.yml}"
 # -----------------------------
 # 1 Install uv
 # -----------------------------
-echo "Installing uv..."
-pip install --upgrade pip
-pip install uv
+#echo "Installing uv..."
+#pip install --upgrade pip
+#pip install uv
 
 # -----------------------------
 # 2 Render the project (Copier)
@@ -67,8 +67,6 @@ fi
 # -----------------------------
 uv pip install go-task-bin
 uv run task --version
-
-uv pip install uv
 
 
 echo "Setup completed."
