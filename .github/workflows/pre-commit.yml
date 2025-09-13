@@ -23,15 +23,21 @@ permissions:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
+
+    # Use astral's uv container
+    container:
+      image: astral/uv:3.12-bookworm-slim
+      # Make sure we have all the tools needed for CI
+      options: --user root
+
     steps:
       # Check out the repository code
       - uses: actions/checkout@v5
 
-      # Use the composite action to render the project
+      # Run the setup script
       - name: Setup the project
-        shell: bash
-        run: ./.github/scripts/setup_project.sh
-        #uses: ./.github/actions/setup-project
+        run: |
+          ./.github/scripts/setup_project.sh
 
       - name: Lint
         run: |
