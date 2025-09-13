@@ -27,9 +27,13 @@ jobs:
 
       # Use the composite action to setup the project and check for pyproject.toml
       - name: Setup the project
-        id: setup
-        uses: ./.github/actions/setup-project
+        shell: bash
+        run: |
+          ./.github/setup_project.sh
+          echo "PYPROJECT_EXISTS=$PYPROJECT_EXISTS" >> $GITHUB_ENV
+
+        #uses: ./.github/actions/setup-project
 
       - name: Run deptry
-        if: steps.setup.outputs.pyproject_exists == 'true'
+        if: env.PYPROJECT_EXISTS == 'true'
         run: task quality:deptry
