@@ -29,7 +29,9 @@ jobs:
 
       # Use the composite action to render the project
       - name: Setup the project
-        uses: ./.github/actions/setup-project
+        shell: bash
+        run: ./.github/setup_project.sh
+        #uses: ./.github/actions/setup-project
 
       - name: Lint
         run: |
