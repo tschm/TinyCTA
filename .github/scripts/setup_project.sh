@@ -8,20 +8,14 @@ PYTHON_VERSION="${PYTHON_VERSION:-3.12}"
 RENDER_FILE="${RENDER_FILE:-tests/resources/render.yml}"
 
 # -----------------------------
-# 1️⃣ Install uv
+# 1 Install uv
 # -----------------------------
 echo "Installing uv..."
 pip install --upgrade pip
 pip install uv
 
 # -----------------------------
-# 2️⃣ Install Task
-# -----------------------------
-echo "Installing Task..."
-curl -fsSL https://taskfile.dev/install.sh | sh -s -- -d -b /usr/local/bin v3.x
-
-# -----------------------------
-# 3️⃣ Render the project (Copier)
+# 2 Render the project (Copier)
 # -----------------------------
 if [[ -f "$RENDER_FILE" && -s "$RENDER_FILE" ]]; then
     echo "Rendering project with Copier..."
@@ -34,7 +28,7 @@ if [[ -f "$RENDER_FILE" && -s "$RENDER_FILE" ]]; then
 fi
 
 # -----------------------------
-# 4️⃣ Check for pyproject.toml
+# 3 Check for pyproject.toml
 # -----------------------------
 if [[ -f "pyproject.toml" ]]; then
     echo "PYPROJECT_EXISTS=true"
@@ -45,13 +39,13 @@ else
 fi
 
 # -----------------------------
-# 5️⃣ Build virtual environment
+# 4 Build virtual environment
 # -----------------------------
 echo "Creating virtual environment..."
 uv venv --python "$PYTHON_VERSION"
 
 # -----------------------------
-# 6️⃣ Sync dependencies (if pyproject.toml exists)
+# 5 Sync dependencies (if pyproject.toml exists)
 # -----------------------------
 if [[ "$PYPROJECT_EXISTS" == "true" ]]; then
     echo "Syncing dependencies with uv..."
@@ -59,5 +53,12 @@ if [[ "$PYPROJECT_EXISTS" == "true" ]]; then
 else
     echo "No pyproject.toml found, skipping package sync."
 fi
+
+# -----------------------------
+# 6 Install task
+# -----------------------------
+uv pip install go-task-bin
+uv run task --version
+
 
 echo "Setup completed."
