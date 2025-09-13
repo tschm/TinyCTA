@@ -35,8 +35,8 @@ jobs:
 
       - name: Lint
         run: |
-          task quality:lint
+          uv run task quality:lint
 
       - name: Format
         run: |
-          task quality:fmt
+          uv run task quality:fmt
