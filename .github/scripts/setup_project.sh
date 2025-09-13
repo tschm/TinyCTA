@@ -10,9 +10,9 @@ RENDER_FILE="${RENDER_FILE:-tests/resources/render.yml}"
 # -----------------------------
 # 1 Install uv
 # -----------------------------
-echo "Installing uv..."
-pip install --upgrade pip
-pip install uv
+#echo "Installing uv..."
+#pip install --upgrade pip
+#pip install uv
 
 # -----------------------------
 # 2 Render the project (Copier)
@@ -33,9 +33,17 @@ fi
 if [[ -f "pyproject.toml" ]]; then
     echo "PYPROJECT_EXISTS=true"
     export PYPROJECT_EXISTS=true
+    # Export to GitHub Actions environment if running in GitHub Actions
+    if [[ -n "${GITHUB_ENV:-}" ]]; then
+        echo "PYPROJECT_EXISTS=true" >> $GITHUB_ENV
+    fi
 else
     echo "PYPROJECT_EXISTS=false"
     export PYPROJECT_EXISTS=false
+    # Export to GitHub Actions environment if running in GitHub Actions
+    if [[ -n "${GITHUB_ENV:-}" ]]; then
+        echo "PYPROJECT_EXISTS=false" >> $GITHUB_ENV
+    fi
 fi
 
 # -----------------------------
