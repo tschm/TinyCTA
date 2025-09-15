@@ -29,14 +29,12 @@ jobs:
 
       # Use the composite action to render the project
       - name: Setup the project
-        shell: bash
-        run: ./.github/scripts/setup_project.sh
-        #uses: ./.github/actions/setup-project
+        uses: ./.github/actions/setup-project
 
       - name: Lint
         run: |
-          uv run task quality:lint
+          task quality:lint
 
       - name: Format
         run: |
-          uv run task quality:fmt
+          task quality:fmt
