@@ -42,7 +42,7 @@ jobs:
             .gitignore
             .pre-commit-config.yaml
             Makefile
-            Taskfile
+            Taskfile.yml
             taskfiles
             tests
             .github
