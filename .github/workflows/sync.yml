@@ -34,18 +34,12 @@ jobs:
         with:
           branch: sync/update-configs
           commit-message: sync config files from .config-templates
-          include: |
+          exclude: |
+            .git
+            README.md
+            LICENSE
+            .github/workflows/sync.yml
             ruff.toml
-            CODE_OF_CONDUCT.md
-            CONTRIBUTING.md
-            .editorconfig
-            .gitignore
-            .pre-commit-config.yaml
-            Makefile
-            Taskfile.yml
-            taskfiles
-            tests
-            .github
 
       # Override the token for create-pull-request action using the PAT secret
       - name: Create Pull Request (override token)
