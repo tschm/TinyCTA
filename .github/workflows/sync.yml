@@ -34,10 +34,7 @@ jobs:
         with:
           branch: sync/update-configs
           commit-message: sync config files from .config-templates
-          include: |
-            ruff.toml,
-            CODE_OF_CONDUCT.md,
-            CONTRIBUTING.md
+          include: 'ruff.toml,CODE_OF_CONDUCT.md,CONTRIBUTING.md'
 
       # Override the token for create-pull-request action using the PAT secret
       - name: Create Pull Request (override token)
