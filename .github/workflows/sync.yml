@@ -44,7 +44,9 @@ jobs:
             Makefile
             Taskfile
             taskfiles
-            
+            tests
+            .github
+
       # Override the token for create-pull-request action using the PAT secret
       - name: Create Pull Request (override token)
         uses: peter-evans/create-pull-request@v7
