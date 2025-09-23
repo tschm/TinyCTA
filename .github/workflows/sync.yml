@@ -30,10 +30,14 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Sync config templates
-        uses: tschm/.config-templates@main
+        uses: tschm/.config-templates@77-action-with-explicit-devcontainer-copy
         with:
           branch: sync/update-configs
           commit-message: sync config files from .config-templates
+          include: |
+            ruff.toml,
+            CODE_OF_CONDUCT.md,
+            CONTRIBUTING.md
 
       # Override the token for create-pull-request action using the PAT secret
       - name: Create Pull Request (override token)
