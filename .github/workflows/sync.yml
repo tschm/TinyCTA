@@ -38,7 +38,13 @@ jobs:
             ruff.toml
             CODE_OF_CONDUCT.md
             CONTRIBUTING.md
-
+            .editorconfig
+            .gitignore
+            .pre-commit-config.yaml
+            Makefile
+            Taskfile
+            taskfiles
+            
       # Override the token for create-pull-request action using the PAT secret
       - name: Create Pull Request (override token)
         uses: peter-evans/create-pull-request@v7
