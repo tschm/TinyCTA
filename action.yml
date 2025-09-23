@@ -1,0 +1,56 @@
+# This file is part of the tschm/.config-templates repository
+# (https://github.com/tschm/.config-templates).
+#
+name: 'Sync Config Templates'
+description: 'Sync configuration templates into a project and create a pull request if needed'
+author: 'Thomas Schmelzer'
+
+inputs:
+  branch:
+    description: 'Branch to sync changes to'
+    default: 'sync/update-configs'
+    required: false
+  commit-message:
+    description: 'Commit message for sync'
+    default: 'chore: sync config files from .config-templates'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Ensure Git repository
+      run: |
+        git rev-parse --is-inside-work-tree > /dev/null || {
+          echo "❌ Not in a git repository"
+          exit 1
+        }
+      shell: bash
+
+    - name: Download and apply templates
+      run: |
+        set -euo pipefail
+
+        REPO_URL="https://github.com/tschm/.config-templates"
+        TEMP_DIR="$(mktemp -d)"
+        trap 'rm -rf "$TEMP_DIR"' EXIT
+
+        echo "📥 Downloading template archive..."
+        curl -sSL -o templates.zip "$REPO_URL/archive/refs/heads/main.zip"
+
+        echo "📦 Extracting..."
+        unzip -q templates.zip -d "$TEMP_DIR"
+        rm -f templates.zip
+
+        EXTRACTED_DIR="${TEMP_DIR}/.config-templates-main"
+
+        echo "🧹 Removing files not needed for client..."
+        rm -f "${EXTRACTED_DIR}/action.yml"
+        rm -f "${EXTRACTED_DIR}/README.md"
+        rm -f "${EXTRACTED_DIR}/.gitignore"
+
+        echo "📂 Copying to working directory..."
+        cp -Rf "${EXTRACTED_DIR}/." .
+
+        echo "✅ Sync complete. Changed files:"
+        git status --short || true
+      shell: bash
