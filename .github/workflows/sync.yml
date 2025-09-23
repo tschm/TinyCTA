@@ -34,6 +34,9 @@ jobs:
         with:
           branch: sync/update-configs
           commit-message: sync config files from .config-templates
+          include: |
+            .pre-commit-config.yaml
+            .github
           exclude: |
             .git
             README.md
