@@ -74,14 +74,14 @@ jobs:
         if: ${{ success() }}
         shell: bash
         run: |
-          if git ls-remote --exit-code --heads origin sync/update-configs; then
+          if git ls-remote --exit-code --heads origin sync/update; then
             echo "✨ Branch exists — creating PR"
             gh pr create \
               --title "chore: sync config files from .config-templates" \
               --body "This PR updates config files from [tschm/.config-templates](https://github.com/tschm/.config-templates)." \
               --base main \
-              --head sync/update-configs \
+              --head sync/update \
               --delete-branch
           else
-            echo "ℹ️ Branch 'sync/update-configs' does not exist — skipping PR creation"
+            echo "ℹ️ Branch 'sync/update' does not exist — skipping PR creation"
           fi
