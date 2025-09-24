@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: write  # Needed to create releases
+  pull-requests: write  # Needed to create pull requests
 
 jobs:
   sync:
@@ -51,23 +52,6 @@ jobs:
             Taskfile.yml
           exclude: |
             .github/workflows/sync.yml
-        #env:
-        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      #- name: Sync config templates
-      #  uses: tschm/.config-templates@77-action-with-explicit-devcontainer-copy
-      #  with:
-      #    branch: sync/update-configs
-      #    commit-message: sync config files from .config-templates
-      #    include: |
-      #      .pre-commit-config.yaml
-      #      .github
-      #    exclude: |
-      #      .git
-      #      README.md
-      #      LICENSE
-      #      .github/workflows/sync.yml
-      #      ruff.toml
 
       - name: Create Pull Request (override token)
         if: ${{ success() }}
