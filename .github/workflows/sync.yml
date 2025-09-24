@@ -83,3 +83,5 @@ jobs:
           else
             echo "ℹ️ Branch 'sync/update' does not exist — skipping PR creation"
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}
