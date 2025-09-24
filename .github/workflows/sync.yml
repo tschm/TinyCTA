@@ -21,7 +21,6 @@ on:
 
 permissions:
   contents: write  # Needed to create releases
-  pull-requests: write  # Needed to create pull requests
 
 jobs:
   sync:
