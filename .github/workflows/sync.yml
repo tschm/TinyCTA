@@ -53,19 +53,16 @@ jobs:
           exclude: |
             .github/workflows/sync.yml
 
+      # Override the token for create-pull-request action using the PAT secret
       - name: Create Pull Request (override token)
-        if: ${{ success() }}
-        shell: bash
-        run: |
-          if git ls-remote --exit-code --heads origin sync/update; then
-            echo "✨ Branch exists — creating PR"
-            gh pr create \
-              --title "chore: sync config files from .config-templates" \
-              --body "This PR updates config files from [tschm/.config-templates](https://github.com/tschm/.config-templates)." \
-              --base main \
-              --head sync/update
-          else
-            echo "ℹ️ Branch 'sync/update' does not exist — skipping PR creation"
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.PAT_TOKEN }}          # Use PAT token here
+          commit-message:
+            "chore: sync template from .config-templates"
+          branch: sync/update
+          title:
+            "chore: sync template from .config-templates"
+          body: |
+            This PR updates config files from [tschm/.config-templates](https://github.com/tschm/.config-templates).
+          delete-branch: true
