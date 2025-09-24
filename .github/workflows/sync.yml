@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Sync Template
-        uses: jebel-quant/sync_template@v0.2.0
+        uses: jebel-quant/sync_template@v0.2.1
         with:
           template-repository: 'tschm/.config-templates'
           template-branch: '77-action-with-explicit-devcontainer-copy'  # Use 'master' for older repositories
