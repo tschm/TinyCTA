@@ -22,6 +22,11 @@ on:
 permissions:
   contents: write  # Needed to create releases
 
+env:
+  TEMPLATE_REPO: 'tschm/.config-templates'
+  TEMPLATE_BRANCH: '77-action-with-explicit-devcontainer-copy'
+  TARGET_BRANCH: 'sync/update'
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -32,9 +37,9 @@ jobs:
       - name: Sync Template
         uses: jebel-quant/sync_template@v0.2.1
         with:
-          template-repository: 'tschm/.config-templates'
-          template-branch: '77-action-with-explicit-devcontainer-copy'  # Use 'master' for older repositories
-          branch: 'sync/update'
+          template-repository: $TEMPLATE_REPO
+          template-branch: $TEMPLATE_BRANCH  # Use 'master' for older repositories
+          branch: $TARGET_BRANCH
           commit-message: 'chore: sync template files'
           include: |
             .devcontainer
@@ -58,10 +63,10 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}          # Use PAT token here
           commit-message:
-            "chore: sync template from .config-templates"
-          branch: sync/update
+            "chore: sync template from ${TEMPLATE_REPO}@${TEMPLATE_BRANCH}"
+          branch: ${TARGET_BRANCH}
           title:
-            "chore: sync template from .config-templates"
+            "chore: sync template from ${TEMPLATE_REPO}@${TEMPLATE_BRANCH}"
           body: |
-            This PR updates config files from [tschm/.config-templates](https://github.com/tschm/.config-templates).
+            This PR updates config files from ${TEMPLATE_REPO}@${TEMPLATE_BRANCH}."
           delete-branch: true
