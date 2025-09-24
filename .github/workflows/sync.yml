@@ -1,3 +1,17 @@
+# This file is part of the tschm/.config-templates repository
+# (https://github.com/tschm/.config-templates).
+#
+# Workflow: Sync
+# Purpose: This workflow synchronizes configuration files from the template repository
+#          to other repositories, creating a pull request with the changes.
+#
+# Trigger: This workflow runs manually via workflow_dispatch
+#
+# Components:
+#   - 📥 Checkout the target repository
+#   - 🔄 Sync configuration templates
+#   - 📝 Create a pull request with the changes
+
 name: SYNC
 
 on:
@@ -6,7 +20,7 @@ on:
     - cron: '0 0 * * 1'  # Weekly on Monday at midnight
 
 permissions:
-  contents: write  # Needed to push and create PRs
+  contents: write  # Needed to create releases
 
 env:
   TEMPLATE_REPO: 'tschm/.config-templates'
@@ -19,48 +33,29 @@ jobs:
     steps:
       - name: Checkout the target repo
         uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: 'false'
 
       - name: Sync Template
         id: sync
-        uses: jebel-quant/sync_template@v0.2.1
+        uses: jebel-quant/sync_template@main
         with:
+          token: ${{ secrets.PAT_TOKEN }}
           template-repository: ${{ env.TEMPLATE_REPO }}
           template-branch: ${{ env.TEMPLATE_BRANCH }}
           branch: ${{ env.TARGET_BRANCH }}
           commit-message: "chore: sync template files"
           include: |
-            .devcontainer
             .github
             taskfiles
             tests
-            .gitignore
             .editorconfig
+            .gitignore
             .pre-commit-config.yaml
             CODE_OF_CONDUCT.md
             CONTRIBUTING.md
             Makefile
             ruff.toml
             Taskfile.yml
-          exclude: |
-            .github/workflows/sync.yml
-
-      - name: Check if branch exists
-        id: branch_check
-        run: |
-          if git ls-remote --exit-code --heads origin "${{ env.TARGET_BRANCH }}"; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create Pull Request (override token)
-        if: steps.branch_check.outputs.exists == 'true'
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-          commit-message: "chore: sync template from ${{ env.TEMPLATE_REPO }}@${{ env.TEMPLATE_BRANCH }}"
-          branch: ${{ env.TARGET_BRANCH }}
-          title: "chore: sync template from ${{ env.TEMPLATE_REPO }}@${{ env.TEMPLATE_BRANCH }}"
-          body: |
-            This PR updates config files from ${{ env.TEMPLATE_REPO }}@${{ env.TEMPLATE_BRANCH }}.
-          delete-branch: true
