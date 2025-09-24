@@ -33,7 +33,7 @@ jobs:
         uses: jebel-quant/sync_template@v0.2.0
         with:
           template-repository: 'tschm/.config-templates'
-          template-branch: 'main'  # Use 'master' for older repositories
+          template-branch: '77-action-with-explicit-devcontainer-copy'  # Use 'master' for older repositories
           branch: 'sync/update'
           commit-message: 'chore: sync template files'
           include: |
