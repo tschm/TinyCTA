@@ -50,7 +50,6 @@ jobs:
             ruff.toml
             Taskfile.yml
           exclude: |
-            .git
             .github/workflows/sync.yml
         #env:
         #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -80,8 +79,7 @@ jobs:
               --title "chore: sync config files from .config-templates" \
               --body "This PR updates config files from [tschm/.config-templates](https://github.com/tschm/.config-templates)." \
               --base main \
-              --head sync/update \
-              --delete-branch
+              --head sync/update
           else
             echo "ℹ️ Branch 'sync/update' does not exist — skipping PR creation"
           fi
