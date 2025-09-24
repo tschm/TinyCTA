@@ -29,20 +29,46 @@ jobs:
       - name: Checkout the target repo
         uses: actions/checkout@v5
 
-      - name: Sync config templates
-        uses: tschm/.config-templates@77-action-with-explicit-devcontainer-copy
+      - name: Sync Template
+        uses: jebel-quant/sync_template@v0.2.0
         with:
-          branch: sync/update-configs
-          commit-message: sync config files from .config-templates
+          template-repository: 'tschm/.config-templates'
+          template-branch: 'main'  # Use 'master' for older repositories
+          branch: 'sync/update'
+          commit-message: 'chore: sync template files'
           include: |
-            .pre-commit-config.yaml
+            .devcontainer
             .github
+            taskfiles
+            tests
+            .gitignore
+            .editorconfig
+            .pre-commit-config.yaml
+            CODE_OF_CONDUCT.md
+            CONTRIBUTING.md
+            Makefile
+            ruff.toml
+            Taskfile.yml
           exclude: |
             .git
-            README.md
-            LICENSE
             .github/workflows/sync.yml
-            ruff.toml
+        #env:
+        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      #- name: Sync config templates
+      #  uses: tschm/.config-templates@77-action-with-explicit-devcontainer-copy
+      #  with:
+      #    branch: sync/update-configs
+      #    commit-message: sync config files from .config-templates
+      #    include: |
+      #      .pre-commit-config.yaml
+      #      .github
+      #    exclude: |
+      #      .git
+      #      README.md
+      #      LICENSE
+      #      .github/workflows/sync.yml
+      #      ruff.toml
 
       - name: Create Pull Request (override token)
         if: ${{ success() }}
