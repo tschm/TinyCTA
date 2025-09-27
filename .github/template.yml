@@ -1,6 +1,7 @@
 template-repository: "tschm/.config-templates"
 template-branch: "main"
 include: |
+    .github
     taskfiles
     tests
     .editorconfig
@@ -11,3 +12,5 @@ include: |
     Makefile
     ruff.toml
     Taskfile.yml
+exclude: |
+    .github/workflows/sync.yml
