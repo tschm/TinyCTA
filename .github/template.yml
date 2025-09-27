@@ -1,7 +1,6 @@
 template-repository: "tschm/.config-templates"
 template-branch: "77-hot"
 include: |
-    .github
     taskfiles
     tests
     .editorconfig
