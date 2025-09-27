@@ -128,7 +128,6 @@ jobs:
             echo "should_publish=true" >> $GITHUB_OUTPUT
           fi
 
-
       - name: Publish to PyPI
         if: steps.check_dist.outputs.should_publish == 'true'
         uses: pypa/gh-action-pypi-publish@release/v1
