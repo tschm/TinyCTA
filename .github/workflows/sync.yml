@@ -26,9 +26,8 @@ jobs:
     steps:
       - name: Sync Template
         id: sync
-        uses: jebel-quant/sync_template@v0.3.1
+        uses: jebel-quant/sync_template@v0.3.2
         with:
-          #token: ${{ secrets.PAT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
           source: ".github/template.yml"
           branch: "template-updates"
