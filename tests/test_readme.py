@@ -26,8 +26,11 @@ def test_readme_runs():
     code = "".join(code_blocks)  # merged code
     expected = "".join(result_blocks)
 
-    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+    # Trust boundary: we execute Python snippets sourced from README.md in this repo.
+    # The README is part of the trusted repository content and reviewed in PRs.
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)  # noqa: S603
 
     stdout = result.stdout
 
+    assert result.returncode == 0, f"README code exited with {result.returncode}. Stderr:\n{result.stderr}"
     assert stdout.strip() == expected.strip()
