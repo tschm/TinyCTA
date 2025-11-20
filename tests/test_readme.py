@@ -20,8 +20,12 @@ RESULT = re.compile(r"```result\n(.*?)```", re.DOTALL)
 
 def test_readme_runs():
     """Execute README code blocks and compare output to documented results."""
-    code_blocks = CODE_BLOCK.findall(README.read_text())
-    result_blocks = RESULT.findall(README.read_text())
+    readme_text = README.read_text(encoding="utf-8")
+    code_blocks = CODE_BLOCK.findall(readme_text)
+    result_blocks = RESULT.findall(readme_text)
+
+    # Optional: keep docs and expectations in sync.
+    assert len(code_blocks) == len(result_blocks), "Mismatch between python and result blocks in README.md"
 
     code = "".join(code_blocks)  # merged code
     expected = "".join(result_blocks)
