@@ -33,9 +33,9 @@ tasks:
         if [ -z "$SOURCE_FOLDER" ] || [ -z "{{.TESTS_FOLDER}}" ]; then
           printf "${YELLOW}[WARN] No valid source folder structure found, skipping tests${RESET}\n"
         else
-          ./bin/uv pip install pytest pytest-cov pytest-html
+          ./bin/uv pip install pytest pytest-cov pytest-html pytest-codeblocks
           mkdir -p _tests/html-coverage _tests/html-report
-          ./bin/uv run pytest {{.TESTS_FOLDER}} --cov=$SOURCE_FOLDER --cov-report=term --cov-report=html:_tests/html-coverage --html=_tests/html-report/report.html
+          ./bin/uv run pytest {{.TESTS_FOLDER}} --codeblocks --cov=$SOURCE_FOLDER --cov-report=term --cov-report=html:_tests/html-coverage --html=_tests/html-report/report.html
         fi
 
   docs:

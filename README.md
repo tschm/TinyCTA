@@ -53,7 +53,7 @@ import pandas as pd
 from src.tinycta.signal import osc
 
 # Load price data
-prices = pd.read_csv('prices.csv', index_col=0, parse_dates=True)
+prices = pd.read_csv('tests/resources/prices_hashed.csv', index_col=0, parse_dates=True)
 
 # Create an oscillator with default parameters
 oscillator = prices.apply(osc)
@@ -65,11 +65,7 @@ custom_oscillator = prices.apply(osc, fast=16, slow=64, scaling=False)
 ### Adjusting returns for volatility
 
 ```python
-import pandas as pd
 from src.tinycta.signal import returns_adjust
-
-# Load price data
-prices = pd.read_csv('prices.csv', index_col=0, parse_dates=True)
 
 # Adjust returns for volatility
 adjusted_returns = prices.apply(returns_adjust)
@@ -79,7 +75,7 @@ adjusted_returns = prices.apply(returns_adjust)
 
 ```python
 import numpy as np
-from src.tinycta.linalg import solve, shrink2id
+from src.tinycta.linalg import solve
 
 # Create a matrix and right-hand side vector
 matrix = np.array([[1.0, 0.5], [0.5, 1.0]])
@@ -88,9 +84,22 @@ rhs = np.array([1.0, 2.0])
 # Solve the linear system
 solution = solve(matrix, rhs)
 
-# Apply shrinkage to the matrix
-shrunk_matrix = shrink2id(matrix, lamb=0.5)
 ```
+
+This
+
+```sh
+print(1 + 3)
+```
+
+gives
+
+<!--pytest-codeblocks:expected-output-->
+
+```
+5
+```
+
 
 ## 📚 API Reference
 
