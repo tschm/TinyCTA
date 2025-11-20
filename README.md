@@ -50,10 +50,10 @@ virtual environment with all dependencies.
 
 ```python
 import pandas as pd
-from src.tinycta.signal import osc
+from tinycta.signal import osc
 
 # Load price data
-prices = pd.read_csv('prices.csv', index_col=0, parse_dates=True)
+prices = pd.read_csv('tests/resources/prices_hashed.csv', index_col=0, parse_dates=True)
 
 # Create an oscillator with default parameters
 oscillator = prices.apply(osc)
@@ -62,24 +62,28 @@ oscillator = prices.apply(osc)
 custom_oscillator = prices.apply(osc, fast=16, slow=64, scaling=False)
 ```
 
+```result
+```
+
 ### Adjusting returns for volatility
 
-```python
-import pandas as pd
-from src.tinycta.signal import returns_adjust
+<!--pytest-codeblocks:cont-->
 
-# Load price data
-prices = pd.read_csv('prices.csv', index_col=0, parse_dates=True)
+```python
+from tinycta.signal import returns_adjust
 
 # Adjust returns for volatility
 adjusted_returns = prices.apply(returns_adjust)
+```
+
+```result
 ```
 
 ### Linear algebra operations
 
 ```python
 import numpy as np
-from src.tinycta.linalg import solve, shrink2id
+from tinycta.linalg import solve
 
 # Create a matrix and right-hand side vector
 matrix = np.array([[1.0, 0.5], [0.5, 1.0]])
@@ -87,9 +91,11 @@ rhs = np.array([1.0, 2.0])
 
 # Solve the linear system
 solution = solve(matrix, rhs)
+print(solution)
+```
 
-# Apply shrinkage to the matrix
-shrunk_matrix = shrink2id(matrix, lamb=0.5)
+```result
+[0. 2.]
 ```
 
 ## 📚 API Reference
