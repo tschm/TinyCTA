@@ -122,30 +122,32 @@ jobs:
         run: |
           if [ -f ".env" ]; then
             echo "Found .env; exporting variables to GITHUB_ENV"
-            while IFS= read -r line; do
-              # skip empty lines and comments
-              if [ -z "$line" ] || echo "$line" | grep -E '^\s*#' >/dev/null; then
-                continue
-              fi
-              key=$(echo "$line" | cut -d '=' -f1)
-              value=$(echo "$line" | cut -d '=' -f2-)
-              # strip surrounding quotes
-              value=${value#"}; value=${value%"}
-              value=${value#\'}; value=${value%\'}
-              if [ -n "$key" ]; then
-                echo "$key=$value" >> "$GITHUB_ENV"
-              fi
-            done < .env
-            # expose PUBLISH_TO_PYPI specifically as an output
-            if grep -E '^PUBLISH_TO_PYPI=' .env >/dev/null; then
-              val=$(grep -E '^PUBLISH_TO_PYPI=' .env | head -n1 | cut -d '=' -f2-)
-              val=${val#"}; val=${val%"}; val=${val#\'}; val=${val%\'}
-              echo "publish_from_env=$val" >> "$GITHUB_OUTPUT"
-            else
-              echo "publish_from_env=" >> "$GITHUB_OUTPUT"
-            fi
+            while IFS='=' read -r key value; do
+              # skip empty lines, comments, or lines without '='
+              [[ -z "$key" || "$key" == \#* ]] && continue
+
+              # strip 'export ' prefix if present
+              key="${key#export }"
+
+              # trim whitespace
+              key="${key//[[:space:]]/}"
+              value="${value#"${value%%[![:space:]]*}"}"
+              value="${value%"${value##*[![:space:]]}"}"
+
+              # remove surrounding quotes
+              value="${value%\"}"; value="${value#\"}"
+              value="${value%\'}"; value="${value#\'}"
+
+              echo "${key}=${value}" >> "$GITHUB_ENV"
+            done < <(grep -v '^\s*$\|^\s*#' .env)
+
+            # expose PUBLISH_TO_PYPI specifically
+            publish_val=$(grep -E '^\s*PUBLISH_TO_PYPI=' .env | head -n1 | cut -d'=' -f2-)
+            publish_val="${publish_val%\"}"; publish_val="${publish_val#\"}"
+            publish_val="${publish_val%\'}"; publish_val="${publish_val#\'}"
+            echo "publish_from_env=$publish_val" >> "$GITHUB_OUTPUT"
           else
-            echo "No .env file found; continuing without it"
+            echo "No .env file found; continuing."
             echo "publish_from_env=" >> "$GITHUB_OUTPUT"
           fi
 
@@ -165,9 +167,10 @@ jobs:
           else
             echo "should_publish=true" >> $GITHUB_OUTPUT
           fi
+          cat $GITHUB_OUTPUT
 
       - name: Publish to PyPI
-        if: ${{ steps.check_dist.outputs.should_publish == 'true' && (steps.load_env.outputs.publish_from_env == 'true') }}
+        if: ${{ steps.check_dist.outputs.should_publish == 'true' && (steps.load_env.outputs.publish_from_env == 'true' ) }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
