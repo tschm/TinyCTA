@@ -22,15 +22,41 @@ tasks:
     desc: Install uv and uvx
     env:
       UV_INSTALL_DIR: ./bin
+      UV_NO_MODIFY_PATH: 1
     cmds:
       - |
+        # Already installed? Exit quietly
         if [ -x "${UV_INSTALL_DIR}/uv" ] && [ -x "${UV_INSTALL_DIR}/uvx" ]; then
-          # already installed — stay quiet
           exit 0
         fi
-        printf "${BLUE}Installing uv${RESET}\n"
-        curl -LsSf https://astral.sh/uv/install.sh | sh 2>/dev/null || { printf "${RED}[ERROR] Failed to install uv ${RESET}\n"; exit 1; }
 
+        printf "${BLUE}[INFO] Ensuring libatomic is installed...${RESET}\n"
+
+        install_libatomic() {
+          if command -v apt-get >/dev/null 2>&1; then
+            SUDO=$(command -v sudo >/dev/null 2>&1 && echo "sudo" || echo "")
+            $SUDO apt-get update -qq
+            $SUDO apt-get install -y libatomic1 >/dev/null 2>&1 || true
+          elif command -v apk >/dev/null 2>&1; then
+            apk add --no-cache libatomic >/dev/null 2>&1 || true
+          elif command -v dnf >/dev/null 2>&1; then
+            dnf install -y libatomic >/dev/null 2>&1 || true
+          elif command -v brew >/dev/null 2>&1; then
+            brew list libatomic_ops >/dev/null 2>&1 || brew install libatomic_ops >/dev/null 2>&1 || true
+          else
+            printf "${YELLOW}[WARN] No supported package manager found to install libatomic. Continuing...${RESET}\n"
+          fi
+        }
+
+        install_libatomic
+
+        printf "${BLUE}[INFO] Installing uv and uvx...${RESET}\n"
+        curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1 || {
+          printf "${RED}[ERROR] Failed to install uv${RESET}\n"
+          exit 1
+        }
+
+        printf "${GREEN}[OK] uv and uvx installed successfully.${RESET}\n"
 
   install:
     desc: Install all dependencies using uv
