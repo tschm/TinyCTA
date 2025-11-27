@@ -1,8 +1,6 @@
 template-repository: "tschm/.config-templates"
-template-ref: "v0.7.14"
 include: |
     .github
-    taskfiles
     tests
     .editorconfig
     .gitignore
@@ -11,4 +9,3 @@ include: |
     CONTRIBUTING.md
     Makefile
     ruff.toml
-    Taskfile.yml
