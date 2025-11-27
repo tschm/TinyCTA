@@ -23,7 +23,7 @@ def setup_tmp_makefile(tmp_path: Path):
 
     We rely on `make -n` so that no real commands are executed.
     """
-    project_root = Path(os.getcwd())
+    project_root = Path(__file__).parent.parent
 
     # Copy the Makefile into the temporary working directory
     shutil.copy(project_root / "Makefile", tmp_path / "Makefile")

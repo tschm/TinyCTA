@@ -84,7 +84,7 @@ class TestTaskfile:
         Ensures tests don't interfere with each other.
         """
         # Store original working directory
-        self.original_dir = os.getcwd()
+        self.original_dir = Path(__file__).parent.parent
 
         # copy Taskfile.yml to temp directory
         shutil.copy(os.path.join(self.original_dir, "Taskfile.yml"), tmp_path)

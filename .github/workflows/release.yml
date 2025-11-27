@@ -105,6 +105,7 @@ jobs:
           generate_release_notes: true
           files: "dist/**"
 
+  # Parse .env and decide at step-level whether to publish
   pypi:
     name: Publish to PyPI
     runs-on: ubuntu-latest
@@ -112,6 +113,44 @@ jobs:
     needs: [build, tag]
 
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Load .env file (if present)
+        id: load_env
+        shell: bash
+        run: |
+          if [ -f ".env" ]; then
+            echo "Found .env; exporting variables to GITHUB_ENV"
+            while IFS='=' read -r key value; do
+              # skip empty lines, comments, or lines without '='
+              [[ -z "$key" || "$key" == \#* ]] && continue
+
+              # strip 'export ' prefix if present
+              key="${key#export }"
+
+              # trim whitespace
+              key="${key//[[:space:]]/}"
+              value="${value#"${value%%[![:space:]]*}"}"
+              value="${value%"${value##*[![:space:]]}"}"
+
+              # remove surrounding quotes
+              value="${value%\"}"; value="${value#\"}"
+              value="${value%\'}"; value="${value#\'}"
+
+              echo "${key}=${value}" >> "$GITHUB_ENV"
+            done < <(grep -v '^\s*$\|^\s*#' .env)
+
+            # expose PUBLISH_TO_PYPI specifically
+            publish_val=$(grep -E '^\s*PUBLISH_TO_PYPI=' .env | head -n1 | cut -d'=' -f2-)
+            publish_val="${publish_val%\"}"; publish_val="${publish_val#\"}"
+            publish_val="${publish_val%\'}"; publish_val="${publish_val#\'}"
+            echo "publish_from_env=$publish_val" >> "$GITHUB_OUTPUT"
+          else
+            echo "No .env file found; continuing."
+            echo "publish_from_env=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Download dist artifact
         uses: actions/download-artifact@v6
         with:
@@ -128,9 +167,10 @@ jobs:
           else
             echo "should_publish=true" >> $GITHUB_OUTPUT
           fi
+          cat $GITHUB_OUTPUT
 
       - name: Publish to PyPI
-        if: steps.check_dist.outputs.should_publish == 'true'
+        if: ${{ steps.check_dist.outputs.should_publish == 'true' && (steps.load_env.outputs.publish_from_env == 'true' ) }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
