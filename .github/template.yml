@@ -1,5 +1,5 @@
 template-repository: "tschm/.config-templates"
-template-branch: "main"
+template-ref: "v0.7.6"
 include: |
     .github
     taskfiles
