@@ -370,3 +370,11 @@ jobs:
             ${{ steps.devcontainer_link.outputs.message }}
             ${{ steps.pypi_link.outputs.message }}
 
+      - name: Build and publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          uv build
+          uv publish \
+            --publish-url "https://upload.pkg.github.com/${{ github.repository_owner }}/" \
+            --token "$GITHUB_TOKEN"
