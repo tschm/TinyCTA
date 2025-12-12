@@ -49,11 +49,15 @@ virtual environment with all dependencies.
 ### Creating an oscillator
 
 ```python
+from pathlib import Path
+
 import pandas as pd
 from tinycta.signal import osc
 
+path = Path(__name__).resolve().parent.parent
+
 # Load price data
-prices = pd.read_csv('tests/test_tiny_cta/resources/prices_hashed.csv', index_col=0, parse_dates=True)
+prices = pd.read_csv(path / "tests" / "test_tiny_cta" / "resources" / "prices_hashed.csv", index_col=0, parse_dates=True)
 
 # Create an oscillator with default parameters
 oscillator = prices.apply(osc)
