@@ -63,7 +63,7 @@ on:
 permissions:
   contents: write  # Needed to create releases
   id-token: write  # Needed for OIDC authentication with PyPI
-  packages: write  # Needed to publish devcontainer image
+  packages: write  # Needed to publish devcontainer image and package
 
 jobs:
   tag:
@@ -164,6 +164,15 @@ jobs:
           generate_release_notes: true
           files: "dist/**"
           draft: true
+      
+      - name: Publish to GitHub Packages
+        run: |
+          uv publish \
+            --token ${{ secrets.GITHUB_TOKEN }} \
+            --publish-url https://pypi.pkg.github.com/${{ github.repository_owner }}
+        env:
+          UV_INDEX_URL: https://pypi.pkg.github.com/${{ github.repository_owner }}
+
 
   # Decide at step-level whether to publish
   pypi:
