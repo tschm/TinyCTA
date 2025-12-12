@@ -371,12 +371,9 @@ jobs:
             ${{ steps.pypi_link.outputs.message }}
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
-          version: "latest"
-
-      #- name: Set up Python
-      #  run: uv python install 3.12
+          version: "0.9.17"
 
       - name: Build and publish
         env:
