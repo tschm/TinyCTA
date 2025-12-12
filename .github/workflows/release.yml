@@ -381,5 +381,6 @@ jobs:
         run: |
           uv build
           uv publish \
-            --publish-url "https://upload.pkg.github.com/${{ github.repository_owner }}/" \
+            --publish-url "https://upload.pkg.github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/" \
             --token "$GITHUB_TOKEN"
+            --verbose
