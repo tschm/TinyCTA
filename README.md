@@ -53,16 +53,13 @@ import pandas as pd
 from tinycta.signal import osc
 
 # Load price data
-prices = pd.read_csv('tests/resources/prices_hashed.csv', index_col=0, parse_dates=True)
+prices = pd.read_csv('tests/test_tiny_cta/resources/prices_hashed.csv', index_col=0, parse_dates=True)
 
 # Create an oscillator with default parameters
 oscillator = prices.apply(osc)
 
 # Create an oscillator with custom parameters
 custom_oscillator = prices.apply(osc, fast=16, slow=64, scaling=False)
-```
-
-```result
 ```
 
 ### Adjusting returns for volatility
@@ -74,9 +71,6 @@ from tinycta.signal import returns_adjust
 
 # Adjust returns for volatility
 adjusted_returns = prices.apply(returns_adjust)
-```
-
-```result
 ```
 
 ### Linear algebra operations
