@@ -379,8 +379,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          PACKAGE_NAME=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['name'])")
           uv build
           uv publish \
-            --publish-url "https://upload.pkg.github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/" \
+            --publish-url "https://upload.pkg.github.com/${{ github.repository_owner }}/$PACKAGE_NAME/" \
             --token "$GITHUB_TOKEN"
             --verbose
