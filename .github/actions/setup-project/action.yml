@@ -40,17 +40,25 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Set up uv, uvx and the venv
-      shell: bash
-      run: |
-        mkdir -p bin
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "latest"
 
-        # Add ./bin to the PATH
-        echo "Adding ./bin to PATH"
-        echo "$(pwd)/bin" >> $GITHUB_PATH
+    #- name: Set up Python
+    #- run: uv python install 3.12
 
-        # Install uv and uvx
-        curl -fsSL https://astral.sh/uv/install.sh | UV_INSTALL_DIR="./bin" sh
+    #- name: Set up uv, uvx and the venv
+    #  shell: bash
+    #  run: |
+    #    mkdir -p bin
+    #
+    #    # Add ./bin to the PATH
+    #    echo "Adding ./bin to PATH"
+    #    echo "$(pwd)/bin" >> $GITHUB_PATH
+    #
+    #    # Install uv and uvx
+    #    curl -fsSL https://astral.sh/uv/install.sh | UV_INSTALL_DIR="./bin" sh
 
     - name: Check version for uv
       shell: bash
