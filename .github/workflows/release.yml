@@ -369,19 +369,3 @@ jobs:
           body: |
             ${{ steps.devcontainer_link.outputs.message }}
             ${{ steps.pypi_link.outputs.message }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "0.9.17"
-
-      - name: Build and publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          PACKAGE_NAME=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['name'])")
-          uv build
-          uv publish \
-            --publish-url "https://upload.pkg.github.com/${{ github.repository_owner }}/$PACKAGE_NAME/" \
-            --token "$GITHUB_TOKEN"
-            --verbose
