@@ -1,6 +1,6 @@
 #!/bin/bash
-# This file is part of the Jebel-Quant/rhiza repository
-# (https://github.com/Jebel-Quant/rhiza).
+# This file is part of the jebel-quant/rhiza repository
+# (https://github.com/jebel-quant/rhiza).
 #
 # Optional hook script for post-release actions
 #
