@@ -5,7 +5,7 @@
 # - Copies them to the current repository
 #
 # This script is POSIX-sh compatible and provides manual sync capability
-# for repositories that use Jebel-Quant/rhiza as a template.
+# for repositories that use jebel-quant/rhiza as a template.
 
 set -e
 
@@ -26,12 +26,12 @@ show_usage() {
   printf "  --dry-run      Show what would be synced without making changes\n\n"
   printf "Configuration:\n"
   printf "  Reads from %s to determine:\n" "$TEMPLATE_CONFIG"
-  printf "  - template-repository: Source repository (e.g., 'Jebel-Quant/rhiza')\n"
+  printf "  - template-repository: Source repository (e.g., 'jebel-quant/rhiza')\n"
   printf "  - template-branch: Branch to sync from (e.g., 'main')\n"
   printf "  - include: Files/directories to sync\n"
   printf "  - exclude: Files/directories to skip (optional)\n\n"
   printf "Example %s:\n" "$TEMPLATE_CONFIG"
-  printf "  template-repository: \"Jebel-Quant/rhiza\"\n"
+  printf "  template-repository: \"jebel-quant/rhiza\"\n"
   printf "  template-branch: \"main\"\n"
   printf "  include: |\n"
   printf "    .github\n"
@@ -63,7 +63,7 @@ if [ ! -f "$TEMPLATE_CONFIG" ]; then
   printf "%b[ERROR] Template configuration not found: %s%b\n" "$RED" "$TEMPLATE_CONFIG" "$RESET"
   printf "\nThis repository is not configured for template syncing.\n"
   printf "Create %s with the following content:\n\n" "$TEMPLATE_CONFIG"
-  printf "  template-repository: \"Jebel-Quant/rhiza\"\n"
+  printf "  template-repository: \"jebel-quant/rhiza\"\n"
   printf "  template-branch: \"main\"\n"
   printf "  include: |\n"
   printf "    .github\n"
