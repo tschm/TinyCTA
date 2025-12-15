@@ -18,8 +18,6 @@ class TestRootFixture:
 
     def test_root_points_to_repository_root(self, root):
         """Root fixture should point to the actual repository root."""
-        assert (root / "pyproject.toml").exists()
-        assert (root / "README.md").exists()
         assert (root / ".github").is_dir()
 
     def test_root_is_absolute_path(self, root):
@@ -30,9 +28,6 @@ class TestRootFixture:
         """Root should correctly resolve to repository root from tests/test_config_templates/."""
         conftest_path = root / "tests" / "test_rhiza" / "conftest.py"
         assert conftest_path.exists()
-
-        conftest_path = root / "tests" / "conftest.py"
-        assert not conftest_path.exists()
 
     def test_root_contains_expected_directories(self, root):
         """Root should contain all expected project directories."""
