@@ -1,89 +1,77 @@
-# This file is part of the jebel-quant/rhiza repository
-# (https://github.com/jebel-quant/rhiza).
-#
-# Workflow: Sync
-#
-# Purpose: This workflow synchronizes configuration files from the template
-#          repository to other repositories, creating a pull request with the
-#          changes to keep them up to date.
-#
-# Trigger: This workflow runs manually via workflow_dispatch and on a weekly
-#          schedule to ensure regular synchronization.
-#
-# Components:
-#   - 📥 Checkout the target repository
-#   - 🔄 Sync configuration templates
-#   - 📝 Create a pull request with the changes
-
 name: SYNC
+
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 on:
   workflow_dispatch:
+    inputs:
+      create-pr:
+        description: "Create a pull request"
+        type: boolean
+        default: true
   schedule:
-    - cron: '0 0 * * 1'  # Weekly on Monday at midnight
+    - cron: '0 0 * * 1'  # Weekly on Monday
 
 jobs:
   sync:
     if: ${{ github.repository != 'jebel-quant/rhiza' }}
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        version: "0.9.17"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
 
-    - name: Validate Repository
-      shell: bash
-      run: uvx rhiza validate .
+      - name: Validate repository
+        shell: bash
+        run: |
+          uvx rhiza validate .
 
-    - name: Sync template
-      id: sync
-      shell: bash
-      run: |
-        set -euo pipefail
+      - name: Sync template
+        id: sync
+        shell: bash
+        run: |
+          set -euo pipefail
 
-        git checkout -B rhiza_update
+          git checkout -B rhiza_update
 
-        uvx rhiza materialize .
+          uvx rhiza materialize .
 
-        git add -A
+          git add -A
 
-        if git diff --cached --quiet; then
-          echo "No changes detected."
-          echo "changes_detected=false" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
+          if git diff --cached --quiet; then
+            echo "No changes detected."
+            echo "changes_detected=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-        echo "changes_detected=true" >> "$GITHUB_OUTPUT"
+          echo "changes_detected=true" >> "$GITHUB_OUTPUT"
 
-        if git diff --cached --name-only | grep -q '^\.github/workflows/'; then
-          echo "⚠️ Workflow files modified — PAT with workflow scope required."
-        fi
+          if git diff --cached --name-only | grep -q '^\.github/workflows/'; then
+            echo "⚠️ Workflow files modified — PAT with workflow scope required."
+          fi
 
-        git config user.name  "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-        git commit -m "chore: Update via rizha"
-        git push origin "HEAD:rhiza_update" --force-with-lease
+          git commit -m "chore: Update via rhiza"
+          git push origin HEAD:rhiza_update --force-with-lease
 
-    - name: Create pull request
-      if: ${{ inputs.create-pr == 'true' && steps.sync.outputs.changes_detected == 'true' }}
-      uses: peter-evans/create-pull-request@v8
-      with:
-        token: ${{ secrets.PAT_TOKEN }}
-        branch: "rhiza_update"
-        delete-branch: false
-        title: "chore: Update via rizha"
-        body: |
-          This pull request synchronizes the repository with its template.
+      - name: Create pull request
+        if: ${{ inputs.create-pr && steps.sync.outputs.changes_detected == 'true' }}
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.PAT_TOKEN || github.token }}
+          branch: rhiza_update
+          delete-branch: false
+          title: "chore: Update via rhiza"
+          body: |
+            This pull request synchronizes the repository with its template.
 
-          Changes were generated automatically using **rhiza**.
-
+            Changes were generated automatically using **rhiza**.
