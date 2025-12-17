@@ -36,6 +36,8 @@ jobs:
       - name: Sync template
         id: sync
         shell: bash
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -47,23 +49,30 @@ jobs:
 
           if git diff --cached --quiet; then
             echo "No changes detected."
-            echo "changes_detected=false" >> "$GITHUB_OUTPUT"
-            echo "workflows_changed=false" >> "$GITHUB_OUTPUT"
-            echo "push_succeeded=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "changes_detected=false"
+              echo "workflows_changed=false"
+              echo "push_succeeded=false"
+            } >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           echo "changes_detected=true" >> "$GITHUB_OUTPUT"
 
+          workflows_changed=false
+          can_push=true
+
           if git diff --cached --name-only | grep -q '^\.github/workflows/'; then
+            workflows_changed=true
             echo "workflows_changed=true" >> "$GITHUB_OUTPUT"
-            echo "⚠️ Workflow files modified. Attempting push with appropriate permissions..."
-            # If a PAT is provided, use it for pushing (must include 'workflow' scope)
-            if [ -n "${{ secrets.PAT_TOKEN }}" ]; then
-              git remote set-url origin "https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git"
+            echo "⚠️ Workflow files modified."
+
+            if [ -n "$PAT_TOKEN" ]; then
+              git remote set-url origin \
+                "https://x-access-token:${PAT_TOKEN}@github.com/${{ github.repository }}.git"
             else
-              echo "::warning::Workflow files changed but no PAT_TOKEN secret provided. Set a PAT with 'workflow' scope at Settings → Secrets and variables → Actions → New repository secret (name: PAT_TOKEN)."
-              echo "push_succeeded=false" >> "$GITHUB_OUTPUT"
+              echo "::warning::Workflow files changed but no PAT_TOKEN provided (requires 'workflow' scope)."
+              can_push=false
             fi
           else
             echo "workflows_changed=false" >> "$GITHUB_OUTPUT"
@@ -74,14 +83,16 @@ jobs:
 
           git commit -m "chore: Update via rhiza"
 
-          # Only attempt to push if either workflows didn't change or PAT was set above
-          if [ "$(grep '^push_succeeded=' "$GITHUB_OUTPUT" | tail -n1 | cut -d'=' -f2 || true)" != "false" ]; then
+          if [ "$can_push" = true ]; then
             if git push origin HEAD:rhiza_update --force-with-lease; then
               echo "push_succeeded=true" >> "$GITHUB_OUTPUT"
             else
               echo "push_succeeded=false" >> "$GITHUB_OUTPUT"
-              echo "::error::Failed to push branch 'rhiza_update'. If workflow files changed, ensure PAT_TOKEN has 'workflow' scope; otherwise check repository permissions."
+              echo "::error::Failed to push branch 'rhiza_update'. If workflows changed, ensure PAT_TOKEN has 'workflow' scope."
+              exit 1
             fi
+          else
+            echo "push_succeeded=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create pull request
