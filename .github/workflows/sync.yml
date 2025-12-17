@@ -41,7 +41,7 @@ jobs:
 
           git checkout -B rhiza_update
 
-          uvx rhiza materialize .
+          uvx rhiza materialize --force .
 
           git add -A
 
