@@ -1,4 +1,9 @@
 name: SYNC
+# This workflow synchronizes the repository with its template.
+# IMPORTANT: When workflow files (.github/workflows/*.yml) are modified,
+# a Personal Access Token (PAT) with 'workflow' scope is required.
+# The PAT_TOKEN secret must be set in repository secrets.
+# See .github/TOKEN_SETUP.md for setup instructions.
 permissions:
   contents: write
   pull-requests: write
@@ -23,6 +28,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.PAT_TOKEN || github.token }}
           fetch-depth: 0
 
       - name: Install uv
@@ -66,12 +72,17 @@ jobs:
             workflows_changed=true
             echo "workflows_changed=true" >> "$GITHUB_OUTPUT"
             echo "⚠️ Workflow files modified."
+            echo ""
+            echo "ℹ️  Pushing workflow changes requires a PAT with 'workflow' scope."
 
             if [ -n "$PAT_TOKEN" ]; then
               git remote set-url origin \
                 "https://x-access-token:${PAT_TOKEN}@github.com/${{ github.repository }}.git"
+              echo "✓ Using PAT_TOKEN for authentication."
             else
-              echo "::warning::Workflow files changed but no PAT_TOKEN provided (requires 'workflow' scope)."
+              echo "::error::Workflow files changed but PAT_TOKEN secret is not set."
+              echo "::error::GitHub's security policy requires a Personal Access Token with 'workflow' scope to push workflow changes."
+              echo "::error::See .github/TOKEN_SETUP.md for instructions on creating and configuring the PAT_TOKEN secret."
               can_push=false
             fi
           else
@@ -88,7 +99,11 @@ jobs:
               echo "push_succeeded=true" >> "$GITHUB_OUTPUT"
             else
               echo "push_succeeded=false" >> "$GITHUB_OUTPUT"
-              echo "::error::Failed to push branch 'rhiza_update'. If workflows changed, ensure PAT_TOKEN has 'workflow' scope."
+              echo "::error::Failed to push branch 'rhiza_update'."
+              echo "::error::If workflow files were changed, this is likely because:"
+              echo "::error::  1. PAT_TOKEN secret is not set, OR"
+              echo "::error::  2. PAT_TOKEN lacks the 'workflow' scope"
+              echo "::error::See .github/TOKEN_SETUP.md for setup instructions."
               exit 1
             fi
           else
