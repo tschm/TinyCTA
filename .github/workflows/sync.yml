@@ -1,8 +1,8 @@
 name: SYNC
-
 permissions:
   contents: write
   pull-requests: write
+
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ on:
 
 jobs:
   sync:
-    if: ${{ github.repository != 'jebel-quant/rhiza' }}
+    if: ${{ github.repository != 'jebel-quant/rhiza' && github.ref_name != 'rhiza_update' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -48,23 +48,44 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes detected."
             echo "changes_detected=false" >> "$GITHUB_OUTPUT"
+            echo "workflows_changed=false" >> "$GITHUB_OUTPUT"
+            echo "push_succeeded=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           echo "changes_detected=true" >> "$GITHUB_OUTPUT"
 
           if git diff --cached --name-only | grep -q '^\.github/workflows/'; then
-            echo "⚠️ Workflow files modified — PAT with workflow scope required."
+            echo "workflows_changed=true" >> "$GITHUB_OUTPUT"
+            echo "⚠️ Workflow files modified. Attempting push with appropriate permissions..."
+            # If a PAT is provided, use it for pushing (must include 'workflow' scope)
+            if [ -n "${{ secrets.PAT_TOKEN }}" ]; then
+              git remote set-url origin "https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git"
+            else
+              echo "::warning::Workflow files changed but no PAT_TOKEN secret provided. Set a PAT with 'workflow' scope at Settings → Secrets and variables → Actions → New repository secret (name: PAT_TOKEN)."
+              echo "push_succeeded=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "workflows_changed=false" >> "$GITHUB_OUTPUT"
           fi
 
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git commit -m "chore: Update via rhiza"
-          git push origin HEAD:rhiza_update --force-with-lease
+
+          # Only attempt to push if either workflows didn't change or PAT was set above
+          if [ "$(grep '^push_succeeded=' "$GITHUB_OUTPUT" | tail -n1 | cut -d'=' -f2 || true)" != "false" ]; then
+            if git push origin HEAD:rhiza_update --force-with-lease; then
+              echo "push_succeeded=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "push_succeeded=false" >> "$GITHUB_OUTPUT"
+              echo "::error::Failed to push branch 'rhiza_update'. If workflow files changed, ensure PAT_TOKEN has 'workflow' scope; otherwise check repository permissions."
+            fi
+          fi
 
       - name: Create pull request
-        if: ${{ inputs.create-pr && steps.sync.outputs.changes_detected == 'true' }}
+        if: ${{ inputs.create-pr && steps.sync.outputs.changes_detected == 'true' && steps.sync.outputs.push_succeeded == 'true' }}
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.PAT_TOKEN || github.token }}
