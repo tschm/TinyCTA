@@ -68,6 +68,7 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.PAT_TOKEN || github.token }}
+          base: ${{ github.event.repository.default_branch }}
           branch: rhiza_update
           delete-branch: false
           title: "chore: Update via rhiza"
@@ -75,3 +76,7 @@ jobs:
             This pull request synchronizes the repository with its template.
 
             Changes were generated automatically using **rhiza**.
+
+      - name: Delete branch
+        if: ${{ steps.sync.outputs.changes_detected == 'false' }}
+        run: git push origin --delete rhiza_update
