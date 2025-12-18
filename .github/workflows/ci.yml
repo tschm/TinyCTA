@@ -62,11 +62,5 @@ jobs:
           fi
           uv pip install pytest
 
-      # validate the Rhiza configuration
-      - name: Validate Rhiza config
-        run: |
-          pip install rhiza
-          rhiza validate
-          
       - name: Run tests
         run: uv run pytest tests

@@ -4,10 +4,10 @@ name: SYNC
 # a Personal Access Token (PAT) with 'workflow' scope is required.
 # The PAT_TOKEN secret must be set in repository secrets.
 # See .github/TOKEN_SETUP.md for setup instructions.
+
 permissions:
   contents: write
   pull-requests: write
-
 
 on:
   workflow_dispatch:
@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.PAT_TOKEN || github.token }}
           fetch-depth: 0
@@ -83,7 +83,6 @@ jobs:
 
           if git diff --cached --name-only | grep -q '^\.github/workflows/'; then
             workflows_changed=true
-            echo "workflows_changed=true" >> "$GITHUB_OUTPUT"
             echo "⚠️ Workflow files modified."
             echo ""
             echo "ℹ️  Pushing workflow changes requires a PAT with 'workflow' scope."
@@ -94,13 +93,13 @@ jobs:
               echo "✓ Using PAT_TOKEN for authentication."
             else
               echo "::error::Workflow files changed but PAT_TOKEN secret is not set."
-              echo "::error::GitHub's security policy requires a Personal Access Token with 'workflow' scope to push workflow changes."
-              echo "::error::See .github/TOKEN_SETUP.md for instructions on creating and configuring the PAT_TOKEN secret."
+              echo "::error::GitHub requires a PAT with 'workflow' scope to push workflow changes."
+              echo "::error::See .github/TOKEN_SETUP.md for setup instructions."
               can_push=false
             fi
-          else
-            echo "workflows_changed=false" >> "$GITHUB_OUTPUT"
           fi
+
+          echo "workflows_changed=$workflows_changed" >> "$GITHUB_OUTPUT"
 
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -114,13 +113,14 @@ jobs:
               echo "push_succeeded=false" >> "$GITHUB_OUTPUT"
               echo "::error::Failed to push branch 'rhiza_update'."
               echo "::error::If workflow files were changed, this is likely because:"
-              echo "::error::  1. PAT_TOKEN secret is not set, OR"
+              echo "::error::  1. PAT_TOKEN is not set, OR"
               echo "::error::  2. PAT_TOKEN lacks the 'workflow' scope"
               echo "::error::See .github/TOKEN_SETUP.md for setup instructions."
               exit 1
             fi
           else
             echo "push_succeeded=false" >> "$GITHUB_OUTPUT"
+            exit 1
           fi
 
       - name: Create pull request
@@ -136,7 +136,3 @@ jobs:
             This pull request synchronizes the repository with its template.
 
             Changes were generated automatically using **rhiza**.
-
-      - name: Delete branch
-        if: ${{ steps.sync.outputs.changes_detected == 'false' }}
-        run: git push origin --delete rhiza_update
