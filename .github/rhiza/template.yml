@@ -1,6 +1,6 @@
 template-repository: "jebel-quant/rhiza"
 template-branch: "main"
-include: 
+include:
     - .github
     - tests
     - .editorconfig
@@ -11,6 +11,7 @@ include:
     - Makefile
     - ruff.toml
     - pytest.ini
+    - book
 exclude:
     - .github/workflows/docker.yml
     - .github/workflows/devcontainer.yml
