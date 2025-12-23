@@ -793,16 +793,16 @@ wheels = [
 
 [[package]]
 name = "rhiza"
-version = "0.2.0"
+version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "loguru" },
     { name = "pyyaml" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e2/ec/b2fd8587f479097d734cef24ba0d88424bde1474414637cc3fdcb6aa88f5/rhiza-0.2.0.tar.gz", hash = "sha256:2c9ea1a9b39cb75c40b5d1e96a45f4f3eadf30c8cf4dff07de8d4e2c8ecf4a9e", size = 125514, upload-time = "2025-12-16T10:34:46.771Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/83/9f/3d464ed5f1416a0e129cf140db02acb7730c5a690f9a2a6fbfde83e1ac48/rhiza-0.6.0.tar.gz", hash = "sha256:e1d67705ecc122f7bc86ddd5e4e147cdc05db076092eb5b7260af7e7048fc06f", size = 134508, upload-time = "2025-12-23T04:47:11.814Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/49/8e/10a6aa2ead48af697b2b2a3e2649237551abc4a9b21cdeae9dbbfae03216/rhiza-0.2.0-py3-none-any.whl", hash = "sha256:1ac3632d3079714a574b5864e8c984b139a6d53ca842134d0eec85fac5a95017", size = 14845, upload-time = "2025-12-16T10:34:45.319Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/e6/6bdac80a7f99f2bc66db86f7c6a25a0ca0f73a80946adc9ee9ebaa5e7e5e/rhiza-0.6.0-py3-none-any.whl", hash = "sha256:d0b7502f9f86dd59b2ab2a3287710e7617cd9bd8b357a0886a116c73813ae143", size = 20736, upload-time = "2025-12-23T04:47:10.715Z" },
 ]
 
 [[package]]
@@ -875,7 +875,7 @@ requires-dist = [
     { name = "pre-commit", marker = "extra == 'dev'", specifier = "==4.5.1" },
     { name = "pytest", marker = "extra == 'dev'", specifier = "==9.0.2" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.1.1" },
-    { name = "rhiza", marker = "extra == 'dev'", specifier = "==0.2.0" },
+    { name = "rhiza", marker = "extra == 'dev'", specifier = "==0.6.0" },
 ]
 provides-extras = ["dev"]
 
