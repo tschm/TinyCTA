@@ -18,7 +18,6 @@ dev = [
     "pytest==9.0.2",
     "pre-commit==4.5.1",
     "marimo==0.18.4",
-    "rhiza==0.2.0",
 ]
 
 [build-system]
