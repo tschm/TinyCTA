@@ -2,6 +2,7 @@ template-repository: "jebel-quant/rhiza"
 template-branch: "main"
 include:
     - .github
+    - .rhiza
     - tests
     - .editorconfig
     - .gitignore
@@ -12,6 +13,7 @@ include:
     - ruff.toml
     - pytest.ini
     - book
+    - renovate.json
 exclude:
     - .github/workflows/docker.yml
     - .github/workflows/devcontainer.yml
