@@ -14,8 +14,9 @@ repository = "https://github.com/tschm/tinycta"
 
 [project.optional-dependencies]
 dev = [
-    "pytest-cov>=6.1.1",
-    "pytest==9.0.2",
+    "pytest-cov>=7.0",
+    "pytest-html>=4.0",
+    "pytest>=9.0",
     "pre-commit==4.5.1",
     "marimo==0.18.4",
     "python-dotenv==1.2.1",
