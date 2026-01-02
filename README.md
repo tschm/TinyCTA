@@ -1,10 +1,8 @@
 <div align="center">
    
-# 📈 TinyCTA
+# 📈 [TinyCTA](tschm.github.io/tinycta/)
 
-> Lightweight Python Package for Commodity Trading Advisor Strategies
-
-A modern toolkit for implementing CTA strategies with trend-following signals and linear algebra operations.
+A Lightweight Python Package for Commodity Trading Advisor Strategies.
 
 [![PyPI version](https://badge.fury.io/py/tinycta.svg)](https://badge.fury.io/py/tinycta)
 [![MIT License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/tschm/tinycta/blob/master/LICENSE)
