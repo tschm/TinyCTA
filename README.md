@@ -1,3 +1,5 @@
+<div align="center">
+   
 # 📈 TinyCTA
 
 > Lightweight Python Package for Commodity Trading Advisor Strategies
@@ -15,6 +17,7 @@ A modern toolkit for implementing CTA strategies with trend-following signals an
 **Quick Links:** [📚 Documentation](https://github.com/tschm/TinyCTA) • [📦 PyPI](https://pypi.org/project/tinycta/) • [🐛 Issues](https://github.com/tschm/TinyCTA/issues) • [💬 Discussions](https://github.com/tschm/TinyCTA/discussions)
 
 ---
+</div>
 
 ## 📋 Overview
 
