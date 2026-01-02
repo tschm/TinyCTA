@@ -1,6 +1,6 @@
 <div align="center">
    
-# 📈 [TinyCTA](tschm.github.io/tinycta/)
+# 📈 [TinyCTA](https://tschm.github.io/TinyCTA/)
 
 A Lightweight Python Package for Commodity Trading Advisor Strategies.
 
