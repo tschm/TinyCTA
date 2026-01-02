@@ -12,7 +12,7 @@ A Lightweight Python Package for Commodity Trading Advisor Strategies.
 
 ---
 
-**Quick Links:** [📚 Documentation](https://github.com/tschm/TinyCTA) • [📦 PyPI](https://pypi.org/project/tinycta/) • [🐛 Issues](https://github.com/tschm/TinyCTA/issues) • [💬 Discussions](https://github.com/tschm/TinyCTA/discussions)
+**Quick Links:** [📚 Repository](https://github.com/tschm/TinyCTA) • [📦 PyPI](https://pypi.org/project/tinycta/) • [🐛 Issues](https://github.com/tschm/TinyCTA/issues) • [💬 Discussions](https://github.com/tschm/TinyCTA/discussions)
 
 ---
 </div>
