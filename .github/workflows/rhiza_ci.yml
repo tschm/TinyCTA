@@ -34,7 +34,7 @@ jobs:
       - id: versions
         run: |
           # Generate Python versions JSON from the script
-          JSON=$(make -s version-matrix)
+          JSON=$(make -f .rhiza/rhiza.mk -s version-matrix)
           echo "list=$JSON" >> "$GITHUB_OUTPUT"
 
       - name: Debug matrix
@@ -63,4 +63,4 @@ jobs:
 
       - name: Run tests
         run: |
-          make test
+          make -f .rhiza/rhiza.mk test

@@ -34,4 +34,4 @@ jobs:
       # Run pre-commit
       - name: Run pre-commit
         run: |
-          make fmt
+          make -f .rhiza/rhiza.mk fmt

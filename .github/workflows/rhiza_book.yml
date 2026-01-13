@@ -54,7 +54,7 @@ jobs:
 
       - name: "Make the book"
         run: |
-          make book
+          make -f .rhiza/rhiza.mk book
 
       # Step 5: Package all artifacts for GitHub Pages deployment
       # This prepares the combined outputs for deployment by creating a single artifact

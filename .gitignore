@@ -5,7 +5,6 @@
 
 ### Don't expose API keys, etc.
 .env
-!.rhiza/.env
 
 __marimo__
 
@@ -93,4 +92,6 @@ instance/
 # Cython debug symbols
 cython_debug/
 
+# Makefile
+local.mk
 

@@ -1,4 +1,4 @@
-## Makefile.customisations - User-defined scripts and overrides
+## customisations.mk - User-defined scripts and overrides
 # This file is included by the main Makefile
 
 # Declare phony targets

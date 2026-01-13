@@ -1,4 +1,4 @@
-## Makefile.book - Documentation and book-building targets
+## book.mk - Documentation and book-building targets
 # This file is included by the main Makefile.
 # It provides targets for generating API documentation (pdoc),
 # exporting Marimo notebooks to HTML (marimushka), and compiling

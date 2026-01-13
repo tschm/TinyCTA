@@ -7,7 +7,7 @@ This directory contains the source and templates for generating the Rhiza compan
 - `marimo/`: Interactive [Marimo](https://marimo.io/) notebooks that are included in the book.
 - `minibook-templates/`: Jinja2 templates for the minibook generation.
 - `pdoc-templates/`: Custom templates for [pdoc](https://pdoc.dev/) API documentation.
-- `Makefile.book`: Specialized Makefile for building the book and documentation.
+- `book.mk`: Specialized Makefile for building the book and documentation.
 
 ## Building the Book
 
