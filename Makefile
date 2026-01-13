@@ -203,9 +203,6 @@ customisations: ## list available customisation scripts
 		printf "${YELLOW}[INFO] No customisations found in ${CUSTOM_SCRIPTS_FOLDER}${RESET}\n"; \
 	fi
 
-update-readme: install-uv ## update README.md with current Makefile help output
-	@${UVX_BIN} rhiza-tools update-readme-help
-
 version-matrix: install-uv ## Emit the list of supported Python versions from pyproject.toml
 	@${UV_BIN} run .rhiza/utils/version_matrix.py
 
