@@ -16,7 +16,7 @@ _marimushka
 # temp file used by Junie
 .output.txt
 
-# folder used for task
+# folder used for programs, e.g. uv, uvx, task, etc.
 bin
 
 # Byte-compiled / optimized / DLL files
