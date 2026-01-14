@@ -25,3 +25,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tinycta"]
+
+[tool.deptry.package_module_name_map]
+numpy = "numpy"
+pandas = "pandas"
+pre-commit = "pre_commit"
+marimo = "marimo"
+plotly = "plotly"
