@@ -16,7 +16,10 @@ repository = "https://github.com/tschm/tinycta"
 dev = [
     "pre-commit==4.5.1",
     "marimo==0.19.2",
-    "plotly>=6.5"
+    "plotly>=6.5",
+    "mypy>=1.14.0",
+    "pandas-stubs>=2.2.0",
+    "types-pytz"
 ]
 
 [build-system]
@@ -32,3 +35,6 @@ pandas = "pandas"
 pre-commit = "pre_commit"
 marimo = "marimo"
 plotly = "plotly"
+mypy = "mypy"
+pandas-stubs = "pandas"
+types-pytz = "pytz"

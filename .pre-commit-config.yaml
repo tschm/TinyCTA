@@ -17,14 +17,6 @@ repos:
       # Run the formatter
       - id: ruff-format
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.14.1'
-    hooks:
-      - id: mypy
-        args: [ --config-file=pyproject.toml ]
-        additional_dependencies: [numpy>=2.0.0, pandas-stubs>=2.2.0, types-pytz]
-        files: ^src
-
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.47.0
     hooks:
@@ -59,6 +51,14 @@ repos:
 
   - repo: local
     hooks:
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: system
+        types: [python]
+        files: ^src
+        args: [--config-file=pyproject.toml]
+
       - id: update-readme-help
         name: Update README with Makefile help output
         entry: make readme
