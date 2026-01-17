@@ -41,10 +41,7 @@ def osc(prices: pd.DataFrame, fast: int = 32, slow: int = 96, scaling: bool = Tr
         DataFrame containing the computed oscillator values.
     """
     diff = prices.ewm(com=fast - 1).mean() - prices.ewm(com=slow - 1).mean()
-    if scaling:
-        s = diff.std()
-    else:
-        s = 1
+    s = diff.std() if scaling else 1
 
     return diff / s
 
