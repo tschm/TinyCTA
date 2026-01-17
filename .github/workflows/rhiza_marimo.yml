@@ -15,7 +15,7 @@
 #   - 🧪 Run each notebook in parallel using a matrix strategy
 #   - ✅ Fail-fast disabled to report all failing notebooks
 
-name: "MARIMO"
+name: "(RHIZA) MARIMO"
 
 permissions:
   contents: read
@@ -82,7 +82,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          version: "0.9.24"
+          version: "0.9.26"
 
       # Execute the notebook with the appropriate runner based on its content
       - name: Run notebook

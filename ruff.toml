@@ -64,7 +64,7 @@ select = ["D", "E", "F", "I", "N", "W", "UP"]
 # private/underscored modules by explicitly selecting the relevant pydocstyle
 # rules in addition to the D set. This makes the intent clear and future-proof
 # if the default pydocstyle selection changes.
-extend-select = ["D105", "D107"]
+extend-select = ["D105", "D107", "B", "C4", "SIM", "PT", "RUF", "S", "ERA", "T10", "TRY", "ICN", "PIE", "PL"]
 
 # Resolve incompatible pydocstyle rules: prefer D211 and D212 over D203 and D213
 ignore = ["D203", "D213"]
@@ -83,6 +83,6 @@ line-ending = "auto"
 
 # File-specific rule exceptions
 [lint.per-file-ignores]
-"tests/**/*.py" = ["S101"]        # Allow assert statements in tests
-"book/marimo/*.py" = ["N803", "S101"] # Allow non-lowercase variable names (N803)
-                                      # and assert statements in marimo files
+"tests/**/*.py" = ["S101", "S603", "PLW1510", "ERA001", "PLR2004", "RUF002", "RUF012"]  # Allow assert statements, subprocess calls, subprocess without check, commented code, magic values, ambiguous unicode, and mutable class attributes in tests
+"book/marimo/*.py" = ["N803", "S101", "PLC0415", "B018", "RUF001", "RUF002"] # Allow non-lowercase variable names, assert statements, imports not at top-level, useless expressions, and ambiguous unicode in marimo files
+".rhiza/utils/*.py" = ["PLW2901", "TRY003"]  # Allow loop variable overwriting and long exception messages in utility scripts

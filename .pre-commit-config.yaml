@@ -9,13 +9,21 @@ repos:
       - id: check-yaml
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.14.11'
+    rev: 'v0.14.13'
     hooks:
       - id: ruff
         args: [ --fix, --exit-non-zero-on-fix, --unsafe-fixes ]
 
       # Run the formatter
       - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.14.1'
+    hooks:
+      - id: mypy
+        args: [ --config-file=pyproject.toml ]
+        additional_dependencies: []
+        files: ^src
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.47.0
@@ -42,6 +50,12 @@ repos:
     rev: v0.24.1
     hooks:
       - id: validate-pyproject
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.6
+    hooks:
+      - id: bandit
+        args: ["--skip", "B101", "--exclude", ".venv,tests,.git,.pytest_cache"]
 
   - repo: local
     hooks:

@@ -90,7 +90,7 @@ def setup_api_env(logger, root, tmp_path: Path):
         os.chdir(old_cwd)
 
 
-def run_make(args: list[str] = None, dry_run: bool = True) -> subprocess.CompletedProcess:
+def run_make(args: list[str] | None = None, dry_run: bool = True) -> subprocess.CompletedProcess:
     """Run make in the current directory."""
     cmd = [MAKE]
     if dry_run:
@@ -150,7 +150,6 @@ def test_minimal_setup_works(setup_api_env):
     # If tests.mk is gone, the target `test` (if defined ONLY in tests.mk) will be gone.
     # If it is defined in Makefile.rhiza to check for file existence, it might be there.
     # But usually splitting means the file owns the target.
-    pass
 
 
 def test_extension_mechanism(setup_api_env):
@@ -219,7 +218,6 @@ def test_hooks_flow(setup_api_env):
 
     # The output should contain the command sequences.
     # Since pre-sync is currently empty (@:) it might not show up in -n output unless we override it.
-    pass
 
 
 def test_hook_execution_order(setup_api_env):

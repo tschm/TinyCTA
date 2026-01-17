@@ -12,6 +12,7 @@ _tests
 _book
 _pdoc
 _marimushka
+_benchmarks
 
 # temp file used by Junie
 .output.txt
