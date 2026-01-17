@@ -36,6 +36,7 @@ RESET := \033[0m
 	pre-sync \
 	pre-validate \
 	release \
+	mypy \
 	sync \
 	update-readme \
 	validate \
@@ -242,6 +243,8 @@ release: pre-release install-uv ## create tag and push to remote with prompts
 	@UV_BIN="${UV_BIN}" /bin/sh ".rhiza/scripts/release.sh"
 	@$(MAKE) post-release
 
+mypy: install ## run mypy analysis
+	@${UV_BIN} run mypy src --config-file=pyproject.toml
 
 ##@ Meta
 

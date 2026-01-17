@@ -53,10 +53,10 @@ repos:
     hooks:
       - id: mypy
         name: mypy
-        entry: uv run mypy
+        entry: make mypy
         language: system
         #types: [python]
-        files: ^src/.*\.py$
+        #files: ^src/.*\.py$
         #args: [--config-file=pyproject.toml]
 
       - id: update-readme-help
