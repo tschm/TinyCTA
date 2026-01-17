@@ -15,6 +15,7 @@ MAKE = shutil.which("make") or "/usr/bin/make"
 REQUIRED_FILES = [
     "Makefile",
     "pyproject.toml",
+    "README.md",
 ]
 
 # Folders to copy recursively

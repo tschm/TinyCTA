@@ -19,6 +19,12 @@ dev = [
     "plotly>=6.5"
 ]
 
+mypy = [
+    "mypy>=1.14.0",
+    "pandas-stubs>=2.2.0",
+    "types-pytz"
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -32,3 +38,6 @@ pandas = "pandas"
 pre-commit = "pre_commit"
 marimo = "marimo"
 plotly = "plotly"
+mypy = "mypy"
+pandas-stubs = "pandas"
+types-pytz = "pytz"

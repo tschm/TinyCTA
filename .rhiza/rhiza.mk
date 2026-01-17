@@ -36,6 +36,7 @@ RESET := \033[0m
 	pre-sync \
 	pre-validate \
 	release \
+	mypy \
 	sync \
 	update-readme \
 	validate \
@@ -223,8 +224,8 @@ deptry: install-uv ## Run deptry
 		fi \
 	fi
 
-fmt: install-uv ## check the pre-commit hooks and the linting
-	@${UVX_BIN} pre-commit run --all-files
+fmt: install ## check the pre-commit hooks and the linting
+	@${UV_BIN} run pre-commit run --all-files
 
 ##@ Releasing and Versioning
 bump: pre-bump ## bump version
@@ -242,6 +243,8 @@ release: pre-release install-uv ## create tag and push to remote with prompts
 	@UV_BIN="${UV_BIN}" /bin/sh ".rhiza/scripts/release.sh"
 	@$(MAKE) post-release
 
+mypy: install ## run mypy analysis
+	@${UV_BIN} run mypy src --config-file=pyproject.toml
 
 ##@ Meta
 

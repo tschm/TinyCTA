@@ -79,7 +79,7 @@ def a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
         If the computation is invalid, returns NaN.
     """
     if matrix is None:
-        return np.linalg.norm(vector[np.isfinite(vector)], 2)
+        return float(np.linalg.norm(vector[np.isfinite(vector)], 2))
 
     # make sure matrix is quadratic
     if matrix.shape[0] != matrix.shape[1]:
@@ -125,7 +125,7 @@ def inv_a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
         the matrix's dimensions.
     """
     if matrix is None:
-        return np.linalg.norm(vector[np.isfinite(vector)], 2)
+        return float(np.linalg.norm(vector[np.isfinite(vector)], 2))
 
     # make sure matrix is quadratic
     if matrix.shape[0] != matrix.shape[1]:
