@@ -41,10 +41,9 @@ def osc(prices: pd.DataFrame, fast: int = 32, slow: int = 96, scaling: bool = Tr
         DataFrame containing the computed oscillator values.
     """
     diff = prices.ewm(com=fast - 1).mean() - prices.ewm(com=slow - 1).mean()
-    if scaling:
-        return diff / diff.std()
-    else:
-        return diff
+    s = diff.std() if scaling else 1
+
+    return diff / s
 
 
 def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, clip: float = 4.2) -> pd.DataFrame:
