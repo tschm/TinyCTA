@@ -223,8 +223,8 @@ deptry: install-uv ## Run deptry
 		fi \
 	fi
 
-fmt: install-uv ## check the pre-commit hooks and the linting
-	@${UVX_BIN} pre-commit run --all-files
+fmt: install ## check the pre-commit hooks and the linting
+	@${UV_BIN} run pre-commit run --all-files
 
 ##@ Releasing and Versioning
 bump: pre-bump ## bump version
