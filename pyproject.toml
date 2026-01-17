@@ -15,7 +15,7 @@ repository = "https://github.com/tschm/tinycta"
 [dependency-groups]
 dev = [
     "pre-commit==4.5.1",
-    "marimo==0.19.2",
+    "marimo==0.19.4",
     "plotly>=6.5"
 ]
 
