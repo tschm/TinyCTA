@@ -22,7 +22,7 @@ repos:
     hooks:
       - id: mypy
         args: [ --config-file=pyproject.toml ]
-        additional_dependencies: []
+        additional_dependencies: [numpy>=2.0.0, pandas-stubs>=2.2.0, types-pytz]
         files: ^src
 
   - repo: https://github.com/igorshubovych/markdownlint-cli

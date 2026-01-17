@@ -42,11 +42,9 @@ def osc(prices: pd.DataFrame, fast: int = 32, slow: int = 96, scaling: bool = Tr
     """
     diff = prices.ewm(com=fast - 1).mean() - prices.ewm(com=slow - 1).mean()
     if scaling:
-        s = diff.std()
+        return diff / diff.std()
     else:
-        s = 1
-
-    return diff / s
+        return diff
 
 
 def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, clip: float = 4.2) -> pd.DataFrame:
@@ -72,7 +70,7 @@ def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, c
     pd.DataFrame
         A DataFrame of normalized and clipped log returns for the input price data.
     """
-    r = np.log(price).diff()
+    r = price.apply(np.log).diff()
     return (r / r.ewm(com=com, min_periods=min_periods).std()).clip(-clip, +clip)
 
 
