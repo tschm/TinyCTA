@@ -53,11 +53,11 @@ repos:
     hooks:
       - id: mypy
         name: mypy
-        entry: mypy
+        entry: uv run mypy
         language: system
-        types: [python]
-        files: ^src
-        args: [--config-file=pyproject.toml]
+        #types: [python]
+        files: ^src/.*\.py$
+        #args: [--config-file=pyproject.toml]
 
       - id: update-readme-help
         name: Update README with Makefile help output
