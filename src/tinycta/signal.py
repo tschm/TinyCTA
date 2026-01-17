@@ -70,7 +70,7 @@ def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, c
     pd.DataFrame
         A DataFrame of normalized and clipped log returns for the input price data.
     """
-    r = price.apply(np.log).diff()
+    r = np.log(price).diff()  # type: ignore[attr-defined]
     return (r / r.ewm(com=com, min_periods=min_periods).std()).clip(-clip, +clip)
 
 
