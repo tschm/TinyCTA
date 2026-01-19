@@ -79,7 +79,7 @@ def a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
         If the computation is invalid, returns NaN.
     """
     if matrix is None:
-        return np.linalg.norm(vector[np.isfinite(vector)], 2)
+        return float(np.linalg.norm(vector[np.isfinite(vector)], 2))
 
     # make sure matrix is quadratic
     if matrix.shape[0] != matrix.shape[1]:
@@ -92,7 +92,7 @@ def a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
     v, mat = valid(matrix)
 
     if v.any():
-        return np.sqrt(np.dot(vector[v], np.dot(mat, vector[v])))
+        return float(np.sqrt(np.dot(vector[v], np.dot(mat, vector[v]))))
     return np.nan
 
 
@@ -125,7 +125,7 @@ def inv_a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
         the matrix's dimensions.
     """
     if matrix is None:
-        return np.linalg.norm(vector[np.isfinite(vector)], 2)
+        return float(np.linalg.norm(vector[np.isfinite(vector)], 2))
 
     # make sure matrix is quadratic
     if matrix.shape[0] != matrix.shape[1]:
@@ -138,7 +138,7 @@ def inv_a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
     v, mat = valid(matrix)
 
     if v.any():
-        return np.sqrt(np.dot(vector[v], np.linalg.solve(mat, vector[v])))
+        return float(np.sqrt(np.dot(vector[v], np.linalg.solve(mat, vector[v]))))
     return np.nan
 
 
