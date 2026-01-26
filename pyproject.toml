@@ -30,6 +30,7 @@ packages = ["src/tinycta"]
 [tool.deptry.package_module_name_map]
 numpy = "numpy"
 pandas = "pandas"
+pandas-stubs = []
 pre-commit = "pre_commit"
 marimo = "marimo"
 plotly = "plotly"
