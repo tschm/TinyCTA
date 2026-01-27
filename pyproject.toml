@@ -34,3 +34,6 @@ pandas-stubs = []
 pre-commit = "pre_commit"
 marimo = "marimo"
 plotly = "plotly"
+
+[tool.mypy]
+ignore_missing_imports = true

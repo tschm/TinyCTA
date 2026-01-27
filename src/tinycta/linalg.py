@@ -93,7 +93,7 @@ def a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
 
     if v.any():
         return float(np.sqrt(np.dot(vector[v], np.dot(mat, vector[v]))))
-    return np.nan
+    return float("nan")
 
 
 def inv_a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
@@ -139,7 +139,7 @@ def inv_a_norm(vector: np.ndarray, matrix: np.ndarray | None = None) -> float:
 
     if v.any():
         return float(np.sqrt(np.dot(vector[v], np.linalg.solve(mat, vector[v]))))
-    return np.nan
+    return float("nan")
 
 
 def solve(matrix: np.ndarray, rhs: np.ndarray) -> np.ndarray:
