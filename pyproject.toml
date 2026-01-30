@@ -1,6 +1,6 @@
 [project]
 name = "TinyCTA"
-version = "0.8.6"
+version = "0.8.7"
 description = "..."
 readme = "README.md"
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
