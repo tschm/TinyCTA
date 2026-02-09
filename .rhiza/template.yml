@@ -3,7 +3,6 @@ template-branch: "main"
 include:
     - .github
     - .rhiza
-    - tests
     - .editorconfig
     - .gitignore
     - .pre-commit-config.yaml
@@ -17,4 +16,4 @@ include:
 exclude:
     - .github/workflows/rhiza_docker.yml
     - .github/workflows/rhiza_devcontainer.yml
-    - .github/dependabot.yml
+    - .github/workflows/rhiza_benchmarks.yml
