@@ -15,7 +15,7 @@
         "gitlabci",
         "devcontainer",
         "dockerfile",
-        "regex"
+        "custom.regex"
     ],
     "timezone": "Asia/Dubai",
     "schedule": [
@@ -28,11 +28,12 @@
         "enabled": false
       }
     ],
-    "regexManagers": [
+    "customManagers": [
       {
-        "fileMatch": ["^\\.rhiza/template\\.yml$"],
+        "customType": "regex",
+        "managerFilePatterns": ["^\\.rhiza/template\\.yml$"],
         "matchStrings": [
-          "template-repository:\\s*\"(?<depName>[^\"]+)\"\\s*\\ntemplate-branch:\\s*\"(?<currentValue>[^\"]+)\""
+          "repository:\\s*\"(?<depName>[^\"]+)\"\\s*\\nref:\\s*\"(?<currentValue>[^\"]+)\""
         ],
         "datasourceTemplate": "github-releases",
         "versioningTemplate": "semver"
