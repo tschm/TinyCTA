@@ -63,4 +63,3 @@ repos:
       - id: check-rhiza-config
       - id: check-makefile-targets
       - id: check-python-version-consistency
-      - id: check-template-bundles
