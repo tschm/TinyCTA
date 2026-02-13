@@ -14,7 +14,8 @@
         "github-actions",
         "gitlabci",
         "devcontainer",
-        "dockerfile"
+        "dockerfile",
+        "custom.regex"
     ],
     "timezone": "Asia/Dubai",
     "schedule": [
@@ -25,6 +26,17 @@
         "matchManagers": ["pep621"],
         "matchPackageNames": ["python"],
         "enabled": false
+      }
+    ],
+    "customManagers": [
+      {
+        "customType": "regex",
+        "managerFilePatterns": ["^\\.rhiza/template\\.yml$"],
+        "matchStrings": [
+          "repository:\\s*\"(?<depName>[^\"]+)\"\\s*\\nref:\\s*\"(?<currentValue>[^\"]+)\""
+        ],
+        "datasourceTemplate": "github-releases",
+        "versioningTemplate": "semver"
       }
     ]
 }
