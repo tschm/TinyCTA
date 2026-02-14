@@ -17,9 +17,6 @@
     "dockerfile",
     "custom.regex"
   ],
-  "allowedPostUpgradeCommands": [
-    "^uvx rhiza materialize --force \\.$"
-  ],
   "timezone": "Asia/Dubai",
   "schedule": [
     "before 10am on tuesday"
@@ -41,24 +38,14 @@
       "matchPackageNames": [
         "jebel-quant/rhiza"
       ],
-      "automerge": false,
-      "postUpgradeTasks": {
-        "commands": [
-          "uvx rhiza materialize --force .",
-          "git add --all"
-        ],
-        "fileFilters": [
-          "**/*"
-        ],
-        "executionMode": "branch"
-      }
+      "automerge": false
     }
   ],
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/(^|/)\\.rhiza/template\\.yml$/"
+      "fileMatch": [
+        "(^|/)\\.rhiza/template\\.yml$"
       ],
       "matchStrings": [
         "repository:\\s*\"(?<depName>[^\"]+)\"\\s*\\nref:\\s*\"(?<currentValue>[^\"]+)\""
