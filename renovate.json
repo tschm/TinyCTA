@@ -35,8 +35,8 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "(^|/)\\.rhiza/template\\.yml$"
+      "managerFilePatterns": [
+        "/(^|/)\\.rhiza/template\\.yml$/"
       ],
       "matchStrings": [
         "repository:\\s*\"(?<depName>[^\"]+)\"\\s*\\nref:\\s*\"(?<currentValue>[^\"]+)\""
