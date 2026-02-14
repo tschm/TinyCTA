@@ -17,6 +17,9 @@
     "dockerfile",
     "custom.regex"
   ],
+  "allowedPostUpgradeCommands": [
+    "^uvx rhiza materialize --force \\.$"
+  ],
   "timezone": "Asia/Dubai",
   "schedule": [
     "before 10am on tuesday"
@@ -42,7 +45,7 @@
       "postUpgradeTasks": {
         "commands": [
           "uvx rhiza materialize --force .",
-          "git add -A"
+          "git add --all"
         ],
         "fileFilters": [
           "**/*"
