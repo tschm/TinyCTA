@@ -57,10 +57,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add -A
-          git commit -m "chore: sync rhiza template files
+          git commit -m "$(cat <<'EOF'
+          chore: sync rhiza template files
 
-Automatically synced template files after updating .rhiza/template.yml
+          Automatically synced template files after updating .rhiza/template.yml
 
-Co-Authored-By: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          Co-Authored-By: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          EOF
+          )"
 
           git push
