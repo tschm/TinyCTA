@@ -30,6 +30,25 @@
         "python"
       ],
       "enabled": false
+    },
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchPackageNames": [
+        "jebel-quant/rhiza"
+      ],
+      "automerge": false,
+      "postUpgradeTasks": {
+        "commands": [
+          "uvx rhiza materialize --force .",
+          "git add -A"
+        ],
+        "fileFilters": [
+          "**/*"
+        ],
+        "executionMode": "branch"
+      }
     }
   ],
   "customManagers": [
