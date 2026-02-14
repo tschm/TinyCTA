@@ -47,11 +47,15 @@ PYTHON_VERSION ?= $(shell cat .python-version 2>/dev/null || echo "3.13")
 export PYTHON_VERSION
 
 # Read Rhiza version from .rhiza/.rhiza-version (single source of truth for rhiza-tools)
-RHIZA_VERSION ?= $(shell cat .rhiza/.rhiza-version 2>/dev/null || echo "0.11.0")
+RHIZA_VERSION ?= $(shell cat .rhiza/.rhiza-version 2>/dev/null || echo "0.10.2")
 export RHIZA_VERSION
 
 export UV_NO_MODIFY_PATH := 1
 export UV_VENV_CLEAR := 1
+
+# Unset VIRTUAL_ENV to prevent uv from warning about path mismatches
+# when a virtual environment is already activated in the shell
+unexport VIRTUAL_ENV
 
 # Load .rhiza/.env (if present) and export its variables so recipes see them.
 -include .rhiza/.env
