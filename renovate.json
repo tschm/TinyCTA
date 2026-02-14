@@ -15,7 +15,7 @@
         "gitlabci",
         "devcontainer",
         "dockerfile",
-        "custom.regex"
+        "regex"
     ],
     "timezone": "Asia/Dubai",
     "schedule": [
