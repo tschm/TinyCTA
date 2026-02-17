@@ -8,3 +8,5 @@ templates:
     - tests
     - book
     - marimo
+    - renovate
+    - gh-aw
