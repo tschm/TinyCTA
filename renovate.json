@@ -8,6 +8,7 @@
     ":semanticCommits",
     ":pinDevDependencies"
   ],
+  "rebaseWhen": "behind-base-branch",
   "enabledManagers": [
     "pep621",
     "pre-commit",
