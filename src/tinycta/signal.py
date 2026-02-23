@@ -9,7 +9,11 @@
 #
 #    The above copyright notice and this permission notice shall be included in all
 #    copies or substantial portions of the Software.
-"""signal."""
+"""Signal processing functions for trend-following CTA strategies.
+
+Provides oscillator computation and volatility-adjusted return calculations
+used to generate trading signals from price data.
+"""
 
 from __future__ import annotations
 

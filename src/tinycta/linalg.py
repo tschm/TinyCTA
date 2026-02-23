@@ -9,7 +9,12 @@
 #
 #    The above copyright notice and this permission notice shall be included in all
 #    copies or substantial portions of the Software.
-"""linear algebra."""
+"""Linear algebra utilities that handle matrices with missing (NaN) values.
+
+All operations extract the finite submatrix via the ``valid`` function before
+performing computations, so partially-observed covariance matrices are handled
+gracefully without raising errors.
+"""
 
 from __future__ import annotations
 
