@@ -1,4 +1,8 @@
-"""tinycta."""
+"""TinyCTA: a lightweight Python package for Commodity Trading Advisor (CTA) strategies.
+
+Provides signal processing functions for trend-following strategies and linear algebra
+utilities that handle matrices with missing values.
+"""
 #    Copyright (c) 2023 Thomas Schmelzer
 #
 #    Permission is hereby granted, free of charge, to any person obtaining a copy

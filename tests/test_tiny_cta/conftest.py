@@ -2,6 +2,10 @@
 
 This module contains pytest fixtures that are used across multiple test files.
 These fixtures provide common test data and resources to ensure consistent testing.
+
+Security Notes:
+- S101 (assert usage): Asserts are the standard way to validate test conditions in pytest.
+  They provide clear test failure messages and are expected in test code.
 """
 
 from __future__ import annotations
