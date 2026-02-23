@@ -9,6 +9,7 @@ A Lightweight Python Package for Commodity Trading Advisor Strategies.
 [![Coverage](https://img.shields.io/endpoint?url=https://tschm.github.io/TinyCTA/tests/coverage-badge.json)](https://tschm.github.io/TinyCTA/tests/html-coverage/index.html)
 [![Downloads](https://static.pepy.tech/personalized-badge/tinycta?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/tinycta)
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/TinyCTA/badge)](https://www.codefactor.io/repository/github/tschm/TinyCTA)
+[![Rhiza](https://img.shields.io/badge/rhiza-v0.8.2-blue)](https://github.com/jebel-quant/rhiza)
 
 ---
 
