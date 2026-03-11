@@ -1,7 +1,7 @@
-sha: 59877aac37bf287effa6e4da756a351376ab5ade
+sha: a6939a48c193842dc46c6d4b5f5b451e39c35226
 repo: jebel-quant/rhiza
 host: github
-ref: v0.8.7
+ref: v0.8.9
 include: []
 exclude: []
 templates:
@@ -109,6 +109,7 @@ files:
 - LICENSE
 - Makefile
 - SECURITY.md
+- book/marimo/notebooks/demo.py
 - book/marimo/notebooks/rhiza.py
 - docs/ARCHITECTURE.md
 - docs/BOOK.md
@@ -124,5 +125,5 @@ files:
 - ruff.toml
 - tests/benchmarks/conftest.py
 - tests/benchmarks/test_benchmarks.py
-synced_at: '2026-03-09T21:57:42Z'
+synced_at: '2026-03-10T20:37:43Z'
 strategy: merge
