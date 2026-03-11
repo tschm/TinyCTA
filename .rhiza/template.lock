@@ -10,7 +10,6 @@ templates:
 - legal
 - tests
 - book
-- marimo
 - renovate
 files:
 - .editorconfig
@@ -31,7 +30,6 @@ files:
 - .github/workflows/rhiza_ci.yml
 - .github/workflows/rhiza_codeql.yml
 - .github/workflows/rhiza_deptry.yml
-- .github/workflows/rhiza_marimo.yml
 - .github/workflows/rhiza_pre-commit.yml
 - .github/workflows/rhiza_release.yml
 - .github/workflows/rhiza_security.yml
@@ -61,13 +59,11 @@ files:
 - .rhiza/make.d/docs.mk
 - .rhiza/make.d/gh-aw.mk
 - .rhiza/make.d/github.mk
-- .rhiza/make.d/marimo.mk
 - .rhiza/make.d/quality.mk
 - .rhiza/make.d/releasing.mk
 - .rhiza/make.d/test.mk
 - .rhiza/requirements/README.md
 - .rhiza/requirements/docs.txt
-- .rhiza/requirements/marimo.txt
 - .rhiza/requirements/tests.txt
 - .rhiza/requirements/tools.txt
 - .rhiza/rhiza.mk
@@ -109,14 +105,11 @@ files:
 - LICENSE
 - Makefile
 - SECURITY.md
-- book/marimo/notebooks/demo.py
-- book/marimo/notebooks/rhiza.py
 - docs/ARCHITECTURE.md
 - docs/BOOK.md
 - docs/CUSTOMIZATION.md
 - docs/DEMO.md
 - docs/GLOSSARY.md
-- docs/MARIMO.md
 - docs/QUICK_REFERENCE.md
 - docs/SECURITY.md
 - docs/TESTS.md
@@ -125,5 +118,5 @@ files:
 - ruff.toml
 - tests/benchmarks/conftest.py
 - tests/benchmarks/test_benchmarks.py
-synced_at: '2026-03-10T20:37:43Z'
+synced_at: '2026-03-11T03:40:37Z'
 strategy: merge
