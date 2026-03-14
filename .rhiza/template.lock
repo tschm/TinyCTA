@@ -1,7 +1,7 @@
-sha: a6939a48c193842dc46c6d4b5f5b451e39c35226
+sha: 3c7662d23fb345846b4cf5c66ea96b80bf6e823f
 repo: jebel-quant/rhiza
 host: github
-ref: v0.8.9
+ref: v0.8.12
 include: []
 exclude: []
 templates:
@@ -118,5 +118,5 @@ files:
 - ruff.toml
 - tests/benchmarks/conftest.py
 - tests/benchmarks/test_benchmarks.py
-synced_at: '2026-03-11T03:40:37Z'
+synced_at: '2026-03-13T21:45:38Z'
 strategy: merge
