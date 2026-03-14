@@ -50,11 +50,7 @@ jobs:
           fi
 
       - name: Install uv
-<<<<<<< ours
-        uses: astral-sh/setup-uv@v7.4.0
-=======
         uses: astral-sh/setup-uv@v7.5.0
->>>>>>> upstream
 
       - name: Get Rhiza version
         id: rhiza-version

@@ -120,11 +120,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install uv
-<<<<<<< ours
-        uses: astral-sh/setup-uv@v7.4.0
-=======
         uses: astral-sh/setup-uv@v7.5.0
->>>>>>> upstream
         with:
           version: "0.10.9"
 
@@ -395,11 +391,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install uv
-<<<<<<< ours
-        uses: astral-sh/setup-uv@v7.4.0
-=======
         uses: astral-sh/setup-uv@v7.5.0
->>>>>>> upstream
         with:
           version: "0.10.9"
 
