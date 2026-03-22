@@ -1,16 +1,15 @@
 # This file is part of the jebel-quant/rhiza repository
 # (https://github.com/jebel-quant/rhiza).
 #
-# Workflow: Security
+# Workflow: License compliance
 #
-# Purpose: This workflow runs security scans on the project including:
-#          - pip-audit: Check for known vulnerabilities in dependencies
-#          - bandit: Static analysis for common security issues in Python code
+# Purpose: This workflow checks that no copyleft-licensed dependencies
+#          (GPL, LGPL, AGPL) have been introduced via transitive updates.
 #
 # Trigger: This workflow runs on every push and on pull requests to main/master
 #          branches (including from forks)
 
-name: "(RHIZA) SECURITY"
+name: "(RHIZA) LICENSE"
 
 # Permissions: Only read access to repository contents is needed
 permissions:
@@ -23,8 +22,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-  security:
-    name: Security scanning
+  license:
+    name: License compliance scan
     runs-on: ubuntu-latest
 
     steps:
@@ -40,7 +39,7 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
 
-      - name: Run security scans
+      - name: Run license check
         env:
           UV_EXTRA_INDEX_URL: ${{ secrets.UV_EXTRA_INDEX_URL }}
-        run: make security
+        run: make license
