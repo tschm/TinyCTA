@@ -3,6 +3,7 @@ name = "TinyCTA"
 version = "0.9.3"
 description = "..."
 readme = "README.md"
+license = "MIT"
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 requires-python = ">=3.11"
 dependencies = [
