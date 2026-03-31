@@ -20,14 +20,10 @@ post-validate::
 
 ##@ Security
 
-# Override pip-audit to ignore CVE-2026-4539 in pygments (no fix available yet)
-# See: https://github.com/advisories/GHSA-5239-wwwm-4pmq
-PIP_AUDIT_IGNORE_ARGS := --ignore-vuln CVE-2026-4539
-
 .PHONY: security
 security: install ## run security scans (pip-audit and bandit)
 	@printf "${BLUE}[INFO] Running pip-audit for dependency vulnerabilities...${RESET}\n"
-	@${UVX_BIN} pip-audit ${PIP_AUDIT_IGNORE_ARGS}
+	@${UVX_BIN} pip-audit
 	@printf "${BLUE}[INFO] Running bandit security scan...${RESET}\n"
 	@${UVX_BIN} bandit -r ${SOURCE_FOLDER} -ll -q -c pyproject.toml
 
