@@ -1,7 +1,7 @@
-sha: 9e544552d72fb299f3177a339919ef238f0f6940
+sha: 6dd977e1dfdaf076c4a28e0703261d59af7ffb1d
 repo: jebel-quant/rhiza
 host: github
-ref: v0.8.17
+ref: v0.8.19
 include: []
 exclude: []
 templates:
@@ -31,15 +31,9 @@ files:
 - .github/workflows/rhiza_ci.yml
 - .github/workflows/rhiza_codeql.yml
 - .github/workflows/rhiza_dep_compat_test.yml
-- .github/workflows/rhiza_deptry.yml
-- .github/workflows/rhiza_license.yml
-- .github/workflows/rhiza_pip_audit.yml
-- .github/workflows/rhiza_pre-commit.yml
+- .github/workflows/rhiza_quality.yml
 - .github/workflows/rhiza_release.yml
-- .github/workflows/rhiza_security.yml
-- .github/workflows/rhiza_semgrep.yml
 - .github/workflows/rhiza_sync.yml
-- .github/workflows/rhiza_typecheck.yml
 - .github/workflows/rhiza_validate.yml
 - .gitignore
 - .pre-commit-config.yaml
@@ -73,6 +67,7 @@ files:
 - .rhiza/requirements/tests.txt
 - .rhiza/requirements/tools.txt
 - .rhiza/rhiza.mk
+- .rhiza/semgrep.yml
 - .rhiza/templates/minibook/custom.html.jinja2
 - .rhiza/tests/README.md
 - .rhiza/tests/api/conftest.py
@@ -104,7 +99,6 @@ files:
 - .rhiza/tests/sync/test_rhiza_version.py
 - .rhiza/tests/test_utils.py
 - .rhiza/tests/utils/test_git_repo_fixture.py
-- .semgrep.yml
 - CODE_OF_CONDUCT.md
 - CONTRIBUTING.md
 - LICENSE
@@ -121,5 +115,5 @@ files:
 - pytest.ini
 - renovate.json
 - ruff.toml
-synced_at: '2026-03-31T05:07:16Z'
+synced_at: '2026-04-01T21:12:51Z'
 strategy: merge
