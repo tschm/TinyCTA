@@ -1,7 +1,7 @@
-sha: 6dd977e1dfdaf076c4a28e0703261d59af7ffb1d
+sha: 8fa3c9b166c1c21f1a2752c77913f55c66213dce
 repo: jebel-quant/rhiza
 host: github
-ref: v0.8.19
+ref: v0.8.20
 include: []
 exclude: []
 templates:
@@ -26,15 +26,12 @@ files:
 - .github/hooks/session-start.sh
 - .github/secret_scanning.yml
 - .github/workflows/copilot-setup-steps.yml
-- .github/workflows/renovate_rhiza_sync.yml
 - .github/workflows/rhiza_book.yml
 - .github/workflows/rhiza_ci.yml
 - .github/workflows/rhiza_codeql.yml
-- .github/workflows/rhiza_dep_compat_test.yml
-- .github/workflows/rhiza_quality.yml
 - .github/workflows/rhiza_release.yml
 - .github/workflows/rhiza_sync.yml
-- .github/workflows/rhiza_validate.yml
+- .github/workflows/rhiza_weekly.yml
 - .gitignore
 - .pre-commit-config.yaml
 - .python-version
@@ -115,5 +112,5 @@ files:
 - pytest.ini
 - renovate.json
 - ruff.toml
-synced_at: '2026-04-01T21:12:51Z'
+synced_at: '2026-04-03T02:21:53Z'
 strategy: merge
