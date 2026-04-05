@@ -1,5 +1,5 @@
 repository: "jebel-quant/rhiza"
-ref: "v0.8.19"
+ref: "v0.9.0"
 
 templates:
     - github
