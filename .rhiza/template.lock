@@ -115,5 +115,5 @@ files:
 - pytest.ini
 - renovate.json
 - ruff.toml
-synced_at: '2026-04-01T21:12:51Z'
+synced_at: '2026-04-06T00:30:52Z'
 strategy: merge
