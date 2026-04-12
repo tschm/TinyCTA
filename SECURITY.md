@@ -7,8 +7,7 @@ We actively support the following versions with security updates:
 | Version | Supported          |
 | ------- | ------------------ |
 | 0.9.x   | :white_check_mark: |
-| 0.8.x   | :white_check_mark: |
-| < 0.8   | :x:                |
+| < 0.9   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -21,7 +20,7 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 Instead, please report them via one of the following methods:
 
 1. **GitHub Security Advisories** (Preferred)
-   - Go to the [Security Advisories](https://github.com/jebel-quant/rhiza/security/advisories) page
+   - Go to the [Security Advisories](https://github.com/tschm/TinyCTA/security/advisories) page
    - Click "New draft security advisory"
    - Fill in the details and submit
 
@@ -50,10 +49,9 @@ Please include the following information in your report:
 
 This security policy applies to:
 
-- The Rhiza template system and configuration files
+- The TinyCTA signal processing and linear algebra utilities
 - GitHub Actions workflows provided by this repository
-- Shell scripts in `.rhiza/scripts/`
-- Python utilities in `.rhiza/utils/`
+- Python package source in `src/tinycta/`
 
 ### Out of Scope
 
@@ -87,14 +85,14 @@ This project implements several security measures:
 
 ## Security Best Practices for Users
 
-When using Rhiza templates in your projects:
+When using TinyCTA in your projects:
 
-1. **Keep Updated**: Regularly sync with upstream templates
-2. **Review Changes**: Review template sync PRs before merging
+1. **Keep Updated**: Regularly update to the latest version
+2. **Review Changes**: Review dependency updates and changelogs before upgrading
 3. **Enable Security Features**: Enable CodeQL, secret scanning, and Dependabot in your repositories
 4. **Use Locked Dependencies**: Always commit `uv.lock` for reproducible builds
 5. **Configure Branch Protection**: Require PR reviews and status checks
 
 ## Acknowledgments
 
-We thank the security researchers and community members who help keep Rhiza secure.
+We thank the security researchers and community members who help keep TinyCTA secure.
