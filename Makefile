@@ -27,6 +27,13 @@ security: install ## run security scans (pip-audit and bandit)
 	@printf "${BLUE}[INFO] Running bandit security scan...${RESET}\n"
 	@${UVX_BIN} bandit -r ${SOURCE_FOLDER} -ll -q -c pyproject.toml
 
+##@ Documentation
+
+# Ensure BOOK_OUTPUT directory exists even when mkdocs.yml is absent,
+# so that book:: can always run `touch "$(BOOK_OUTPUT)/.nojekyll"`.
+mkdocs-build::
+	@mkdir -p "$(MKDOCS_OUTPUT)"
+
 ##@ Quality
 
 .PHONY: semgrep
