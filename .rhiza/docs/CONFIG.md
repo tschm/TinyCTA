@@ -26,7 +26,7 @@ The repository uses several automated workflows (located in `.github/workflows/`
   - **Requires:** `PAT_TOKEN` secret with `workflow` scope when modifying workflow files
   - See [TOKEN_SETUP.md](TOKEN_SETUP.md) for configuration
 - **CI** (`rhiza_ci.yml`) - Continuous integration tests
-- **Pre-commit** (`rhiza_pre-commit.yml`) - Code quality checks
+- **Quality** (`rhiza_quality.yml`) - Code quality checks
 - **Book** (`rhiza_book.yml`) - Documentation deployment
 - **Release** (`rhiza_release.yml`) - Package publishing
 - **Marimo** (`rhiza_marimo.yml`) - Interactive notebooks
