@@ -5,6 +5,12 @@ ref: v0.10.0
 include: []
 exclude:
 - .rhiza/docs/*
+- .rhiza/make.d/README.md
+- .rhiza/make.d/agentic.mk
+- .rhiza/make.d/custom-env.mk
+- .rhiza/make.d/custom-task.mk
+- .rhiza/make.d/gh-aw.mk
+- .rhiza/make.d/github.mk
 templates:
 - github
 - legal
@@ -52,14 +58,8 @@ files:
 - .rhiza/docs/RELEASING.md
 - .rhiza/docs/TOKEN_SETUP.md
 - .rhiza/docs/WORKFLOWS.md
-- .rhiza/make.d/README.md
-- .rhiza/make.d/agentic.mk
 - .rhiza/make.d/book.mk
 - .rhiza/make.d/bootstrap.mk
-- .rhiza/make.d/custom-env.mk
-- .rhiza/make.d/custom-task.mk
-- .rhiza/make.d/gh-aw.mk
-- .rhiza/make.d/github.mk
 - .rhiza/make.d/quality.mk
 - .rhiza/make.d/releasing.mk
 - .rhiza/make.d/test.mk
@@ -111,5 +111,5 @@ files:
 - pytest.ini
 - renovate.json
 - ruff.toml
-synced_at: '2026-04-17T18:57:25Z'
+synced_at: '2026-04-17T18:59:03Z'
 strategy: merge
