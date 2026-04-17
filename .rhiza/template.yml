@@ -7,3 +7,6 @@ templates:
     - tests
     - book
     - renovate
+
+exclude:
+    - ".rhiza/docs/*"
