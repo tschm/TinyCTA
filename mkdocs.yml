@@ -12,5 +12,5 @@ nav:
   - Development:
       - Tests: development/TESTS.md
   - CI/CD:
-      - coverage: report/html-coverage/index.html
-      - report: report/html-report/report.html
+      - coverage: reports/html-coverage/index.html
+      - report: reports/html-report/report.html
