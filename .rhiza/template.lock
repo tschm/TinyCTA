@@ -13,6 +13,7 @@ exclude:
 - .rhiza/make.d/github.mk
 - .rhiza/tests/api/test_gh_aw_targets.py
 - .rhiza/tests/api/test_github_targets.py
+- docs/adr/*
 templates:
 - github
 - legal
@@ -111,5 +112,5 @@ files:
 - pytest.ini
 - renovate.json
 - ruff.toml
-synced_at: '2026-04-17T19:04:10Z'
+synced_at: '2026-04-17T19:08:25Z'
 strategy: merge
