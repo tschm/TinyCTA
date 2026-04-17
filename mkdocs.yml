@@ -11,3 +11,5 @@ nav:
   - Home: index.md
   - Development:
       - Tests: development/TESTS.md
+  - CI/CD:
+      - Hypothesis: reports/hypothesis
