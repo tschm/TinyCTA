@@ -18,3 +18,4 @@ exclude:
     - ".rhiza/make.d/github.mk"
     - ".rhiza/tests/api/test_gh_aw_targets.py"
     - ".rhiza/tests/api/test_github_targets.py"
+    - "docs/adr/*"

@@ -11,5 +11,3 @@ nav:
   - Home: index.md
   - Development:
       - Tests: development/TESTS.md
-  - ADR:
-      - Template: adr/0000-adr-template.md
