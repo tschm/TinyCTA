@@ -2,7 +2,7 @@
 # This file provides Makefile targets for GitHub Agentic Workflows
 
 # Declare phony targets
-.PHONY: install-gh-aw gh-aw-compile gh-aw-compile-strict gh-aw-status gh-aw-run gh-aw-init gh-aw-secrets gh-aw-logs gh-aw-validate gh-aw-setup
+.PHONY: install-gh-aw gh-aw-compile gh-aw-compile-strict gh-aw-status gh-aw-run gh-aw-init gh-aw-secrets gh-aw-logs gh-aw-validate gh-aw-setup adr
 
 # Detect if gh-aw extension is installed
 GH_AW_BIN ?= $(shell gh extension list 2>/dev/null | grep -q gh-aw && echo "gh aw" || echo "")
@@ -45,6 +45,35 @@ gh-aw-logs: install-gh-aw ## show logs for recent agentic workflow runs
 
 gh-aw-validate: install-gh-aw ## validate lock files are up-to-date
 	@gh aw compile --check
+
+adr: install-gh-aw ## Create a new Architecture Decision Record (ADR) using AI assistance
+	@echo "Creating a new ADR..."
+	@echo "This will trigger the adr-create workflow."
+	@echo ""
+	@read -p "Enter ADR title (e.g., 'Use PostgreSQL for data storage'): " title; \
+	echo ""; \
+	read -p "Enter brief context (optional, press Enter to skip): " context; \
+	echo ""; \
+	if [ -z "$$title" ]; then \
+		echo "Error: Title is required"; \
+		exit 1; \
+	fi; \
+	if [ -z "$$context" ]; then \
+		gh workflow run adr-create.md -f title="$$title"; \
+	else \
+		gh workflow run adr-create.md -f title="$$title" -f context="$$context"; \
+	fi; \
+	echo ""; \
+	echo "✅ ADR creation workflow triggered!"; \
+	echo ""; \
+	echo "The workflow will:"; \
+	echo "  1. Generate the next ADR number"; \
+	echo "  2. Create a comprehensive ADR document"; \
+	echo "  3. Update the ADR index"; \
+	echo "  4. Open a pull request for review"; \
+	echo ""; \
+	echo "Check workflow status: gh run list --workflow=adr-create.md"; \
+	echo "View latest run: gh run view"
 
 gh-aw-setup: install-gh-aw ## guided setup for gh-aw secrets and engine configuration
 	@printf "$${BLUE}[INFO] Setting up GitHub Agentic Workflows...${RESET}\n"

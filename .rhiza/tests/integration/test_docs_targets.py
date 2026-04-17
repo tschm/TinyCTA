@@ -34,16 +34,6 @@ def test_mkdocs_extra_packages_used_in_build(book_makefile):
     )
 
 
-def test_mkdocs_extra_packages_used_in_serve(book_makefile):
-    """Test that MKDOCS_EXTRA_PACKAGES is spliced into the mkdocs-serve uvx command."""
-    content = book_makefile.read_text()
-    serve_lines = [line for line in content.splitlines() if "mkdocs serve" in line]
-    assert serve_lines, "book.mk should contain a 'mkdocs serve' invocation"
-    assert any("$(MKDOCS_EXTRA_PACKAGES)" in line for line in serve_lines), (
-        "mkdocs serve line should include $(MKDOCS_EXTRA_PACKAGES)"
-    )
-
-
 def test_mkdocs_build_dry_run_with_extra_packages(git_repo, book_makefile):
     """Test that passing MKDOCS_EXTRA_PACKAGES on the command line is accepted by make.
 

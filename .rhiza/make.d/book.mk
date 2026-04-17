@@ -1,6 +1,8 @@
 ## book.mk - Book-building targets (MkDocs-based)
 
-.PHONY: book mkdocs-build test benchmark stress hypothesis-test _book-reports _book-notebooks mkdocs-serve mkdocs
+ROOT := $(shell git rev-parse --show-toplevel)
+
+.PHONY: book serve test benchmark stress hypothesis-test _book-reports _book-notebooks
 
 # No-op stubs — overridden by test.mk / bench.mk when present
 test:: ; @:
@@ -15,85 +17,46 @@ BOOK_OUTPUT ?= _book
 #   MKDOCS_EXTRA_PACKAGES = --with "mkdocs-graphviz"
 MKDOCS_EXTRA_PACKAGES ?=
 
-# Detect mkdocs config: prefer root-level, fall back to docs/mkdocs-base.yml
-_MKDOCS_CFG := $(if $(wildcard mkdocs.yml),mkdocs.yml,$(if $(wildcard docs/mkdocs-base.yml),docs/mkdocs-base.yml,))
-
 ##@ Book
 
 _book-reports: test benchmark stress hypothesis-test
-	@mkdir -p docs/reports
-	@for src_dir in \
-	  "_tests/html-coverage:reports/coverage" \
-	  "_tests/html-report:reports/test-report" \
-	  "_tests/benchmarks:reports/benchmarks" \
-	  "_tests/stress:reports/stress" \
-	  "_tests/hypothesis:reports/hypothesis"; do \
-	  src=$${src_dir%%:*}; dest=docs/$${src_dir#*:}; \
-	  if [ -d "$$src" ] && [ -n "$$(ls -A "$$src" 2>/dev/null)" ]; then \
-	    printf "${BLUE}[INFO] Copying $$src -> $$dest${RESET}\n"; \
-	    mkdir -p "$$dest"; cp -r "$$src/." "$$dest/"; \
-	  else \
-	    printf "${YELLOW}[WARN] $$src not found, skipping${RESET}\n"; \
-	  fi; \
-	done
-	@printf "# Reports\n\n" > docs/reports.md
-	@[ -f "docs/reports/test-report/report.html" ] && echo "- [Test Report](reports/test-report/report.html)"       >> docs/reports.md || true
-	@[ -f "docs/reports/hypothesis/report.html" ]  && echo "- [Hypothesis Report](reports/hypothesis/report.html)" >> docs/reports.md || true
-	@[ -f "docs/reports/benchmarks/report.html" ]  && echo "- [Benchmarks](reports/benchmarks/report.html)"        >> docs/reports.md || true
-	@[ -f "docs/reports/stress/report.html" ]      && echo "- [Stress Report](reports/stress/report.html)"          >> docs/reports.md || true
-	@[ -f "docs/reports/coverage/index.html" ]     && echo "- [Coverage Report](reports/coverage/index.html)"      >> docs/reports.md || true
+	@if [ -d "${ROOT}/_tests" ] && [ -n "$$(ls -A "${ROOT}/_tests" 2>/dev/null)" ]; then \
+	  printf "${BLUE}[INFO] Copying ${ROOT}/_tests -> docs/reports${RESET}\n"; \
+	  mkdir -p ${ROOT}/docs/reports; cp -r "${ROOT}/_tests/." "${ROOT}/docs/reports/"; \
+	else \
+	  printf "${YELLOW}[WARN] ${ROOT}/_tests not found or empty, skipping${RESET}\n"; \
+	fi
 
+# Export each Marimo notebook to a self-contained HTML file under docs/notebooks/.
+# Skipped silently when MARIMO_FOLDER is not set or does not exist.
 _book-notebooks:
+	#@rm -rf ${ROOT}/docs/notebooks
+	#@mkdir -p ${ROOT}/docs/notebooks
+
 	@if [ -d "$(MARIMO_FOLDER)" ]; then \
+	  printf "${BLUE}[INFO] Exporting Marimo notebooks from $(MARIMO_FOLDER)${RESET}\n"; \
 	  for nb in $(MARIMO_FOLDER)/*.py; do \
 	    name=$$(basename "$$nb" .py); \
-	    printf "${BLUE}[INFO] Exporting $$nb${RESET}\n"; \
-	    abs_output="$$(pwd)/docs/notebooks/$$name.html"; \
-	    mkdir -p docs/notebooks; \
+	    printf "${BLUE}[INFO] Exporting $$nb -> ${ROOT}/docs/notebooks/$$name.html${RESET}\n"; \
+	    abs_output="${ROOT}/docs/notebooks/$$name.html"; \
 	    (cd "$$(dirname "$$nb")" && ${UV_BIN} run marimo export html --sandbox "$$(basename "$$nb")" -o "$$abs_output"); \
 	  done; \
-	  printf "# Marimo Notebooks\n\n" > docs/notebooks.md; \
-	  for html in docs/notebooks/*.html; do \
-	    name=$$(basename "$$html" .html); \
-	    echo "- [$$name]($$name.html)" >> docs/notebooks.md; \
-	  done; \
+	else \
+	  printf "${YELLOW}[WARN] MARIMO_FOLDER not set or missing, skipping notebook export${RESET}\n"; \
 	fi
 
+# Serve the built book locally on port 8000.
+# Uses Python's built-in HTTP server so the JetBrains built-in server (which
+# refuses to serve gitignored directories like _book) is not needed.
+serve: book ## build and serve the book at http://localhost:8000
+	@printf "${BLUE}[INFO] Serving book at http://localhost:8000 (Ctrl-C to stop)${RESET}\n"
+	@cd $(BOOK_OUTPUT) && python3 -m http.server 8000
+
 book:: _book-reports _book-notebooks ## compile the companion book via MkDocs
-	@if [ -n "$(_MKDOCS_CFG)" ]; then \
-	  rm -rf "$(BOOK_OUTPUT)"; \
-	  ${UVX_BIN} --with "mkdocs-material<10.0" --with "pymdown-extensions>=10.0" --with "mkdocs<2.0" $(MKDOCS_EXTRA_PACKAGES) mkdocs build \
-	    -f "$(_MKDOCS_CFG)" \
-	    -d "$$(pwd)/$(BOOK_OUTPUT)"; \
-	else \
-	  printf "${YELLOW}[WARN] No mkdocs config found, skipping MkDocs build${RESET}\n"; \
-	fi
-	@mkdir -p "$(BOOK_OUTPUT)"
+	@rm -rf "$(BOOK_OUTPUT)"
+	# @${UVX_BIN} --with "mkdocs-material<10.0" --with "pymdown-extensions>=10.0" --with "mkdocs<2.0" $(MKDOCS_EXTRA_PACKAGES) mkdocs build -f "${ROOT}/mkdocs.yml" -d "$$(pwd)/$(BOOK_OUTPUT)"
+	@${UVX_BIN} zensical build -f "$(ROOT)/mkdocs.yml"
 	@touch "$(BOOK_OUTPUT)/.nojekyll"
 	@printf "${GREEN}[SUCCESS] Book built at $(BOOK_OUTPUT)/${RESET}\n"
 	@tree $(BOOK_OUTPUT)
 
-mkdocs-build: install-uv ## build MkDocs documentation site
-	@if [ -n "$(_MKDOCS_CFG)" ]; then \
-	  rm -rf "$(BOOK_OUTPUT)"; \
-	  ${UVX_BIN} --with "mkdocs-material<10.0" --with "pymdown-extensions>=10.0" --with "mkdocs<2.0" $(MKDOCS_EXTRA_PACKAGES) mkdocs build \
-	    -f "$(_MKDOCS_CFG)" \
-	    -d "$$(pwd)/$(BOOK_OUTPUT)"; \
-	else \
-	  printf "${RED}[ERROR] No mkdocs config found${RESET}\n"; \
-	  exit 1; \
-	fi
-	@mkdir -p "$(BOOK_OUTPUT)"
-	@touch "$(BOOK_OUTPUT)/.nojekyll"
-	@printf "${GREEN}[SUCCESS] Docs built at $(BOOK_OUTPUT)/${RESET}\n"
-
-mkdocs-serve: install-uv ## serve MkDocs site with live reload
-	@if [ -n "$(_MKDOCS_CFG)" ]; then \
-	  ${UVX_BIN} --with "mkdocs-material<10.0" --with "pymdown-extensions>=10.0" --with "mkdocs<2.0" $(MKDOCS_EXTRA_PACKAGES) mkdocs serve \
-	    -f "$(_MKDOCS_CFG)"; \
-	else \
-	  printf "${RED}[ERROR] No mkdocs config found${RESET}\n"; \
-	  exit 1; \
-	fi
-
-mkdocs: mkdocs-serve ## alias for mkdocs-serve
