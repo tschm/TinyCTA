@@ -164,15 +164,6 @@ test_help_target_performance     16.5255  18.0592  16.9294  0.3194  16.8354  0.4
 
 ## Integration with CI/CD
 
-### GitHub Actions Integration
-
-If configured, benchmark tests can be integrated with GitHub Actions via `.github/workflows/rhiza_benchmarks.yml`:
-
-- Runs benchmarks on every push to main and pull requests
-- Stores historical benchmark data in the `gh-pages` branch
-- Alerts on performance regressions > 150%
-- Posts warnings to PRs for performance degradation
-
 ### Running in CI
 
 The property-based tests run as part of the regular test suite:
