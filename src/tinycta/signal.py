@@ -77,6 +77,33 @@ def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, c
     return (r / r.ewm(com=com, min_periods=min_periods).std()).clip(-clip, +clip)
 
 
+def moving_absolute_deviation(price: pd.DataFrame, com: int = 32, min_periods: int = 300) -> pd.DataFrame:
+    """Compute the exponentially weighted moving absolute deviation of log returns.
+
+    This is a robust alternative to moving variance/standard deviation as it is
+    less sensitive to outliers. The moving absolute deviation is computed as the
+    exponentially weighted mean of the absolute deviations from the exponentially
+    weighted mean.
+
+    Parameters:
+    price : pd.DataFrame
+        The DataFrame containing price data.
+    com : int, default=32
+        Specifies the center of mass for the exponentially weighted moving average
+        calculation.
+    min_periods : int, default=300
+        Minimum number of periods required for the result to be valid.
+
+    Returns:
+    pd.DataFrame
+        A DataFrame of exponentially weighted moving absolute deviations of log
+        returns.
+    """
+    r = price.apply(np.log).diff()
+    ewm_mean = r.ewm(com=com, min_periods=min_periods).mean()
+    return (r - ewm_mean).abs().ewm(com=com, min_periods=min_periods).mean()
+
+
 def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
     """Performs shrinkage of a given square matrix towards the identity matrix by a weight factor.
 

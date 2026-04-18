@@ -11,10 +11,25 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tinycta.signal import osc, returns_adjust, shrink2id
+from tinycta.signal import moving_absolute_deviation, osc, returns_adjust, shrink2id
 
 
-def test_shrink() -> None:
+def test_moving_absolute_deviation(prices: pd.DataFrame) -> None:
+    """Test the moving_absolute_deviation function as a robust alternative to moving variance.
+
+    This test verifies that the moving_absolute_deviation function correctly computes
+    the exponentially weighted moving absolute deviation of log returns and that the
+    result is non-negative and finite for valid periods.
+
+    Args:
+        prices: DataFrame fixture containing price data for testing.
+    """
+    mad = prices.apply(moving_absolute_deviation, min_periods=2)
+    # Result should be non-negative (absolute deviations are always >= 0)
+    assert (mad.dropna() >= 0).all().all()
+    # Check a specific value for regression testing
+    assert mad.std()["-9186993121995610806"] == pytest.approx(0.0020053656751878)
+
     """Test the shrink2id function for matrix shrinkage towards identity.
 
     This test verifies that the shrink2id function correctly performs linear shrinkage
