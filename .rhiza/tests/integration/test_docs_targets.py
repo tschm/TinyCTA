@@ -28,7 +28,6 @@ def test_mkdocs_extra_packages_used_in_build(book_makefile):
     content = book_makefile.read_text()
     # The variable must appear on the same line as 'mkdocs build'
     build_lines = [line for line in content.splitlines() if "mkdocs build" in line]
-    assert build_lines, "book.mk should contain a 'mkdocs build' invocation"
     assert any("$(MKDOCS_EXTRA_PACKAGES)" in line for line in build_lines), (
         "mkdocs build line should include $(MKDOCS_EXTRA_PACKAGES)"
     )
