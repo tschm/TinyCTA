@@ -6,8 +6,3 @@ templates:
     - legal
     - tests
     - book
-
-exclude:
-    - ".rhiza/make.d/agentic.mk"
-    - ".rhiza/make.d/gh-aw.mk"
-    - ".rhiza/make.d/github.mk"
