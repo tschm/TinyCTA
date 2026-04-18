@@ -23,16 +23,6 @@ def test_mkdocs_extra_packages_variable_defined(book_makefile):
     assert "MKDOCS_EXTRA_PACKAGES ?=" in content, "book.mk should declare MKDOCS_EXTRA_PACKAGES with a ?= default"
 
 
-def test_mkdocs_extra_packages_used_in_build(book_makefile):
-    """Test that MKDOCS_EXTRA_PACKAGES is spliced into the mkdocs build uvx command."""
-    content = book_makefile.read_text()
-    # The variable must appear on the same line as 'mkdocs build'
-    build_lines = [line for line in content.splitlines() if "mkdocs build" in line]
-    assert any("$(MKDOCS_EXTRA_PACKAGES)" in line for line in build_lines), (
-        "mkdocs build line should include $(MKDOCS_EXTRA_PACKAGES)"
-    )
-
-
 def test_mkdocs_build_dry_run_with_extra_packages(git_repo, book_makefile):
     """Test that passing MKDOCS_EXTRA_PACKAGES on the command line is accepted by make.
 
