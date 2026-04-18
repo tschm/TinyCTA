@@ -1,21 +1,13 @@
 repository: "jebel-quant/rhiza"
-ref: "v0.10.0"
+ref: "v0.10.1"
 
 templates:
     - github
     - legal
     - tests
     - book
-    - renovate
 
 exclude:
-    - ".rhiza/docs/*"
-    - ".rhiza/make.d/README.md"
     - ".rhiza/make.d/agentic.mk"
-    - ".rhiza/make.d/custom-env.mk"
-    - ".rhiza/make.d/custom-task.mk"
     - ".rhiza/make.d/gh-aw.mk"
     - ".rhiza/make.d/github.mk"
-    - ".rhiza/tests/api/test_gh_aw_targets.py"
-    - ".rhiza/tests/api/test_github_targets.py"
-    - "docs/adr/*"
