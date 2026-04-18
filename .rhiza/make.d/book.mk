@@ -50,6 +50,10 @@ book:: _book-reports _book-notebooks ## compile the companion book via MkDocs
 	@rm -rf "$(BOOK_OUTPUT)"
 	@${UVX_BIN} $(MKDOCS_EXTRA_PACKAGES) zensical build -f "$(ROOT)/mkdocs.yml"
 	@touch "$(BOOK_OUTPUT)/.nojekyll"
+	@if [ -f "${ROOT}/_tests/coverage.xml" ]; then \
+	  printf "${BLUE}[INFO] Generating coverage badge${RESET}\n"; \
+	  ${UVX_BIN} "genbadge[coverage]" coverage -i "${ROOT}/_tests/coverage.xml" -o "$(BOOK_OUTPUT)/coverage-badge.svg"; \
+	fi
 	@printf "${GREEN}[SUCCESS] Book built at $(BOOK_OUTPUT)/${RESET}\n"
 	@tree $(BOOK_OUTPUT)
 
