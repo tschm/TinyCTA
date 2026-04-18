@@ -78,30 +78,30 @@ def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, c
 
 
 def moving_absolute_deviation(price: pd.DataFrame, com: int = 32, min_periods: int = 300) -> pd.DataFrame:
-    """Compute the exponentially weighted moving absolute deviation of log returns.
+    """Compute the rolling median absolute deviation (MAD) of log returns.
 
     This is a robust alternative to moving variance/standard deviation as it is
-    less sensitive to outliers. The moving absolute deviation is computed as the
-    exponentially weighted mean of the absolute deviations from the exponentially
-    weighted mean.
+    less sensitive to outliers. Both the center (median) and the dispersion
+    (median of absolute deviations) use the rolling median, making the estimate
+    doubly robust compared to mean-based approaches.
 
     Parameters:
     price : pd.DataFrame
         The DataFrame containing price data.
     com : int, default=32
-        Specifies the center of mass for the exponentially weighted moving average
-        calculation.
+        Specifies the center of mass, used to derive the rolling window size as
+        ``window = 2 * com - 1``.
     min_periods : int, default=300
         Minimum number of periods required for the result to be valid.
 
     Returns:
     pd.DataFrame
-        A DataFrame of exponentially weighted moving absolute deviations of log
-        returns.
+        A DataFrame of rolling median absolute deviations of log returns.
     """
     r = price.apply(np.log).diff()
-    ewm_mean = r.ewm(com=com, min_periods=min_periods).mean()
-    return (r - ewm_mean).abs().ewm(com=com, min_periods=min_periods).mean()
+    window = 2 * com - 1
+    rolling_median = r.rolling(window=window, min_periods=min_periods).median()
+    return (r - rolling_median).abs().rolling(window=window, min_periods=min_periods).median()
 
 
 def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
