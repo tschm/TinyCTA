@@ -28,7 +28,7 @@ def test_moving_absolute_deviation(prices: pd.DataFrame) -> None:
     # Result should be non-negative (absolute deviations are always >= 0)
     assert (mad.dropna() >= 0).all().all()
     # Check a specific value for regression testing
-    assert mad.std()["-9186993121995610806"] == pytest.approx(0.0017044791333883694)
+    assert mad.std()["-9186993121995610806"] == pytest.approx(0.002527026142903439)
 
     """Test the shrink2id function for matrix shrinkage towards identity.
 

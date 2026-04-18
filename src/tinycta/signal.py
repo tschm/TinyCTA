@@ -87,13 +87,14 @@ def moving_absolute_deviation(price: pd.DataFrame, com: int = 32, min_periods: i
 
     Returns:
         pd.DataFrame
-            A DataFrame of rolling median absolute deviations of log returns.
+            A DataFrame of rolling MAD values scaled by 1/0.6745, making them
+            consistent estimators of std under normality.
     """
     r = price.apply(np.log).diff()
     window = 2 * com - 1
     effective_min_periods = min(min_periods, window)
     rolling_median = r.rolling(window=window, min_periods=effective_min_periods).median()
-    return (r - rolling_median).abs().rolling(window=window, min_periods=effective_min_periods).median()
+    return (r - rolling_median).abs().rolling(window=window, min_periods=effective_min_periods).median() / 0.6745
 
 
 def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
