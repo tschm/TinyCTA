@@ -12,6 +12,8 @@ hypothesis-test:: ; @:
 
 BOOK_OUTPUT ?= _book
 
+MKDOCS_EXTRA_PACKAGES ?=
+
 ##@ Book
 
 _book-reports: test benchmark stress hypothesis-test
