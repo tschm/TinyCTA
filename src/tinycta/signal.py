@@ -21,27 +21,21 @@ import numpy as np
 import pandas as pd
 
 
-# compute the oscillator
 def osc(prices: pd.DataFrame, fast: int = 32, slow: int = 96, scaling: bool = True) -> pd.DataFrame:
     """Compute the oscillator for a given financial price data.
 
-    Use Exponential Weighted Moving Averages (EWM).
-    The calculation involves the difference between fast and
-    slow EWM means, optionally scaled by the standard deviation.
+    Use Exponential Weighted Moving Averages (EWM). The calculation involves
+    the difference between fast and slow EWM means, optionally scaled by the
+    standard deviation.
 
-    Parameters:
-    prices (pd.DataFrame)
-        DataFrame containing the price data used for the oscillator computation.
-    fast (int, optional)
-        The time period for the fast EWM calculation. Default is 32.
-    slow (int, optional)
-        The time period for the slow EWM calculation. Default is 96.
-    scaling (bool, optional)
-        If True, the difference will be scaled using its standard deviation. If
-        False, scaling is skipped. Default is True.
+    Args:
+        prices: DataFrame containing the price data used for the oscillator computation.
+        fast: The time period for the fast EWM calculation. Default is 32.
+        slow: The time period for the slow EWM calculation. Default is 96.
+        scaling: If True, the difference will be scaled using its standard deviation.
+            If False, scaling is skipped. Default is True.
 
     Returns:
-    pd.DataFrame
         DataFrame containing the computed oscillator values.
     """
     diff = prices.ewm(com=fast - 1).mean() - prices.ewm(com=slow - 1).mean()
@@ -53,24 +47,19 @@ def osc(prices: pd.DataFrame, fast: int = 32, slow: int = 96, scaling: bool = Tr
 def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, clip: float = 4.2) -> pd.DataFrame:
     """Calculate and adjust log returns for a given price DataFrame.
 
-    This function computes the logarithmic returns of a given price DataFrame,
-    normalizes them using exponentially weighted moving standard deviation with
-    specified parameters, and clips the resulting values to a specified range.
+    Computes the logarithmic returns, normalizes them using exponentially
+    weighted moving standard deviation, and clips the resulting values to a
+    specified range.
 
-    Parameters:
-    price : pd.DataFrame
-        The DataFrame containing price data for which log returns will be calculated.
-    com : int, default=32
-        Specifies the center of mass for the exponentially weighted moving average
-        calculation.
-    min_periods : int, default=300
-        Minimum number of periods required for the calculation of the exponentially
-        weighted moving standard deviation to be valid.
-    clip : float, default=4.2
-        The absolute value threshold to which the adjusted returns are clipped.
+    Args:
+        price: DataFrame containing price data for which log returns will be calculated.
+        com: Center of mass for the exponentially weighted moving average. Default is 32.
+        min_periods: Minimum number of periods required for the EWMA standard deviation
+            to be valid. Default is 300.
+        clip: Absolute value threshold to which the adjusted returns are clipped.
+            Default is 4.2.
 
     Returns:
-    pd.DataFrame
         A DataFrame of normalized and clipped log returns for the input price data.
     """
     r = price.apply(np.log).diff()
@@ -78,18 +67,14 @@ def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, c
 
 
 def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
-    """Performs shrinkage of a given square matrix towards the identity matrix by a weight factor.
+    """Shrink a square matrix towards the identity matrix by a weight factor.
 
-    This function modifies the input matrix by shrinking it towards the identity matrix. The
-    shrinking is controlled by the `lamb` parameter, which determines the weighting between the
-    original matrix and the identity matrix.
-
-    Parameters:
-    matrix (np.ndarray): The input square matrix to be shrunk.
-    lamb (float): The mixing ratio for shrinkage. Defaults to 1.0. A value of 1.0 retains the
-                  original matrix, while 0.0 completely replaces it with the identity matrix.
+    Args:
+        matrix: The input square matrix to be shrunk.
+        lamb: Mixing ratio for shrinkage. A value of 1.0 retains the original
+            matrix; 0.0 replaces it entirely with the identity matrix. Default is 1.0.
 
     Returns:
-    np.ndarray: The resulting matrix after applying the shrinkage transformation.
+        The resulting matrix after applying the shrinkage transformation.
     """
     return matrix * lamb + (1 - lamb) * np.eye(N=matrix.shape[0])
