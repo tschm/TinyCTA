@@ -66,6 +66,36 @@ def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, c
     return (r / r.ewm(com=com, min_periods=min_periods).std()).clip(-clip, +clip)
 
 
+def moving_absolute_deviation(price: pd.DataFrame, com: int = 32, min_periods: int = 300) -> pd.DataFrame:
+    """Compute the rolling median absolute deviation (MAD) of log returns.
+
+    This is a robust alternative to moving variance/standard deviation as it is
+    less sensitive to outliers. Both the center (median) and the dispersion
+    (median of absolute deviations) use the rolling median, making the estimate
+    doubly robust compared to mean-based approaches.
+
+    Parameters:
+    price : pd.DataFrame
+        The DataFrame containing price data.
+    com : int, default=32
+        Specifies the center of mass, used to derive the rolling window size as
+        ``window = 2 * com - 1``.
+    min_periods : int, default=300
+        Minimum number of periods required for the result to be valid. Values
+        larger than the derived rolling window are capped to ``window`` so the
+        rolling calculations remain valid.
+
+    Returns:
+        pd.DataFrame
+            A DataFrame of rolling median absolute deviations of log returns.
+    """
+    r = price.apply(np.log).diff()
+    window = 2 * com - 1
+    effective_min_periods = min(min_periods, window)
+    rolling_median = r.rolling(window=window, min_periods=effective_min_periods).median()
+    return (r - rolling_median).abs().rolling(window=window, min_periods=effective_min_periods).median()
+
+
 def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
     """Shrink a square matrix towards the identity matrix by a weight factor.
 
