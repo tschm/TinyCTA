@@ -19,7 +19,6 @@ nav:
       - report: reports/html-report/report.html
 
 plugins:
-  - search
   - mkdocstrings:
       handlers:
         python:
