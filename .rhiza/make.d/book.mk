@@ -15,7 +15,7 @@ BOOK_OUTPUT ?= _book
 # Additional uvx --with packages to inject into mkdocs build and serve.
 # Projects can extend the package list without editing this template, e.g.:
 #   MKDOCS_EXTRA_PACKAGES = --with "mkdocs-graphviz"
-MKDOCS_EXTRA_PACKAGES ?=
+MKDOCS_EXTRA_PACKAGES ?= '--with "mkdocstring[python]"'
 
 ##@ Book
 
@@ -55,7 +55,7 @@ serve: book ## build and serve the book at http://localhost:8000
 book:: _book-reports _book-notebooks ## compile the companion book via MkDocs
 	@rm -rf "$(BOOK_OUTPUT)"
 	# @${UVX_BIN} --with "mkdocs-material<10.0" --with "pymdown-extensions>=10.0" --with "mkdocs<2.0" $(MKDOCS_EXTRA_PACKAGES) mkdocs build -f "${ROOT}/mkdocs.yml" -d "$$(pwd)/$(BOOK_OUTPUT)"
-	@${UVX_BIN} zensical build -f "$(ROOT)/mkdocs.yml"
+	@${UVX_BIN} $(MKDOCS_EXTRA_PACKAGES) zensical build -f "$(ROOT)/mkdocs.yml"
 	@touch "$(BOOK_OUTPUT)/.nojekyll"
 	@printf "${GREEN}[SUCCESS] Book built at $(BOOK_OUTPUT)/${RESET}\n"
 	@tree $(BOOK_OUTPUT)
