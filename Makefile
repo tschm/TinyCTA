@@ -12,3 +12,14 @@ include .rhiza/rhiza.mk
 -include local.mk
 
 ## Custom targets
+
+.PHONY: pdoc
+
+pdoc: ## generate API documentation with pdoc
+	@printf "${BLUE}[INFO] Generating API documentation with pdoc...${RESET}\n"
+	@mkdir -p $(BOOK_OUTPUT)/api
+	@${UV_BIN} run pdoc src/tinycta -o $(BOOK_OUTPUT)/api
+	@printf "${GREEN}[SUCCESS] API documentation generated at $(BOOK_OUTPUT)/api/${RESET}\n"
+
+book:: ## extend book build with pdoc API documentation
+	@${UV_BIN} run pdoc src/tinycta -o $(BOOK_OUTPUT)/api
