@@ -69,26 +69,19 @@ def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, c
 def moving_absolute_deviation(price: pd.DataFrame, com: int = 32, min_periods: int = 300) -> pd.DataFrame:
     """Compute the rolling median absolute deviation (MAD) of log returns.
 
-    This is a robust alternative to moving variance/standard deviation as it is
-    less sensitive to outliers. Both the center (median) and the dispersion
-    (median of absolute deviations) use the rolling median, making the estimate
-    doubly robust compared to mean-based approaches.
+    A robust alternative to moving standard deviation, less sensitive to outliers.
+    Both the center and dispersion use rolling medians, making the estimate doubly
+    robust. The result is scaled by 1/0.6745 to be a consistent estimator of std
+    under normality.
 
-    Parameters:
-    price : pd.DataFrame
-        The DataFrame containing price data.
-    com : int, default=32
-        Specifies the center of mass, used to derive the rolling window size as
-        ``window = 2 * com - 1``.
-    min_periods : int, default=300
-        Minimum number of periods required for the result to be valid. Values
-        larger than the derived rolling window are capped to ``window`` so the
-        rolling calculations remain valid.
+    Args:
+        price: DataFrame containing price data.
+        com: Center of mass used to derive the rolling window as ``window = 2 * com - 1``.
+        min_periods: Minimum number of periods required for the result to be valid.
+            Capped to ``window`` if larger.
 
     Returns:
-        pd.DataFrame
-            A DataFrame of rolling MAD values scaled by 1/0.6745, making them
-            consistent estimators of std under normality.
+        DataFrame of scaled rolling MAD values consistent with std under normality.
     """
     r = price.apply(np.log).diff()
     window = 2 * com - 1
