@@ -66,7 +66,7 @@ def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, c
     return (r / r.ewm(com=com, min_periods=min_periods).std()).clip(-clip, +clip)
 
 
-def moving_absolute_deviation(price: pd.DataFrame, com: int = 32, min_periods: int = 300) -> pd.DataFrame:
+def moving_absolute_deviation(price: pd.DataFrame, com: int = 32) -> pd.DataFrame:
     """Compute the rolling median absolute deviation (MAD) of log returns.
 
     A robust alternative to moving standard deviation, less sensitive to outliers.
@@ -77,17 +77,14 @@ def moving_absolute_deviation(price: pd.DataFrame, com: int = 32, min_periods: i
     Args:
         price: DataFrame containing price data.
         com: Center of mass used to derive the rolling window as ``window = 2 * com - 1``.
-        min_periods: Minimum number of periods required for the result to be valid.
-            Capped to ``window`` if larger.
 
     Returns:
         DataFrame of scaled rolling MAD values consistent with std under normality.
     """
     r = price.apply(np.log).diff()
     window = 2 * com - 1
-    effective_min_periods = min(min_periods, window)
-    rolling_median = r.rolling(window=window, min_periods=effective_min_periods).median()
-    return (r - rolling_median).abs().rolling(window=window, min_periods=effective_min_periods).median() / 0.6745
+    rolling_median = r.rolling(window=window).median()
+    return (r - rolling_median).abs().rolling(window=window).median() / 0.6745
 
 
 def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
