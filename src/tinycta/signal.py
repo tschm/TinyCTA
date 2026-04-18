@@ -92,16 +92,19 @@ def moving_absolute_deviation(price: pd.DataFrame, com: int = 32, min_periods: i
         Specifies the center of mass, used to derive the rolling window size as
         ``window = 2 * com - 1``.
     min_periods : int, default=300
-        Minimum number of periods required for the result to be valid.
+        Minimum number of periods required for the result to be valid. Values
+        larger than the derived rolling window are capped to ``window`` so the
+        rolling calculations remain valid.
 
     Returns:
-    pd.DataFrame
-        A DataFrame of rolling median absolute deviations of log returns.
+        pd.DataFrame
+            A DataFrame of rolling median absolute deviations of log returns.
     """
     r = price.apply(np.log).diff()
     window = 2 * com - 1
-    rolling_median = r.rolling(window=window, min_periods=min_periods).median()
-    return (r - rolling_median).abs().rolling(window=window, min_periods=min_periods).median()
+    effective_min_periods = min(min_periods, window)
+    rolling_median = r.rolling(window=window, min_periods=effective_min_periods).median()
+    return (r - rolling_median).abs().rolling(window=window, min_periods=effective_min_periods).median()
 
 
 def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
