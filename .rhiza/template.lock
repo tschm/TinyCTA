@@ -3,10 +3,7 @@ repo: jebel-quant/rhiza
 host: github
 ref: v0.10.1
 include: []
-exclude:
-- .rhiza/make.d/agentic.mk
-- .rhiza/make.d/gh-aw.mk
-- .rhiza/make.d/github.mk
+exclude: []
 templates:
 - github
 - legal
@@ -92,5 +89,5 @@ files:
 - docs/mkdocs-base.yml
 - pytest.ini
 - ruff.toml
-synced_at: '2026-04-18T15:37:49Z'
+synced_at: '2026-04-20T00:33:56Z'
 strategy: merge
