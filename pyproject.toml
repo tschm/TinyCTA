@@ -9,7 +9,8 @@ authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 requires-python = ">=3.11"
 dependencies = [
     "numpy>=2.0.0",
-    "pandas>=2.2.3"
+    "pandas>=2.2.3",
+    "polars>=1.0.0"
 ]
 [project.urls]
 repository = "https://github.com/tschm/tinycta"
