@@ -84,6 +84,20 @@ class TestEngineCashPosition:
         assert result is not None
         assert set(result.columns) == set(synthetic_prices.columns)
 
+    def test_cash_position_nonzero_mu_exercises_solve(
+        self, synthetic_prices: pl.DataFrame, assets: list[str], cfg: Config
+    ):
+        """Non-zero mu triggers the _solve branch (line 111) and produces finite positions."""
+        rng = np.random.default_rng(0)
+        mu_data = {"date": synthetic_prices["date"].to_list()}
+        for asset in assets:
+            mu_data[asset] = rng.normal(0.001, 0.01, size=len(synthetic_prices)).tolist()
+        mu = pl.DataFrame(mu_data).with_columns(pl.col("date").cast(pl.Date))
+        result = Engine(prices=synthetic_prices, mu=mu, cfg=cfg).cash_position
+        assert result is not None
+        numeric_cols = [c for c in result.columns if c != "date"]
+        assert all(result[c].is_finite().any() for c in numeric_cols)
+
     def test_all_nan_row_is_skipped(self, synthetic_prices: pl.DataFrame, assets: list[str], cfg: Config):
         """A row where all prices are NaN is skipped without raising."""
         nan_row = {
