@@ -1,4 +1,4 @@
-"""Basanos engine for correlation-aware risk position optimization."""
+"""Engine for correlation-aware risk position optimization."""
 
 from __future__ import annotations
 
@@ -8,10 +8,10 @@ from typing import cast
 import numpy as np
 import polars as pl
 
-from tinycta.linalg import inv_a_norm as _inv_a_norm
-from tinycta.linalg import solve as _solve
-from tinycta.signal import shrink2id as _shrink2id
-from tinycta.util import vol_adj as _vol_adj
+from .linalg import inv_a_norm as _inv_a_norm
+from .linalg import solve as _solve
+from .signal import shrink2id as _shrink2id
+from .util import vol_adj as _vol_adj
 
 from .config import Config
 
