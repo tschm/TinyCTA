@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+from typing import cast
 
 import numpy as np
 import polars as pl
@@ -64,7 +65,7 @@ class Engine:
         ret_adj_pd = self.ret_adj.select(self.assets).to_pandas()
         ewm_corr = ret_adj_pd.ewm(com=self.cfg.corr, min_periods=self.cfg.corr).corr()
         cor = ewm_corr.reset_index(names=["t", "asset"])
-        return {index[t]: df_t.drop(columns=["t", "asset"]).to_numpy() for t, df_t in cor.groupby("t")}
+        return {index[cast(int, t)]: df_t.drop(columns=["t", "asset"]).to_numpy() for t, df_t in cor.groupby("t")}
 
     @property
     def cash_position(self) -> pl.DataFrame:

@@ -32,6 +32,11 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/tinycta"]
 
+[tool.deptry.per_rule_ignores]
+DEP002 = [
+    "pyarrow",       # polars parquet backend
+]
+
 [tool.deptry.package_module_name_map]
 numpy = "numpy"
 pandas = "pandas"
