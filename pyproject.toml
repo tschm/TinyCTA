@@ -8,11 +8,14 @@ license-files = ["LICENSE"]
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 requires-python = ">=3.11"
 dependencies = [
+    "loguru>=0.7.3",
     "numpy>=2.0.0",
+    "optuna>=4.8.0",
     "pandas>=2.2.3",
     "polars>=1.0.0",
     "pyarrow>=23.0.0",
     "pydantic>=2.13.3",
+    "pyyaml>=6.0.3",
 ]
 [project.urls]
 repository = "https://github.com/tschm/tinycta"
@@ -44,6 +47,5 @@ pandas-stubs = []
 pre-commit = "pre_commit"
 marimo = "marimo"
 plotly = "plotly"
+pyyaml = "yaml"
 
-[tool.mypy]
-ignore_missing_imports = true
