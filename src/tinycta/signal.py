@@ -21,51 +21,6 @@ import numpy as np
 import pandas as pd
 
 
-def osc(prices: pd.DataFrame, fast: int = 32, slow: int = 96, scaling: bool = True) -> pd.DataFrame:
-    """Compute the oscillator for a given financial price data.
-
-    Use Exponential Weighted Moving Averages (EWM). The calculation involves
-    the difference between fast and slow EWM means, optionally scaled by the
-    standard deviation.
-
-    Args:
-        prices: DataFrame containing the price data used for the oscillator computation.
-        fast: The time period for the fast EWM calculation. Default is 32.
-        slow: The time period for the slow EWM calculation. Default is 96.
-        scaling: If True, the difference will be scaled using its standard deviation.
-            If False, scaling is skipped. Default is True.
-
-    Returns:
-        DataFrame containing the computed oscillator values.
-    """
-    diff = prices.ewm(com=fast - 1).mean() - prices.ewm(com=slow - 1).mean()
-    s = diff.std() if scaling else 1
-
-    return diff / s
-
-
-def returns_adjust(price: pd.DataFrame, com: int = 32, min_periods: int = 300, clip: float = 4.2) -> pd.DataFrame:
-    """Calculate and adjust log returns for a given price DataFrame.
-
-    Computes the logarithmic returns, normalizes them using exponentially
-    weighted moving standard deviation, and clips the resulting values to a
-    specified range.
-
-    Args:
-        price: DataFrame containing price data for which log returns will be calculated.
-        com: Center of mass for the exponentially weighted moving average. Default is 32.
-        min_periods: Minimum number of periods required for the EWMA standard deviation
-            to be valid. Default is 300.
-        clip: Absolute value threshold to which the adjusted returns are clipped.
-            Default is 4.2.
-
-    Returns:
-        A DataFrame of normalized and clipped log returns for the input price data.
-    """
-    r = price.apply(np.log).diff()
-    return (r / r.ewm(com=com, min_periods=min_periods).std()).clip(-clip, +clip)
-
-
 def moving_absolute_deviation(price: pd.DataFrame, com: int = 32) -> pd.DataFrame:
     """Compute the rolling median absolute deviation (MAD) of log returns.
 
