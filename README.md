@@ -20,7 +20,8 @@ A Lightweight Python Package for Commodity Trading Advisor Strategies.
 TinyCTA provides essential tools for quantitative finance and algorithmic trading,
 particularly for trend-following strategies. The package includes:
 
-- Signal processing functions for creating oscillators and adjusting returns
+- Polars-based signal processing: oscillators, moving-average crossovers, and volatility-adjusted returns
+- Robust volatility estimation via rolling median absolute deviation
 - Linear algebra utilities that handle matrices with missing values
 - Matrix shrinkage techniques commonly used in portfolio optimization
 
@@ -51,35 +52,39 @@ virtual environment with all dependencies.
 
 ## 💻 Usage
 
-### Creating an oscillator
+### Oscillator signal (Polars)
 
 ```python
-from pathlib import Path
+import polars as pl
+from tinycta.osc import osc
 
-import pandas as pd
-from tinycta.signal import osc
-
-path = Path(__name__).resolve().parent.parent
-
-# Load price data
-prices = pd.read_csv("data.csv", index_col=0, parse_dates=True)
-
-# Create an oscillator with default parameters
-oscillator = prices.apply(osc)
-
-# Create an oscillator with custom parameters
-custom_oscillator = prices.apply(osc, fast=16, slow=64, scaling=False)
+prices = pl.DataFrame({"A": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]})
+result = prices.with_columns(osc(pl.col("A"), fast=2, slow=6, vola=3).alias("osc_A"))
 ```
 
-### Adjusting returns for volatility
-
-<!--pytest-codeblocks:cont-->
+### Moving-average crossover (Polars)
 
 ```python
-from tinycta.signal import returns_adjust
+import polars as pl
+from tinycta.ewma import ma_cross
 
-# Adjust returns for volatility
-adjusted_returns = prices.apply(returns_adjust)
+prices = pl.DataFrame({"A": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]})
+result = prices.with_columns(
+    ma_cross(pl.col("A"), fast=2, slow=6).alias("sig_A")
+)
+```
+
+### Volatility-adjusted returns (Polars)
+
+```python
+import polars as pl
+from tinycta.util import vol_adj, adj_log_prices
+
+prices = pl.DataFrame({"A": [100, 101, 99, 102, 98, 103]})
+result = prices.with_columns(
+    vol_adj(pl.col("A"), vola=3, clip=4.2).alias("vol_adj_A"),
+    adj_log_prices(pl.col("A"), vola=3, clip=4.2).alias("adj_log_A"),
+)
 ```
 
 ### Linear algebra operations
@@ -88,11 +93,8 @@ adjusted_returns = prices.apply(returns_adjust)
 import numpy as np
 from tinycta.linalg import solve
 
-# Create a matrix and right-hand side vector
 matrix = np.array([[1.0, 0.5], [0.5, 1.0]])
 rhs = np.array([1.0, 2.0])
-
-# Solve the linear system
 solution = solve(matrix, rhs)
 print(solution)
 ```
@@ -103,24 +105,24 @@ print(solution)
 
 ## 📚 API Reference
 
-### Signal Processing
+### Signal Processing (`tinycta.osc`, `tinycta.ewma`, `tinycta.util`)
 
-- `osc(prices, fast=32, slow=96, scaling=True)`:
-   Creates an oscillator based on the difference between fast and slow moving averages
-- `returns_adjust(price, com=32, min_periods=300, clip=4.2)`:
-   Adjusts log-returns by volatility and applies winsorization
-- `shrink2id(matrix, lamb=1.0)`:
-   Performs shrinkage of a matrix towards the identity matrix
+- `osc(x, fast, slow, vola, min_samples=1)` — EWMA-difference oscillator scaled by EWMA volatility (Polars)
+- `ma_cross(prices, fast, slow, min_samples=1)` — sign of fast-vs-slow EWM crossover: -1, 0, or +1 (Polars)
+- `vol_adj(x, vola, clip, min_samples=1)` — clipped, volatility-adjusted log returns (Polars)
+- `adj_log_prices(x, vola, clip, min_samples=1)` — cumulative sum of volatility-adjusted log returns (Polars)
 
-### Linear Algebra
+### Signal Utilities (`tinycta.signal`)
 
-- `valid(matrix)`:
-Constructs a valid subset of a matrix by filtering out rows/columns with NaN values
-- `a_norm(vector, matrix=None)`:
-Computes the matrix-norm of a vector with respect to a matrix
-- `inv_a_norm(vector, matrix=None)`: Computes the inverse matrix-norm of a vector
-- `solve(matrix, rhs)`:
-Solves a linear system of equations, handling matrices with NaN values
+- `moving_absolute_deviation(price, com=32)` — robust rolling volatility estimate via median absolute deviation (pandas)
+- `shrink2id(matrix, lamb=1.0)` — shrink a matrix towards the identity matrix
+
+### Linear Algebra (`tinycta.linalg`)
+
+- `valid(matrix)` — extract the finite subset of a matrix by filtering NaN rows/columns
+- `a_norm(vector, matrix=None)` — matrix-norm of a vector
+- `inv_a_norm(vector, matrix=None)` — inverse matrix-norm of a vector
+- `solve(matrix, rhs)` — solve a linear system, handling matrices with NaN values
 
 ## 🛠️ Development
 
