@@ -113,3 +113,25 @@ class TestEngineCashPosition:
         mu = prices_with_nan.with_columns(pl.lit(0.0).alias(a) for a in assets)
         result = Engine(prices=prices_with_nan, mu=mu, cfg=cfg).cash_position
         assert result is not None
+
+    def test_all_prices_nan_at_loop_index_hits_continue(self, assets: list[str]):
+        """When prices_num[i] is all non-finite the engine skips that row (line 108 continue).
+
+        Uses polars null (None) rather than float NaN so that ewm_covariance skips the
+        missing row instead of propagating NaN, keeping cor entries intact past index 5.
+        Float64 nulls become np.nan in to_numpy(), so mask is all-False at i=5.
+        """
+        cfg = Config(vola=3, corr=3, clip=4.2, shrink=0.5)
+        n = 30
+        rng = np.random.default_rng(7)
+        dates = [datetime.date(2020, 1, 1) + datetime.timedelta(days=i) for i in range(n)]
+        price_arr = 100 * np.exp(np.cumsum(rng.normal(0.0001, 0.02, size=(n, len(assets))), axis=0))
+        data: dict = {"date": dates}
+        for j, a in enumerate(assets):
+            vals: list = price_arr[:, j].tolist()
+            vals[5] = None  # polars null → skipped by ewm, becomes np.nan in to_numpy()
+            data[a] = vals
+        prices = pl.DataFrame(data).with_columns(pl.col("date").cast(pl.Date))
+        mu = prices.with_columns(pl.lit(0.0).alias(a) for a in assets)
+        result = Engine(prices=prices, mu=mu, cfg=cfg).cash_position
+        assert result is not None
