@@ -25,7 +25,8 @@ dev = [
     "pre-commit==4.6.0",
     "marimo==0.23.6",
     "plotly>=6.5",
-    "pandas-stubs>=2.2"
+    "pandas-stubs>=2.2",
+    "cvx-linalg>=0.3.0",
 ]
 
 [build-system]

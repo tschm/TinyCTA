@@ -159,6 +159,18 @@ wheels = [
 ]
 
 [[package]]
+name = "cvx-linalg"
+version = "0.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/eb/cc/31e46ac1a9668168b88bf13d91a7289bb25743e698988c86715005b8a854/cvx_linalg-0.3.0.tar.gz", hash = "sha256:9a9598bf12d84ace08af9caff9ac8d25de56aca0d515eae3fb71b9502702ecd0", size = 11861, upload-time = "2026-05-13T06:16:40.932Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/aa/5c/224b1fdaf6821d648b067ef9fc7c1cabf55676d7cfbeff1e39bd8092df9d/cvx_linalg-0.3.0-py3-none-any.whl", hash = "sha256:2a68860ff1a8da4496e74c86f1ec6441b2ee7a956e96ca427b69ba191e18421c", size = 8486, upload-time = "2026-05-13T06:16:39.579Z" },
+]
+
+[[package]]
 name = "distlib"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1282,6 +1294,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "cvx-linalg" },
     { name = "marimo" },
     { name = "pandas-stubs" },
     { name = "plotly" },
@@ -1302,6 +1315,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "cvx-linalg", specifier = ">=0.3.0" },
     { name = "marimo", specifier = "==0.23.6" },
     { name = "pandas-stubs", specifier = ">=2.2" },
     { name = "plotly", specifier = ">=6.5" },
