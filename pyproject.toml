@@ -42,6 +42,7 @@ DEP002 = [
 ]
 
 [tool.deptry.package_module_name_map]
+cvx-linalg = "cvx"
 numpy = "numpy"
 pandas = "pandas"
 pandas-stubs = []
