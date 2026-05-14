@@ -1282,6 +1282,7 @@ name = "tinycta"
 version = "0.11.0"
 source = { editable = "." }
 dependencies = [
+    { name = "cvx-linalg" },
     { name = "loguru" },
     { name = "numpy" },
     { name = "optuna" },
@@ -1294,7 +1295,6 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "cvx-linalg" },
     { name = "marimo" },
     { name = "pandas-stubs" },
     { name = "plotly" },
@@ -1303,6 +1303,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cvx-linalg", specifier = ">=0.4.0" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "numpy", specifier = ">=2.0.0" },
     { name = "optuna", specifier = ">=4.8.0" },
@@ -1315,7 +1316,6 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "cvx-linalg", specifier = "==0.4.0" },
     { name = "marimo", specifier = "==0.23.6" },
     { name = "pandas-stubs", specifier = ">=2.2" },
     { name = "plotly", specifier = ">=6.5" },
