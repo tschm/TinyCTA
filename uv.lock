@@ -160,14 +160,15 @@ wheels = [
 
 [[package]]
 name = "cvx-linalg"
-version = "0.4.0"
+version = "0.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
+    { name = "polars" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f5/3a/ceb9cae609891f26ebac1f72110e6d9b71b16cca774c3c16bc94c07abc8f/cvx_linalg-0.4.0.tar.gz", hash = "sha256:debd8659c5e443ea11547297189cae159939a5af3ffcc0234442a760b5192e99", size = 12719, upload-time = "2026-05-14T13:07:56.035Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/10/fcf8aba620d66a02eed5821a7c77736ccf09b3aefbd61287194c2c116dcc/cvx_linalg-0.4.1.tar.gz", hash = "sha256:c19da458b7c3787d235c160ec76faa1f72ef6e39a87e22fef02fb55c44114ab8", size = 14529, upload-time = "2026-05-14T15:17:49.909Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/df/5e/04ef89f6dc6c658641e9d586f5ea9926f4a23a997da25754c560ac8cd787/cvx_linalg-0.4.0-py3-none-any.whl", hash = "sha256:f8cfbe9173813567494e5b8d199123a48459d7f5de89b5a5fd5d979a2824196b", size = 10069, upload-time = "2026-05-14T13:07:54.663Z" },
+    { url = "https://files.pythonhosted.org/packages/53/c5/f062c7ea02335c8a46d5648932faa635c0507225ae0ed024058d8aa13389/cvx_linalg-0.4.1-py3-none-any.whl", hash = "sha256:970faba2d10fd608c46ea3bc029f2653f2025f0187a19a9c9533ffac8d7215f8", size = 12247, upload-time = "2026-05-14T15:17:48.372Z" },
 ]
 
 [[package]]
@@ -1252,7 +1253,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cvx-linalg", specifier = ">=0.4.0" },
+    { name = "cvx-linalg", specifier = ">=0.4.1" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "numpy", specifier = ">=2.0.0" },
     { name = "optuna", specifier = ">=4.8.0" },
