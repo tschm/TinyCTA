@@ -159,6 +159,18 @@ wheels = [
 ]
 
 [[package]]
+name = "cvx-linalg"
+version = "0.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f5/3a/ceb9cae609891f26ebac1f72110e6d9b71b16cca774c3c16bc94c07abc8f/cvx_linalg-0.4.0.tar.gz", hash = "sha256:debd8659c5e443ea11547297189cae159939a5af3ffcc0234442a760b5192e99", size = 12719, upload-time = "2026-05-14T13:07:56.035Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/df/5e/04ef89f6dc6c658641e9d586f5ea9926f4a23a997da25754c560ac8cd787/cvx_linalg-0.4.0-py3-none-any.whl", hash = "sha256:f8cfbe9173813567494e5b8d199123a48459d7f5de89b5a5fd5d979a2824196b", size = 10069, upload-time = "2026-05-14T13:07:54.663Z" },
+]
+
+[[package]]
 name = "distlib"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1270,6 +1282,7 @@ name = "tinycta"
 version = "0.11.0"
 source = { editable = "." }
 dependencies = [
+    { name = "cvx-linalg" },
     { name = "loguru" },
     { name = "numpy" },
     { name = "optuna" },
@@ -1290,6 +1303,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cvx-linalg", specifier = ">=0.4.0" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "numpy", specifier = ">=2.0.0" },
     { name = "optuna", specifier = ">=4.8.0" },

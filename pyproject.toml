@@ -8,6 +8,7 @@ license-files = ["LICENSE"]
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 requires-python = ">=3.11"
 dependencies = [
+    "cvx-linalg>=0.4.0",
     "loguru>=0.7.3",
     "numpy>=2.0.0",
     "optuna>=4.8.0",
@@ -25,7 +26,7 @@ dev = [
     "pre-commit==4.6.0",
     "marimo==0.23.6",
     "plotly>=6.5",
-    "pandas-stubs>=2.2"
+    "pandas-stubs>=2.2",
 ]
 
 [build-system]
@@ -41,11 +42,17 @@ DEP002 = [
 ]
 
 [tool.deptry.package_module_name_map]
+cvx-linalg = "cvx"
+loguru = "loguru"
 numpy = "numpy"
+optuna = "optuna"
 pandas = "pandas"
 pandas-stubs = []
+polars = "polars"
 pre-commit = "pre_commit"
 marimo = "marimo"
 plotly = "plotly"
+pyarrow = "pyarrow"
+pydantic = "pydantic"
 pyyaml = "yaml"
 
