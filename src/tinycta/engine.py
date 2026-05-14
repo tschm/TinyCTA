@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import cast
 
 import numpy as np
 import polars as pl
 
 from .config import Config
+from .ewm_cov import ewm_covariance as _ewm_covariance
 from .linalg import inv_a_norm as _inv_a_norm
 from .linalg import solve as _solve
 from .signal import shrink2id as _shrink2id
@@ -60,11 +60,19 @@ class Engine:
     @property
     def cor(self) -> dict[object, np.ndarray]:
         """Per-timestamp EWMA correlation matrices, returned as a date-keyed dict."""
-        index = self.prices["date"]
-        ret_adj_pd = self.ret_adj.select(self.assets).to_pandas()
-        ewm_corr = ret_adj_pd.ewm(com=self.cfg.corr, min_periods=self.cfg.corr).corr()
-        cor = ewm_corr.reset_index(names=["t", "asset"])
-        return {index[cast(int, t)]: df_t.drop(columns=["t", "asset"]).to_numpy() for t, df_t in cor.groupby("t")}
+        cov = _ewm_covariance(
+            self.ret_adj,
+            assets=self.assets,
+            index_col="date",
+            window=2 * self.cfg.corr + 1,
+            warmup=self.cfg.corr,
+        )
+        result = {}
+        for k, mat in cov.items():
+            std = np.sqrt(np.abs(np.diag(mat)))
+            outer = np.outer(std, std)
+            result[k] = np.where(outer > 0, mat / outer, np.nan)
+        return result
 
     @property
     def cash_position(self) -> pl.DataFrame:
