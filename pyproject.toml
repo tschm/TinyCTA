@@ -43,11 +43,16 @@ DEP002 = [
 
 [tool.deptry.package_module_name_map]
 cvx-linalg = "cvx"
+loguru = "loguru"
 numpy = "numpy"
+optuna = "optuna"
 pandas = "pandas"
 pandas-stubs = []
+polars = "polars"
 pre-commit = "pre_commit"
 marimo = "marimo"
 plotly = "plotly"
+pyarrow = "pyarrow"
+pydantic = "pydantic"
 pyyaml = "yaml"
 
