@@ -59,7 +59,7 @@ import polars as pl
 from tinycta.osc import osc
 
 prices = pl.DataFrame({"A": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]})
-result = prices.with_columns(osc(pl.col("A"), fast=2, slow=6, vola=3).alias("osc_A"))
+result = prices.with_columns(osc(pl.col("A"), fast=2, slow=6).alias("osc_A"))
 ```
 
 ### Moving-average crossover (Polars)
@@ -107,7 +107,7 @@ print(solution)
 
 ### Signal Processing (`tinycta.osc`, `tinycta.ewma`, `tinycta.util`)
 
-- `osc(x, fast, slow, vola, min_samples=1)` — EWMA-difference oscillator scaled by EWMA volatility (Polars)
+- `osc(x, fast, slow, min_samples=1)` — analytically scaled EWMA-difference oscillator (Polars)
 - `ma_cross(prices, fast, slow, min_samples=1)` — sign of fast-vs-slow EWM crossover: -1, 0, or +1 (Polars)
 - `vol_adj(x, vola, clip, min_samples=1)` — clipped, volatility-adjusted log returns (Polars)
 - `adj_log_prices(x, vola, clip, min_samples=1)` — cumulative sum of volatility-adjusted log returns (Polars)
