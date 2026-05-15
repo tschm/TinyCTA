@@ -61,7 +61,7 @@ def osc(x: pl.Expr, fast: int, slow: int, min_samples: int = 1) -> pl.Expr:
     f, g = 1 - 1 / fast, 1 - 1 / slow
     s = math.sqrt(1.0 / (1 - f * f) - 2.0 / (1 - f * g) + 1.0 / (1 - g * g))
 
-    diff = x.ewm_mean(com=fast - 1, adjust=False, min_samples=min_samples) - x.ewm_mean(
-        com=slow - 1, adjust=False, min_samples=min_samples
+    diff = x.ewm_mean(com=fast - 1, adjust=True, min_samples=min_samples) - x.ewm_mean(
+        com=slow - 1, adjust=True, min_samples=min_samples
     )
     return diff / s
