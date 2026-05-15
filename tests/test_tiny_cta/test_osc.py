@@ -44,9 +44,9 @@ def test_osc_matches_reference_and_is_finite(frame):
     f, g = 1 - 1 / fast, 1 - 1 / slow
     s = math.sqrt(1.0 / (1 - f * f) - 2.0 / (1 - f * g) + 1.0 / (1 - g * g))
     _osc = df.with_columns(
-        (
-            (pl.col("A").ewm_mean(com=fast - 1, adjust=False) - pl.col("A").ewm_mean(com=slow - 1, adjust=False)) / s
-        ).alias("A")
+        ((pl.col("A").ewm_mean(com=fast - 1, adjust=True) - pl.col("A").ewm_mean(com=slow - 1, adjust=True)) / s).alias(
+            "A"
+        )
     ).select(["date", "A"])
 
     pt.assert_frame_equal(out, _osc)
