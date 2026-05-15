@@ -1,13 +1,14 @@
 """Tests for tinycta.osc.osc.
 
 These tests validate that the oscillator expression:
-- produces finite, bounded outputs for typical parameters,
-- corresponds to the ratio of EWMA-difference over EWMA-std of first diffs,
-- raises when invalid fast/slow parameters are used (via internal assertions).
+- produces finite outputs for typical parameters,
+- matches the analytically scaled EWM difference,
+- raises when invalid fast/slow parameters are used.
 """
 
 from __future__ import annotations
 
+import math
 from datetime import date, timedelta
 
 import numpy as np
@@ -34,18 +35,18 @@ def frame():
 
 
 def test_osc_matches_reference_and_is_finite(frame):
-    """Osc equals EWMA-diff divided by EWMA std of first diffs; outputs finite values."""
-    fast, slow, vola = 8, 24, 16
+    """Osc equals analytically scaled EWM diff; outputs finite values."""
+    fast, slow = 8, 24
     df = frame
 
-    out = df.with_columns(osc(pl.col("A"), fast=fast, slow=slow, vola=vola).alias("A")).select(["date", "A"])
+    out = df.with_columns(osc(pl.col("A"), fast=fast, slow=slow).alias("A")).select(["date", "A"])
 
-    d = df.with_columns(
-        (pl.col("A").ewm_mean(com=fast - 1, adjust=False) - pl.col("A").ewm_mean(com=slow - 1, adjust=False)).alias("A")
-    )
-
-    _osc = d.with_columns(
-        (pl.col(asset) / pl.col(asset).ewm_std(com=vola - 1, adjust=False)).alias(asset) for asset in ["A"]
+    f, g = 1 - 1 / fast, 1 - 1 / slow
+    s = math.sqrt(1.0 / (1 - f * f) - 2.0 / (1 - f * g) + 1.0 / (1 - g * g))
+    _osc = df.with_columns(
+        (
+            (pl.col("A").ewm_mean(com=fast - 1, adjust=False) - pl.col("A").ewm_mean(com=slow - 1, adjust=False)) / s
+        ).alias("A")
     ).select(["date", "A"])
 
     pt.assert_frame_equal(out, _osc)
@@ -54,12 +55,11 @@ def test_osc_matches_reference_and_is_finite(frame):
 def test_osc_multi_asset_application(frame):
     """Applying osc to multiple numeric columns should work column-wise."""
     df = frame.head(80)
-    fast, slow, vola = 6, 18, 12
+    fast, slow = 6, 18
     assets = ["A", "B"]
 
-    out = df.with_columns(osc(pl.col(c), fast=fast, slow=slow, vola=vola, min_samples=10).alias(c) for c in assets)
+    out = df.with_columns(osc(pl.col(c), fast=fast, slow=slow, min_samples=10).alias(c) for c in assets)
 
-    # Just ensure columns exist and yield some non-null results after warmup
     for c in assets:
         s = out[c]
         assert s.null_count() > 0  # warmup nulls due to min_samples
@@ -67,22 +67,20 @@ def test_osc_multi_asset_application(frame):
 
 
 def test_osc_invalid_params_raise(frame):
-    """Invalid parameters (fast >= slow or <=1) should raise ValueError in helper."""
+    """Invalid parameters (fast >= slow or <=1) should raise ValueError."""
     df = frame.head(32)
     with pytest.raises(ValueError, match="fast must be greater than 1"):
-        _ = df.with_columns(osc(pl.col("A"), fast=1, slow=2, vola=8).alias("osc"))
+        _ = df.with_columns(osc(pl.col("A"), fast=1, slow=2).alias("osc"))
     with pytest.raises(ValueError, match="slow must be greater than 1"):
-        _ = df.with_columns(osc(pl.col("A"), fast=2, slow=1, vola=8).alias("osc"))
+        _ = df.with_columns(osc(pl.col("A"), fast=2, slow=1).alias("osc"))
     with pytest.raises(ValueError, match="fast must be less than slow"):
-        _ = df.with_columns(osc(pl.col("A"), fast=8, slow=8, vola=8).alias("osc"))
+        _ = df.with_columns(osc(pl.col("A"), fast=8, slow=8).alias("osc"))
 
 
 def test_osc_non_integer_params_raise(frame):
-    """Non-integer fast, slow, or vola should raise TypeError."""
+    """Non-integer fast or slow should raise TypeError."""
     df = frame.head(32)
     with pytest.raises(TypeError, match="fast must be an integer"):
-        _ = df.with_columns(osc(pl.col("A"), fast=2.0, slow=8, vola=4).alias("osc"))
+        _ = df.with_columns(osc(pl.col("A"), fast=2.0, slow=8).alias("osc"))
     with pytest.raises(TypeError, match="slow must be an integer"):
-        _ = df.with_columns(osc(pl.col("A"), fast=2, slow=8.0, vola=4).alias("osc"))
-    with pytest.raises(TypeError, match="vola must be an integer"):
-        _ = df.with_columns(osc(pl.col("A"), fast=2, slow=8, vola=4.0).alias("osc"))
+        _ = df.with_columns(osc(pl.col("A"), fast=2, slow=8.0).alias("osc"))
