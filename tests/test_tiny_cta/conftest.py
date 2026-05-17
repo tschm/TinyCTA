@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pandas as pd
+import polars as pl
 import pytest
 
 
@@ -30,7 +30,7 @@ def resource_fixture() -> Path:
 
 
 @pytest.fixture
-def prices(resource_dir: Path) -> pd.DataFrame:
+def prices(resource_dir: Path) -> pl.DataFrame:
     """Provide a DataFrame of price data for testing.
 
     This fixture loads price data from a CSV file with hashed column names.
@@ -40,6 +40,7 @@ def prices(resource_dir: Path) -> pd.DataFrame:
         resource_dir: Path fixture pointing to the resources directory.
 
     Returns:
-        pd.DataFrame: A DataFrame containing price data with datetime index.
+        pl.DataFrame: A DataFrame containing price data with a date column.
     """
-    return pd.read_csv(resource_dir / "prices_hashed.csv", index_col=0, header=0, parse_dates=True)
+    df = pl.read_csv(resource_dir / "prices_hashed.csv", try_parse_dates=True)
+    return df.rename({df.columns[0]: "date"})

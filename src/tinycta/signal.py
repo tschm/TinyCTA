@@ -17,11 +17,13 @@ used to generate trading signals from price data.
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
-import pandas as pd
+import polars as pl
 
 
-def moving_absolute_deviation(price: pd.DataFrame, com: int = 32) -> pd.DataFrame:
+def moving_absolute_deviation(x: pl.Expr, com: int = 32) -> pl.Expr:
     """Compute the rolling median absolute deviation (MAD) of log returns.
 
     A robust alternative to moving standard deviation, less sensitive to outliers.
@@ -30,16 +32,16 @@ def moving_absolute_deviation(price: pd.DataFrame, com: int = 32) -> pd.DataFram
     under normality.
 
     Args:
-        price: DataFrame containing price data.
+        x: Polars expression representing the price series.
         com: Center of mass used to derive the rolling window as ``window = 2 * com - 1``.
 
     Returns:
-        DataFrame of scaled rolling MAD values consistent with std under normality.
+        Polars expression of scaled rolling MAD values consistent with std under normality.
     """
-    r = price.apply(np.log).diff()
     window = 2 * com - 1
-    rolling_median = r.rolling(window=window).median()
-    return (r - rolling_median).abs().rolling(window=window).median() / 0.6745
+    r = x.log(base=math.e).diff()
+    rolling_median = r.rolling_median(window_size=window)
+    return (r - rolling_median).abs().rolling_median(window_size=window) / 0.6745
 
 
 def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
