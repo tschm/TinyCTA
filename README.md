@@ -96,7 +96,7 @@ from tinycta.linalg import solve
 matrix = np.array([[1.0, 0.5], [0.5, 1.0]])
 rhs = np.array([1.0, 2.0])
 solution = solve(matrix, rhs)
-print(solution)
+print(np.round(solution, 10) + 0)
 ```
 
 ```result
