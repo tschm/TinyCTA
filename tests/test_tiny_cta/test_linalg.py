@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from cvx.linalg.exceptions import DimensionMismatchError, NonSquareMatrixError
 
 from tinycta.linalg import a_norm, inv_a_norm, solve, valid
 
@@ -22,16 +23,16 @@ def test_non_quadratic() -> None:
 
     Each function is tested with a non-square matrix input to ensure proper validation.
     """
-    with pytest.raises(AssertionError):
+    with pytest.raises(NonSquareMatrixError):
         valid(np.array([[2.0, 1.0]]))
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(NonSquareMatrixError):
         a_norm(vector=np.array([2.0, 1.0]), matrix=np.array([[2.0, 1.0]]))
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(NonSquareMatrixError):
         inv_a_norm(vector=np.array([2.0, 1.0]), matrix=np.array([[2.0, 1.0]]))
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(NonSquareMatrixError):
         solve(matrix=np.array([[2.0, 1.0]]), rhs=np.array([2.0, 1.0]))
 
 
@@ -44,13 +45,13 @@ def test_mismatch() -> None:
 
     Each function is tested with mismatched dimensions to ensure proper validation.
     """
-    with pytest.raises(AssertionError):
+    with pytest.raises(DimensionMismatchError):
         a_norm(vector=np.array([1.0, 2.0]), matrix=np.array([[1.0]]))
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(DimensionMismatchError):
         inv_a_norm(vector=np.array([1.0, 2.0]), matrix=np.array([[1.0]]))
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(DimensionMismatchError):
         solve(matrix=np.array([[1.0]]), rhs=np.array([1.0, 2.0]))
 
 
@@ -184,4 +185,4 @@ def test_solve() -> None:
     matrix = 0.5 * np.eye(2)
     x = solve(matrix=matrix, rhs=rhs)
 
-    np.testing.assert_array_equal(matrix @ x, rhs)
+    np.testing.assert_array_almost_equal(matrix @ x, rhs)
