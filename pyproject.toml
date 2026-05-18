@@ -8,7 +8,7 @@ license-files = ["LICENSE"]
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 requires-python = ">=3.11"
 dependencies = [
-    "cvx-linalg>=0.4.1",
+    "cvx-linalg>=0.5.1",
     "loguru>=0.7.3",
     "numpy>=2.0.0",
     "optuna>=4.8.0",
