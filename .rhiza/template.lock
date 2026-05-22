@@ -7,8 +7,8 @@ exclude: []
 templates:
 - github
 - legal
-- tests
-- book
+- github-tests
+- github-book
 files:
 - .bandit
 - .editorconfig
@@ -19,8 +19,12 @@ files:
 - .github/actions/configure-git-auth/action.yml
 - .github/dependabot.yml
 - .github/secret_scanning.yml
+- .github/workflows/rhiza_book.yml
+- .github/workflows/rhiza_ci.yml
+- .github/workflows/rhiza_codeql.yml
 - .github/workflows/rhiza_release.yml
 - .github/workflows/rhiza_sync.yml
+- .github/workflows/rhiza_weekly.yml
 - .gitignore
 - .pre-commit-config.yaml
 - .python-version
@@ -89,5 +93,5 @@ files:
 - docs/mkdocs-base.yml
 - pytest.ini
 - ruff.toml
-synced_at: '2026-05-22T07:28:40Z'
+synced_at: '2026-05-22T07:37:25Z'
 strategy: merge
