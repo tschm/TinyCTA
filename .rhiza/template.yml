@@ -4,5 +4,5 @@ ref: "v0.10.9"
 templates:
     - github
     - legal
-    - tests
-    - book
+    - github-tests
+    - github-book
