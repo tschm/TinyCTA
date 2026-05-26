@@ -1,15 +1,14 @@
 # Security Policy
 
-Overwrite this file using Claude and adjust for the Rhiza dependant.
-
 ## Supported Versions
 
 We actively support the following versions with security updates:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.9.x   | :white_check_mark: |
-| < 0.9   | :x:                |
+| latest  | :white_check_mark: |
+| n-1     | :white_check_mark: |
+| older   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -22,7 +21,7 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 Instead, please report them via one of the following methods:
 
 1. **GitHub Security Advisories** (Preferred)
-   - Go to the [Security Advisories](https://github.com/tschm/TinyCTA/security/advisories) page
+   - Go to the Security Advisories page of this repository
    - Click "New draft security advisory"
    - Fill in the details and submit
 
@@ -51,9 +50,9 @@ Please include the following information in your report:
 
 This security policy applies to:
 
-- The TinyCTA signal processing and linear algebra utilities
+- The source code and configuration files in this repository
 - GitHub Actions workflows provided by this repository
-- Python package source in `src/tinycta/`
+- Python utilities and scripts maintained in this repository
 
 ### Out of Scope
 
@@ -85,16 +84,14 @@ This project implements several security measures:
 - **Signed Commits**: GPG signing supported for releases
 - **Tag Protection**: Releases require version tag validation
 
-## Security Best Practices for Users
+## Security Best Practices
 
-When using TinyCTA in your projects:
-
-1. **Keep Updated**: Regularly update to the latest version
-2. **Review Changes**: Review dependency updates and changelogs before upgrading
+1. **Keep Updated**: Regularly update dependencies and review security advisories
+2. **Review Changes**: Review dependency update PRs before merging
 3. **Enable Security Features**: Enable CodeQL, secret scanning, and Dependabot in your repositories
 4. **Use Locked Dependencies**: Always commit `uv.lock` for reproducible builds
 5. **Configure Branch Protection**: Require PR reviews and status checks
 
 ## Acknowledgments
 
-We thank the security researchers and community members who help keep TinyCTA secure.
+We thank the security researchers and community members who help keep this project secure.
