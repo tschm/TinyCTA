@@ -39,7 +39,6 @@ def _step_uses(job: dict) -> list[str]:
     return [step["uses"] for step in job.get("steps", []) if "uses" in step]
 
 
-
 # ---------------------------------------------------------------------------
 # Structure tests — validate the YAML content of rhiza_release.yml
 # ---------------------------------------------------------------------------

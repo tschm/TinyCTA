@@ -42,7 +42,6 @@ def _get_triggers(workflow: dict) -> dict:
     """
     return workflow.get("on") or workflow.get(True) or {}
 
-
     # --- jobs present ---
 
 
