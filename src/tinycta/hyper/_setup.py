@@ -21,6 +21,7 @@ class ExperimentConfig(NamedTuple):
 
 
 def _load_yaml(path: Path) -> dict:
+    """Load a YAML file, returning an empty dict if the file does not exist."""
     if not path.exists():
         return {}
     with open(path) as f:
