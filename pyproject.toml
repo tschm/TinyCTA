@@ -18,7 +18,7 @@ dependencies = [
     "loguru>=0.7.3",
     "numpy>=2.0.0",
     "optuna>=4.8.0",
-    "polars>=1.0.0",
+    "polars>=1.21.0",
     "pydantic>=2.13.3",
     "pyyaml>=6.0.3",
 ]
