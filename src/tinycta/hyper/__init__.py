@@ -2,23 +2,18 @@
 
 Public API
 ----------
-- ``run_study``: Convenience wrapper that creates a study and calls ``study.optimize``.
+- ``Study``: Frozen dataclass wrapping a completed Optuna study.
+- ``optimize``: Convenience wrapper: build objective, run study, print, return ``Study``.
 - ``get_config``: Set up logger and config sections for a notebook experiment.
 - ``ExperimentConfig``: NamedTuple returned by ``get_config``.
-
-Example::
-
-    from tinycta.hyper import run_study
-
-    study = run_study(objective, prices=prices, assets=assets, n_trials=200)
-    print(study.best_params)
 """
 
 from ._setup import ExperimentConfig, get_config
-from ._study import run_study
+from ._study import Study, optimize
 
 __all__ = [
     "ExperimentConfig",
+    "Study",
     "get_config",
-    "run_study",
+    "optimize",
 ]

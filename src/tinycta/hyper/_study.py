@@ -1,38 +1,119 @@
-"""Study runner for Optuna-based hyperparameter optimisation."""
+"""Frozen Study result and Optuna-based hyperparameter optimisation."""
 
 from __future__ import annotations
 
-import functools
-from collections.abc import Callable
+import contextlib
+from dataclasses import dataclass, field
+from pathlib import Path
 
 import optuna
 import polars as pl
+from jquantstats import Portfolio
 
 
-def run_study(
-    objective: Callable,
-    prices: pl.DataFrame,
-    assets: list[str],
-    n_trials: int = 200,
-    storage: str | None = None,
-    name: str = "study",
-    direction: str = "maximize",
+@dataclass(frozen=True)
+class Study:
+    """Frozen wrapper around a completed Optuna study."""
+
+    best_params: dict
+    best_value: float
+    n_completed: int
+    n_trials: int
+    optuna_study: optuna.Study = field(repr=False)
+
+    def __str__(self) -> str:
+        """Return a human-readable summary of the best trial."""
+        if self.n_completed == 0:
+            return "No completed trials — all returned NaN Sharpe."
+        lines = ["=== Best parameters ==="]
+        for k, v in self.best_params.items():
+            lines.append(f"  {k:<12} = {v}")
+        lines.append(f"  {'Sharpe':<12} = {self.best_value:.4f}")
+        lines.append(f"  {'Completed':<12} = {self.n_completed} / {self.n_trials} trials")
+        return "\n".join(lines)
+
+    @classmethod
+    def from_optuna(cls, s: optuna.Study) -> Study:
+        """Wrap a completed optuna.Study in a frozen Study."""
+        n_completed = sum(1 for t in s.trials if t.state == optuna.trial.TrialState.COMPLETE)
+        return cls(
+            best_params=s.best_params,
+            best_value=s.best_value,
+            n_completed=n_completed,
+            n_trials=len(s.trials),
+            optuna_study=s,
+        )
+
+    def plot(self, output_dir: Path) -> None:
+        """Write Optuna visualisation plots to output_dir (HTML, PNG if kaleido available)."""
+        output_dir.mkdir(parents=True, exist_ok=True)
+        figures = {
+            "optuna_history": optuna.visualization.plot_optimization_history(self.optuna_study),
+            "optuna_importance": optuna.visualization.plot_param_importances(self.optuna_study),
+            "optuna_parallel": optuna.visualization.plot_parallel_coordinate(self.optuna_study),
+            "optuna_contour": optuna.visualization.plot_contour(self.optuna_study),
+        }
+        for name, fig in figures.items():
+            fig.write_html(str(output_dir / f"{name}.html"))
+            with contextlib.suppress(Exception):
+                fig.write_image(str(output_dir / f"{name}.png"), scale=2)
+
+
+def _sharpe(portfolio: Portfolio) -> float:
+    """Compute Sharpe ratio, raising TrialPruned if the result is NaN or None."""
+    result = portfolio.stats.sharpe()
+    sharpe = result["returns"] if isinstance(result, dict) else float(result)
+    if sharpe is None or sharpe != sharpe:
+        raise optuna.exceptions.TrialPruned()
+    return sharpe
+
+
+def _run_study(
+    objective,
+    *,
+    prices: pl.DataFrame | None = None,
+    assets: list[str] | None = None,
+    n_trials: int = 100,
+    seed: int = 42,
+    name: str | None = None,
 ) -> optuna.Study:
-    """Create an Optuna study and optimise the given objective.
+    """Create and run an Optuna study, returning the optuna.Study."""
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
+    s = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=seed), study_name=name)
+    if prices is not None and assets is not None:
 
-    Args:
-        objective: Callable with signature ``(trial, prices, assets) -> float``.
-        prices: Wide price frame passed through to the objective unchanged.
-        assets: Asset list passed through to the objective unchanged.
-        n_trials: Number of optimisation trials.
-        storage: Optuna storage URL (e.g. ``"sqlite:///optuna.db"``). Defaults to in-memory.
-        name: Study name passed to ``optuna.create_study``.
-        direction: Optimisation direction (``"maximize"`` or ``"minimize"``).
+        def wrapped(trial):
+            return objective(trial, prices, assets)
+    else:
+        wrapped = objective
+    s.optimize(wrapped, n_trials=n_trials, show_progress_bar=False)
+    return s
 
-    Returns:
-        The completed ``optuna.Study`` with ``best_params`` and ``best_value`` populated.
-    """
-    study = optuna.create_study(direction=direction, storage=storage, study_name=name)
-    obj = functools.partial(objective, prices=prices, assets=assets)
-    study.optimize(obj, n_trials=n_trials)
+
+def _build_objective(prices: pl.DataFrame, suggest_positions_fn):
+    """Objective factory: wraps suggest_positions_fn with portfolio eval and Sharpe scoring."""
+    prices_only = prices.select(pl.col(pl.Float32, pl.Float64))
+    assets = prices_only.columns
+    date_cols = [c for c in prices.columns if c not in set(assets)]
+
+    def objective(trial: optuna.Trial) -> float:
+        pos_np = suggest_positions_fn(trial, prices_only)
+        portfolio = Portfolio.from_cash_position(
+            prices=prices,
+            cash_position=pl.concat(
+                [prices.select(date_cols), pl.from_numpy(pos_np, schema=dict.fromkeys(assets, pl.Float64))],
+                how="horizontal",
+            ),
+            aum=1e8,
+        )
+        return _sharpe(portfolio)
+
+    return objective
+
+
+def optimize(suggest_positions_fn, prices: pl.DataFrame, n_trials: int = 100, seed: int = 42) -> Study:
+    """Build objective, run study, print and return a frozen Study."""
+    s = _run_study(_build_objective(prices, suggest_positions_fn), n_trials=n_trials, seed=seed)
+    study = Study.from_optuna(s)
+    print(study)
     return study
