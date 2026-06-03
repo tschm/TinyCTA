@@ -1,4 +1,4 @@
-"""Tests for tinycta.hyper.run_study."""
+"""Tests for tinycta.hyper Study and optimize."""
 
 from __future__ import annotations
 
@@ -9,8 +9,8 @@ import optuna
 import polars as pl
 import pytest
 
-from tinycta.hyper import run_study
-from tinycta.hyper._study import Study, _build_objective, _sharpe, optimize
+from tinycta.hyper import Study, optimize
+from tinycta.hyper._study import _build_objective, _run_study, _sharpe
 
 
 def _dummy_objective(trial, prices: pl.DataFrame, assets: list[str]) -> float:
@@ -19,24 +19,24 @@ def _dummy_objective(trial, prices: pl.DataFrame, assets: list[str]) -> float:
     return float(slow - fast)
 
 
-def test_run_study_returns_study():
-    """run_study returns an optuna.Study with the expected number of trials."""
-    study = run_study(_dummy_objective, prices=pl.DataFrame(), assets=["A", "B"], n_trials=2, name="test_study")
+def test_run_study_returns_optuna_study():
+    """_run_study returns an optuna.Study with the expected number of trials."""
+    study = _run_study(_dummy_objective, prices=pl.DataFrame(), assets=["A", "B"], n_trials=2, name="test_study")
     assert isinstance(study, optuna.Study)
     assert len(study.trials) == 2
 
 
 def test_run_study_best_params():
-    """run_study populates best_params with fast and slow, and a finite best_value."""
-    study = run_study(_dummy_objective, prices=pl.DataFrame(), assets=["A"], n_trials=3, name="test_best_params")
+    """_run_study populates best_params with fast and slow, and a finite best_value."""
+    study = _run_study(_dummy_objective, prices=pl.DataFrame(), assets=["A"], n_trials=3, name="test_best_params")
     assert "fast" in study.best_params
     assert "slow" in study.best_params
     assert math.isfinite(study.best_value)
 
 
 def test_run_study_without_prices():
-    """run_study passes the objective directly when prices/assets are omitted."""
-    s = run_study(lambda trial: float(trial.suggest_int("x", 0, 5)), n_trials=2)
+    """_run_study passes the objective directly when prices/assets are omitted."""
+    s = _run_study(lambda trial: float(trial.suggest_int("x", 0, 5)), n_trials=2)
     assert isinstance(s, optuna.Study)
     assert len(s.trials) == 2
 
@@ -124,7 +124,7 @@ def test_build_objective_inner_calls_sharpe(mocker):
 
 def test_optimize_returns_frozen_study(mocker):
     """Optimize wraps the optuna study in a frozen Study and returns it."""
-    mocker.patch("tinycta.hyper._study.build_objective", return_value=lambda trial: 1.0)
+    mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
 
     result = optimize(lambda trial, prices: None, pl.DataFrame(), n_trials=1)
 

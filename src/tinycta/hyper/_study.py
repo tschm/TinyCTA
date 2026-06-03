@@ -83,6 +83,7 @@ def _run_study(
     if prices is not None and assets is not None:
 
         def wrapped(trial):
+            """Bind prices and assets into the objective call signature."""
             return objective(trial, prices, assets)
     else:
         wrapped = objective
@@ -97,6 +98,7 @@ def _build_objective(prices: pl.DataFrame, suggest_positions_fn):
     date_cols = [c for c in prices.columns if c not in set(assets)]
 
     def objective(trial: optuna.Trial) -> float:
+        """Suggest positions, build a Portfolio, and return the Sharpe ratio."""
         pos_np = suggest_positions_fn(trial, prices_only)
         portfolio = Portfolio.from_cash_position(
             prices=prices,
