@@ -1,3 +1,24 @@
+## [0.13.1] - 2026-06-04
+
+### 🐛 Bug Fixes
+
+- *(hyper)* Restore missing docstring on inner objective function
+
+### 💼 Other
+
+- Bump version 0.13.0 → 0.13.1
+
+### 🚜 Refactor
+
+- *(hyper)* Suggest_portfolio_fn returns Portfolio directly
+
+### 📚 Documentation
+
+- Add optimizer.md documenting tinycta.hyper usage
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md for v0.13.0 [skip ci]
 ## [0.13.0] - 2026-06-04
 
 ### 🚀 Features
