@@ -1,3 +1,32 @@
+## [0.13.0] - 2026-06-04
+
+### 🚀 Features
+
+- *(hyper)* Introduce Study dataclass and optimize wrapper
+
+### 🐛 Bug Fixes
+
+- Update cvx.linalg import path and bump polars minimum to 1.21.0
+- Increase tolerance in test_moving_absolute_deviation
+- *(hyper)* Fix stale run_study references and patch path in tests
+- *(hyper)* Guard best_params/best_value access in Study.from_optuna
+
+### 💼 Other
+
+- Bump version 0.12.5 → 0.13.0
+
+### 📚 Documentation
+
+- Add missing docstring to _load_yaml to reach 100% docs coverage
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md for v0.12.5 [skip ci]
+- Bump rhiza to v0.18.4
+- Apply rhiza sync v0.18.4
+- Add classifiers to pyproject.toml
+- Add pip dependabot entry for .rhiza/requirements
+- Remove plotly as explicit dependency
 ## [0.12.5] - 2026-05-27
 
 ### 🚀 Features
