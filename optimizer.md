@@ -7,15 +7,14 @@ The `tinycta.hyper` module provides a thin wrapper around [Optuna](https://optun
 ## Public API
 
 ```python
-from tinycta.hyper import Study, optimize, get_config, ExperimentConfig
+from tinycta.hyper import Study, optimize
 ```
 
 | Symbol | Kind | Purpose |
 |---|---|---|
 | `optimize` | function | Run an Optuna study and return a frozen `Study`. |
 | `Study` | dataclass | Immutable result of a completed study. |
-| `get_config` | function | Load YAML config and initialise a file-based logger. |
-| `ExperimentConfig` | NamedTuple | Bundle returned by `get_config`. |
+
 
 ---
 
