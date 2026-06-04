@@ -21,29 +21,29 @@ from tinycta.hyper import Study, optimize, get_config, ExperimentConfig
 
 ## Core workflow
 
-### 1. Write a position-suggestion function
+### 1. Write a portfolio-suggestion function
 
-The function receives an `optuna.Trial` (for sampling hyperparameters) and a Polars DataFrame of prices (float columns only), and must return a NumPy array of positions with shape `(n_dates, n_assets)`.
+The function receives an `optuna.Trial` (for sampling hyperparameters) and must return a `jquantstats.Portfolio`. All data loading and position construction are the caller's responsibility — capture `prices` in a closure.
 
 ```python
-import numpy as np
+import polars as pl
+from jquantstats import Portfolio
 
-def suggest_positions(trial, prices):
+prices = pl.read_parquet("prices.parquet")
+
+def suggest_portfolio(trial):
     fast = trial.suggest_int("fast", 2, 50)
     slow = trial.suggest_int("slow", fast + 5, 200)
-    # … compute signals using fast/slow …
-    return positions  # np.ndarray, shape (n_dates, n_assets)
+    # … compute cash_position from fast/slow …
+    return Portfolio.from_cash_position(prices=prices, cash_position=cash_position, aum=1e8)
 ```
 
 ### 2. Run the optimiser
 
 ```python
-import polars as pl
 from tinycta.hyper import optimize
 
-prices = pl.read_parquet("prices.parquet")  # must include a date column
-
-study = optimize(suggest_positions, prices, n_trials=200, seed=42)
+study = optimize(suggest_portfolio, n_trials=200, seed=42)
 ```
 
 `optimize` returns a frozen `Study` and prints a summary to stdout.
@@ -101,14 +101,11 @@ Key settings (hardcoded defaults, overridable via `_run_study`):
 
 Trials that produce a `NaN` or `None` Sharpe ratio are pruned via `optuna.exceptions.TrialPruned` rather than treated as failures. This keeps the study statistics clean — pruned trials are excluded from `n_completed` and do not influence `best_params`/`best_value`.
 
-### Price/position contract
+### Suggestion function contract
 
-Inside `_build_objective`:
+`suggest_portfolio_fn(trial: optuna.Trial) -> Portfolio`
 
-- Float columns in the prices DataFrame are treated as asset prices.
-- Non-float columns (e.g. a `date` column) are forwarded unchanged to `Portfolio.from_cash_position`.
-- The suggestion function receives only the float sub-DataFrame (`prices_only`).
-- Positions are wrapped in a Polars DataFrame with the same asset columns before being passed to the portfolio constructor.
+The function is fully responsible for data loading, position computation, and portfolio construction. Capturing `prices` in a closure is the recommended pattern. The optimiser only calls `_sharpe` on the returned portfolio — it is agnostic to how positions are computed or how the portfolio is built.
 
 ---
 

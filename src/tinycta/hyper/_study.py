@@ -7,7 +7,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import optuna
-import polars as pl
 from jquantstats import Portfolio
 
 
@@ -75,8 +74,6 @@ def _sharpe(portfolio: Portfolio) -> float:
 def _run_study(
     objective,
     *,
-    prices: pl.DataFrame | None = None,
-    assets: list[str] | None = None,
     n_trials: int = 100,
     seed: int = 42,
     name: str | None = None,
@@ -84,42 +81,22 @@ def _run_study(
     """Create and run an Optuna study, returning the optuna.Study."""
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     s = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=seed), study_name=name)
-    if prices is not None and assets is not None:
-
-        def wrapped(trial):
-            """Bind prices and assets into the objective call signature."""
-            return objective(trial, prices, assets)
-    else:
-        wrapped = objective
-    s.optimize(wrapped, n_trials=n_trials, show_progress_bar=False)
+    s.optimize(objective, n_trials=n_trials, show_progress_bar=False)
     return s
 
 
-def _build_objective(prices: pl.DataFrame, suggest_positions_fn):
-    """Objective factory: wraps suggest_positions_fn with portfolio eval and Sharpe scoring."""
-    prices_only = prices.select(pl.col(pl.Float32, pl.Float64))
-    assets = prices_only.columns
-    date_cols = [c for c in prices.columns if c not in set(assets)]
+def _build_objective(suggest_portfolio_fn):
+    """Objective factory: wraps a portfolio-returning function with Sharpe scoring."""
 
     def objective(trial: optuna.Trial) -> float:
-        """Suggest positions, build a Portfolio, and return the Sharpe ratio."""
-        pos_np = suggest_positions_fn(trial, prices_only)
-        portfolio = Portfolio.from_cash_position(
-            prices=prices,
-            cash_position=pl.concat(
-                [prices.select(date_cols), pl.from_numpy(pos_np, schema=dict.fromkeys(assets, pl.Float64))],
-                how="horizontal",
-            ),
-            aum=1e8,
-        )
-        return _sharpe(portfolio)
+        return _sharpe(suggest_portfolio_fn(trial))
 
     return objective
 
 
-def optimize(suggest_positions_fn, prices: pl.DataFrame, n_trials: int = 100, seed: int = 42) -> Study:
+def optimize(suggest_portfolio_fn, n_trials: int = 100, seed: int = 42) -> Study:
     """Build objective, run study, print and return a frozen Study."""
-    s = _run_study(_build_objective(prices, suggest_positions_fn), n_trials=n_trials, seed=seed)
+    s = _run_study(_build_objective(suggest_portfolio_fn), n_trials=n_trials, seed=seed)
     study = Study.from_optuna(s)
     print(study)
     return study
