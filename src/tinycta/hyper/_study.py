@@ -36,9 +36,13 @@ class Study:
     def from_optuna(cls, s: optuna.Study) -> Study:
         """Wrap a completed optuna.Study in a frozen Study."""
         n_completed = sum(1 for t in s.trials if t.state == optuna.trial.TrialState.COMPLETE)
+        if n_completed == 0:
+            best_params, best_value = {}, float("nan")
+        else:
+            best_params, best_value = s.best_params, s.best_value
         return cls(
-            best_params=s.best_params,
-            best_value=s.best_value,
+            best_params=best_params,
+            best_value=best_value,
             n_completed=n_completed,
             n_trials=len(s.trials),
             optuna_study=s,
