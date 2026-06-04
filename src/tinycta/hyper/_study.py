@@ -89,6 +89,7 @@ def _build_objective(suggest_portfolio_fn):
     """Objective factory: wraps a portfolio-returning function with Sharpe scoring."""
 
     def objective(trial: optuna.Trial) -> float:
+        """Call suggest_portfolio_fn and return the Sharpe ratio."""
         return _sharpe(suggest_portfolio_fn(trial))
 
     return objective
