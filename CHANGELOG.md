@@ -1,3 +1,14 @@
+## [0.13.2] - 2026-06-06
+
+### 💼 Other
+
+- Bump version 0.13.1 → 0.13.2
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md for v0.13.1 [skip ci]
+- Bump rhiza to v0.18.8
+- Apply rhiza v0.18.8 template updates
 ## [0.13.1] - 2026-06-04
 
 ### 🐛 Bug Fixes
