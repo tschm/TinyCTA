@@ -1,6 +1,6 @@
 [project]
 name = "TinyCTA"
-version = "0.13.1"
+version = "0.13.2"
 description = "..."
 readme = "README.md"
 license = "MIT"
