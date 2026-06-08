@@ -114,6 +114,16 @@ def test_build_objective_inner_calls_sharpe(mocker):
     assert result == 1.23
 
 
+def test_from_optuna_no_completed_trials():
+    """from_optuna sets best_params={} and best_value=nan when all trials are pruned."""
+    s = optuna.create_study(direction="maximize")
+    s.optimize(lambda trial: (_ for _ in ()).throw(optuna.exceptions.TrialPruned()), n_trials=2)
+    study = Study.from_optuna(s)
+    assert study.n_completed == 0
+    assert study.best_params == {}
+    assert math.isnan(study.best_value)
+
+
 def test_optimize_returns_frozen_study(mocker):
     """Optimize wraps the optuna study in a frozen Study and returns it."""
     mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
