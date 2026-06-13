@@ -11,7 +11,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _load_workflow(name: str) -> dict[str, object]:
     path = ROOT / ".github" / "workflows" / name
-    return yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+    workflow = yaml.safe_load(path.read_text())
+    if True in workflow and "on" not in workflow:
+        workflow["on"] = workflow.pop(True)
+    return workflow
 
 
 def test_ci_workflow_uses_rhiza_release_with_security_gate():
