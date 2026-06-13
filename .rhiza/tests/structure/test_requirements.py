@@ -4,6 +4,7 @@ This test ensures that the requirements folder exists and contains the expected
 requirement files for development dependencies.
 """
 
+from pathlib import Path
 from typing import ClassVar
 
 
@@ -41,6 +42,12 @@ class TestRequirementsFolder:
             # Filter out comments and empty lines
             lines = [line.strip() for line in content.splitlines() if line.strip() and not line.strip().startswith("#")]
             assert len(lines) > 0, f"{filename} should contain at least one dependency"
+
+    def test_ty_is_pinned_in_tools_requirements(self, root: Path):
+        """The ty tool should be version-pinned in tools.txt."""
+        tools_path = root / ".rhiza" / "requirements" / "tools.txt"
+        lines = [line.strip() for line in tools_path.read_text().splitlines() if line.strip() and not line.strip().startswith("#")]
+        assert "ty==0.0.30" in lines
 
     def test_readme_exists_in_requirements_folder(self, root):
         """README.md should exist in requirements folder."""

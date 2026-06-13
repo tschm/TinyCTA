@@ -55,7 +55,7 @@ test:: install ## run all tests
 typecheck: install ## run ty type checking
 	@if [ -d ${SOURCE_FOLDER} ]; then \
 	  printf "${BLUE}[INFO] Running ty type checking...${RESET}\n"; \
-	  ${UV_BIN} run ty check ${SOURCE_FOLDER}; \
+	  ${UV_BIN} run ty check ${SOURCE_FOLDER} ${TESTS_FOLDER}; \
 	else \
 	  printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} not found, skipping typecheck${RESET}\n"; \
 	fi
