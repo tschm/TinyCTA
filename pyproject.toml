@@ -15,14 +15,21 @@ classifiers = [
 ]
 dependencies = [
     "cvx-linalg>=0.5.1",
-    "loguru>=0.7.3",
     "numpy>=2.0.0",
-    "jquantstats>=0.8.0",
-    "optuna>=4.8.0",
     "polars>=1.21.0",
     "pydantic>=2.13.3",
+]
+
+[project.optional-dependencies]
+# Hyperparameter-optimisation and notebook-experiment layer (tinycta.hyper).
+# Install with: pip install tinycta[hyper]
+hyper = [
+    "jquantstats>=0.8.0",
+    "loguru>=0.7.3",
+    "optuna>=4.8.0",
     "pyyaml>=6.0.3",
 ]
+
 [project.urls]
 Homepage = "https://github.com/tschm/tinycta"
 Repository = "https://github.com/tschm/tinycta"
@@ -33,6 +40,17 @@ dev = [
     "marimo==0.23.9",
     "pandas>=2.2.3",
     "pandas-stubs>=2.2",
+    # The `hyper` optional extra is not part of the default sync, but the dev/CI
+    # environment needs it so the tinycta.hyper test suite can be collected and run.
+    {include-group = "hyper"},
+]
+# Mirrors the [project.optional-dependencies] hyper extra so `uv sync` (which
+# installs the dev group by default) provides it for development and CI.
+hyper = [
+    "jquantstats>=0.8.0",
+    "loguru>=0.7.3",
+    "optuna>=4.8.0",
+    "pyyaml>=6.0.3",
 ]
 test = [
     "pytest>=8.0",

@@ -1622,21 +1622,35 @@ version = "0.13.2"
 source = { editable = "." }
 dependencies = [
     { name = "cvx-linalg" },
-    { name = "jquantstats" },
-    { name = "loguru" },
     { name = "numpy" },
-    { name = "optuna" },
     { name = "polars" },
     { name = "pydantic" },
+]
+
+[package.optional-dependencies]
+hyper = [
+    { name = "jquantstats" },
+    { name = "loguru" },
+    { name = "optuna" },
     { name = "pyyaml" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "jquantstats" },
+    { name = "loguru" },
     { name = "marimo" },
+    { name = "optuna" },
     { name = "pandas" },
     { name = "pandas-stubs" },
     { name = "pre-commit" },
+    { name = "pyyaml" },
+]
+hyper = [
+    { name = "jquantstats" },
+    { name = "loguru" },
+    { name = "optuna" },
+    { name = "pyyaml" },
 ]
 lint = [
     { name = "pre-commit" },
@@ -1655,21 +1669,32 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "cvx-linalg", specifier = ">=0.5.1" },
-    { name = "jquantstats", specifier = ">=0.8.0" },
-    { name = "loguru", specifier = ">=0.7.3" },
+    { name = "jquantstats", marker = "extra == 'hyper'", specifier = ">=0.8.0" },
+    { name = "loguru", marker = "extra == 'hyper'", specifier = ">=0.7.3" },
     { name = "numpy", specifier = ">=2.0.0" },
-    { name = "optuna", specifier = ">=4.8.0" },
+    { name = "optuna", marker = "extra == 'hyper'", specifier = ">=4.8.0" },
     { name = "polars", specifier = ">=1.21.0" },
     { name = "pydantic", specifier = ">=2.13.3" },
-    { name = "pyyaml", specifier = ">=6.0.3" },
+    { name = "pyyaml", marker = "extra == 'hyper'", specifier = ">=6.0.3" },
 ]
+provides-extras = ["hyper"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "jquantstats", specifier = ">=0.8.0" },
+    { name = "loguru", specifier = ">=0.7.3" },
     { name = "marimo", specifier = "==0.23.9" },
+    { name = "optuna", specifier = ">=4.8.0" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pandas-stubs", specifier = ">=2.2" },
     { name = "pre-commit", specifier = "==4.6.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
+]
+hyper = [
+    { name = "jquantstats", specifier = ">=0.8.0" },
+    { name = "loguru", specifier = ">=0.7.3" },
+    { name = "optuna", specifier = ">=4.8.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
 ]
 lint = [{ name = "pre-commit", specifier = "==4.6.0" }]
 test = [

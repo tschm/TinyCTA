@@ -36,6 +36,14 @@ in just a few lines of code, hence the name "TinyCTA".
 pip install tinycta
 ```
 
+The core install keeps a minimal dependency footprint (numpy, polars, pydantic, cvx-linalg).
+The optional Optuna-based hyperparameter-optimisation layer (`tinycta.hyper`) is installed via
+the `hyper` extra:
+
+```bash
+pip install "tinycta[hyper]"
+```
+
 ### From source
 
 Clone the repository and install using the provided Makefile:
