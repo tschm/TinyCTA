@@ -40,6 +40,17 @@ dev = [
     "marimo==0.23.9",
     "pandas>=2.2.3",
     "pandas-stubs>=2.2",
+    # The `hyper` optional extra is not part of the default sync, but the dev/CI
+    # environment needs it so the tinycta.hyper test suite can be collected and run.
+    {include-group = "hyper"},
+]
+# Mirrors the [project.optional-dependencies] hyper extra so `uv sync` (which
+# installs the dev group by default) provides it for development and CI.
+hyper = [
+    "jquantstats>=0.8.0",
+    "loguru>=0.7.3",
+    "optuna>=4.8.0",
+    "pyyaml>=6.0.3",
 ]
 test = [
     "pytest>=8.0",

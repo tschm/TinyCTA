@@ -1637,10 +1637,20 @@ hyper = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "jquantstats" },
+    { name = "loguru" },
     { name = "marimo" },
+    { name = "optuna" },
     { name = "pandas" },
     { name = "pandas-stubs" },
     { name = "pre-commit" },
+    { name = "pyyaml" },
+]
+hyper = [
+    { name = "jquantstats" },
+    { name = "loguru" },
+    { name = "optuna" },
+    { name = "pyyaml" },
 ]
 lint = [
     { name = "pre-commit" },
@@ -1671,10 +1681,20 @@ provides-extras = ["hyper"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "jquantstats", specifier = ">=0.8.0" },
+    { name = "loguru", specifier = ">=0.7.3" },
     { name = "marimo", specifier = "==0.23.9" },
+    { name = "optuna", specifier = ">=4.8.0" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pandas-stubs", specifier = ">=2.2" },
     { name = "pre-commit", specifier = "==4.6.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
+]
+hyper = [
+    { name = "jquantstats", specifier = ">=0.8.0" },
+    { name = "loguru", specifier = ">=0.7.3" },
+    { name = "optuna", specifier = ">=4.8.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
 ]
 lint = [{ name = "pre-commit", specifier = "==4.6.0" }]
 test = [
