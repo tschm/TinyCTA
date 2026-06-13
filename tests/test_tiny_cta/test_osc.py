@@ -67,20 +67,46 @@ def test_osc_multi_asset_application(frame):
 
 
 def test_osc_invalid_params_raise(frame):
-    """Invalid parameters (fast >= slow or <=1) should raise ValueError."""
+    """Invalid parameters (fast >= slow or <=1) should raise ValueError.
+
+    Messages are compared exactly (not via substring/regex search) so that
+    mutations of the message text are detected.
+    """
     df = frame.head(32)
-    with pytest.raises(ValueError, match="fast must be greater than 1"):
+    with pytest.raises(ValueError) as fast_exc:  # noqa: PT011
         _ = df.with_columns(osc(pl.col("A"), fast=1, slow=2).alias("osc"))
-    with pytest.raises(ValueError, match="slow must be greater than 1"):
+    assert str(fast_exc.value) == "fast must be greater than 1"
+
+    with pytest.raises(ValueError) as slow_exc:  # noqa: PT011
         _ = df.with_columns(osc(pl.col("A"), fast=2, slow=1).alias("osc"))
-    with pytest.raises(ValueError, match="fast must be less than slow"):
+    assert str(slow_exc.value) == "slow must be greater than 1"
+
+    with pytest.raises(ValueError) as order_exc:  # noqa: PT011
         _ = df.with_columns(osc(pl.col("A"), fast=8, slow=8).alias("osc"))
+    assert str(order_exc.value) == "fast must be less than slow"
+
+
+def test_osc_slow_two_passes_slow_guard(frame):
+    """Slow == 2 passes the ``slow <= 1`` guard.
+
+    With ``fast=2, slow=2`` the slow-greater-than-1 guard must NOT fire (2 > 1),
+    so the failure is the later ``fast >= slow`` check. If the guard were
+    ``slow <= 2`` it would fire first and raise the wrong message — this pins
+    the boundary at 1.
+    """
+    df = frame.head(32)
+    with pytest.raises(ValueError) as exc:  # noqa: PT011
+        _ = df.with_columns(osc(pl.col("A"), fast=2, slow=2).alias("osc"))
+    assert str(exc.value) == "fast must be less than slow"
 
 
 def test_osc_non_integer_params_raise(frame):
-    """Non-integer fast or slow should raise TypeError."""
+    """Non-integer fast or slow should raise TypeError with the exact message."""
     df = frame.head(32)
-    with pytest.raises(TypeError, match="fast must be an integer"):
+    with pytest.raises(TypeError) as fast_exc:
         _ = df.with_columns(osc(pl.col("A"), fast=2.0, slow=8).alias("osc"))
-    with pytest.raises(TypeError, match="slow must be an integer"):
+    assert str(fast_exc.value) == "fast must be an integer"
+
+    with pytest.raises(TypeError) as slow_exc:
         _ = df.with_columns(osc(pl.col("A"), fast=2, slow=8.0).alias("osc"))
+    assert str(slow_exc.value) == "slow must be an integer"

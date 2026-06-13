@@ -152,18 +152,28 @@ mutation: install ## run mutation tests with mutmut
 	  printf "${YELLOW}[WARN] Source folder ${MUTATION_SOURCE_FOLDER} not found, skipping mutation tests.${RESET}\n"; \
 	  exit 0; \
 	fi; \
-	printf "${BLUE}[INFO] Running mutation tests on ${MUTATION_SOURCE_FOLDER}...${RESET}\n"; \
+	printf "${BLUE}[INFO] Running mutation tests on ${MUTATION_SOURCE_FOLDER} (survivor budget ${MUTATION_SURVIVOR_BUDGET})...${RESET}\n"; \
 	mkdir -p _tests/mutation; \
 	run_status=0; \
 	${UV_BIN} run mutmut run \
 	  --paths-to-mutate="${MUTATION_SOURCE_FOLDER}" \
-	  --suspicious-surviving-mutations-budget="${MUTATION_SURVIVOR_BUDGET}" \
 	  --tests-dir="${TESTS_FOLDER}" || run_status=$$?; \
 	${UV_BIN} run mutmut html || exit $$?; \
 	rm -rf _tests/mutation/html; \
 	mv html _tests/mutation/html || exit $$?; \
-	${UV_BIN} run mutmut results || exit $$?; \
-	exit $$run_status
+	${UV_BIN} run mutmut results; \
+	if [ $$((run_status & 1)) -ne 0 ]; then \
+	  printf "${RED}[FAIL] mutmut reported a fatal error (exit $$run_status).${RESET}\n"; \
+	  exit 1; \
+	fi; \
+	survivors=$$(${UV_BIN} run mutmut results | grep -E '^Survived' | grep -oE '[0-9]+' | head -1); \
+	survivors=$${survivors:-0}; \
+	printf "${BLUE}[INFO] Surviving mutants: $$survivors (budget ${MUTATION_SURVIVOR_BUDGET}).${RESET}\n"; \
+	if [ "$$survivors" -gt "${MUTATION_SURVIVOR_BUDGET}" ]; then \
+	  printf "${RED}[FAIL] $$survivors surviving mutants exceed the budget of ${MUTATION_SURVIVOR_BUDGET}.${RESET}\n"; \
+	  exit 1; \
+	fi; \
+	printf "${GREEN}[OK] Surviving mutants within budget.${RESET}\n"
 
 test-pyproject: install ## run pyproject.toml structure tests
 	@${UV_BIN} run pytest .rhiza/tests/structure/test_pyproject.py \

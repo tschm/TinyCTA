@@ -40,12 +40,12 @@ dev = [
     "marimo==0.23.9",
     "pandas>=2.2.3",
     "pandas-stubs>=2.2",
-    # The `hyper` optional extra is not part of the default sync, but the dev/CI
-    # environment needs it so the tinycta.hyper test suite can be collected and run.
-    {include-group = "hyper"},
 ]
-# Mirrors the [project.optional-dependencies] hyper extra so `uv sync` (which
-# installs the dev group by default) provides it for development and CI.
+# Mirrors the [project.optional-dependencies] hyper extra. The dev/CI environment
+# needs it so the tinycta.hyper test suite can be collected and run; it is wired
+# into the default sync via [tool.uv] default-groups below rather than an inline
+# {include-group = ...} entry, which the legacy TOML parser used by mutmut cannot
+# parse when mixed with string requirements in the same array.
 hyper = [
     "jquantstats>=0.8.0",
     "loguru>=0.7.3",
@@ -65,6 +65,11 @@ test = [
 lint = [
     "pre-commit==4.6.0",
 ]
+
+[tool.uv]
+# Install both dev tooling and the hyper extra by default so `uv sync` provides
+# everything needed to collect and run the full test suite (including tinycta.hyper).
+default-groups = ["dev", "hyper"]
 
 [build-system]
 requires = ["hatchling"]

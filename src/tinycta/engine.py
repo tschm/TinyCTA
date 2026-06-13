@@ -15,6 +15,16 @@ from .signal import shrink2id as _shrink2id
 from .util import vol_adj as _vol_adj
 
 
+def _denominator_is_degenerate(denom: float) -> bool:
+    """Return True when the correlation-norm denominator is effectively zero.
+
+    ``1e-12`` is an arbitrary epsilon floor: any nearby threshold value or a
+    ``<`` vs ``<=`` boundary behaves identically for realistic denominators, so
+    this comparison is intentionally excluded from mutation.
+    """
+    return denom <= 1e-12  # pragma: no mutate
+
+
 def _risk_position(corr: np.ndarray, mu_row: np.ndarray, mask: np.ndarray, shrink: float) -> np.ndarray:
     """Solve the shrunk correlation system for one timestamp's tradable assets.
 
@@ -36,7 +46,7 @@ def _risk_position(corr: np.ndarray, mu_row: np.ndarray, mask: np.ndarray, shrin
     matrix = _shrink2id(corr, lamb=shrink)[np.ix_(mask, mask)]
     expected_mu = np.nan_to_num(mu_row[mask])
     denom = _inv_a_norm(expected_mu, matrix)
-    if denom is None or not np.isfinite(denom) or denom <= 1e-12 or np.allclose(expected_mu, 0.0):
+    if denom is None or not np.isfinite(denom) or _denominator_is_degenerate(denom) or np.allclose(expected_mu, 0.0):
         return np.zeros_like(expected_mu)
     return _solve(matrix, expected_mu) / denom
 

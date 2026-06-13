@@ -88,3 +88,70 @@ class TestGetConfig:
         assert cfg.params == {"fast": 12}
         assert cfg.optuna == {"n_trials": 5}
         assert cfg.data == {"output_path": "out"}
+
+
+class TestExperimentConfigDefaults:
+    """The optional config sections default to None on the NamedTuple."""
+
+    def test_optional_sections_default_to_none(self):
+        """params, optuna and data default to None (not an empty string)."""
+        cfg = ExperimentConfig(name="x", logger=None)
+        assert cfg.params is None
+        assert cfg.optuna is None
+        assert cfg.data is None
+
+
+class TestGetConfigMutationKills:
+    """Pin the exact paths, filenames and side effects of get_config."""
+
+    def test_default_filename_is_config_yml(self, tmp_path, monkeypatch):
+        """With no config_path, get_config reads ``config.yml`` from the cwd."""
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / "config.yml").write_text("params:\n  fast: 7\n")
+        cfg = get_config("exp_default_name")
+        assert cfg.params == {"fast": 7}
+
+    def test_base_is_grandparent_loads_sibling_in_config_dir(self, tmp_path):
+        """When config_path is inside a 'config' dir, the sibling resolves via the grandparent."""
+        config_dir = tmp_path / "config"
+        config_dir.mkdir()
+        (config_dir / "config.yml").write_text("")
+        (config_dir / "myexp.yml").write_text("params:\n  fast: 21\n")
+        cfg = get_config("myexp", config_path=config_dir / "config.yml")
+        assert cfg.params == {"fast": 21}
+
+    def test_sibling_data_and_optuna_are_merged(self, tmp_path):
+        """Data and optuna fall back to the sibling file when absent from config.yml."""
+        (tmp_path / "config.yml").write_text("")
+        sibling_dir = tmp_path / "config"
+        sibling_dir.mkdir()
+        (sibling_dir / "sib.yml").write_text("data:\n  output_path: out\noptuna:\n  n_trials: 9\n")
+        cfg = get_config("sib", config_path=tmp_path / "config.yml")
+        assert cfg.data == {"output_path": "out"}
+        assert cfg.optuna == {"n_trials": 9}
+
+    def test_output_path_from_data_is_used(self, tmp_path, monkeypatch):
+        """Without the env override, the output folder comes from data['output_path']."""
+        monkeypatch.delenv("NOTEBOOK_OUTPUT_FOLDER", raising=False)
+        (tmp_path / "config.yml").write_text("data:\n  output_path: custom_out\n")
+        get_config("exp_op", config_path=tmp_path / "config.yml")
+        assert (tmp_path / "custom_out" / "exp_op").is_dir()
+
+    def test_output_path_defaults_to_output(self, tmp_path, monkeypatch):
+        """When data has no output_path, the folder defaults to 'output'."""
+        monkeypatch.delenv("NOTEBOOK_OUTPUT_FOLDER", raising=False)
+        (tmp_path / "config.yml").write_text("")
+        get_config("exp_defout", config_path=tmp_path / "config.yml")
+        assert (tmp_path / "output" / "exp_defout").is_dir()
+
+    def test_log_file_is_named_output_log_with_real_sink(self, tmp_path, monkeypatch):
+        """A real loguru sink is registered and writes to ``output.log``."""
+        monkeypatch.delenv("NOTEBOOK_OUTPUT_FOLDER", raising=False)
+        (tmp_path / "config.yml").write_text("")
+        get_config("exp_log", config_path=tmp_path / "config.yml")
+        log_path = tmp_path / "output" / "exp_log" / "output.log"
+        assert log_path.exists()
+        key = str(log_path.resolve())
+        assert isinstance(setup_mod._FILE_SINKS[key], int)  # logger.add returned a sink id, not None
+        content = log_path.read_text()
+        assert " - Writing output to:" in content  # message is not wrapped/altered
