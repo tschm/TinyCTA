@@ -103,6 +103,45 @@ print(np.round(solution, 10) + 0)
 [0. 2.]
 ```
 
+### Position-sizing engine
+
+The `Engine` turns aligned price and expected-return (`mu`) frames into
+correlation-shrinkage-optimized cash positions. It is configured by a validated `Config`.
+
+```python +RHIZA_SKIP
+import polars as pl
+from tinycta.config import Config
+from tinycta.engine import Engine
+
+prices = pl.DataFrame({"date": [1, 2, 3, 4], "A": [100.0, 101.0, 102.0, 103.0]})
+mu = pl.DataFrame({"date": [1, 2, 3, 4], "A": [0.0, 0.1, 0.2, 0.1]})
+
+cfg = Config(vola=2, corr=2, clip=4.2, shrink=0.5)
+engine = Engine(prices=prices, mu=mu, cfg=cfg)
+positions = engine.cash_position  # Polars DataFrame of per-asset cash positions
+```
+
+`Config` is a frozen Pydantic model: `vola`, `corr` (must be `>= vola`) and `clip` must be
+positive, and `shrink` must lie in `[0, 1]`.
+
+### Hyperparameter optimization
+
+`tinycta.hyper.optimize` runs an Optuna study over a function that builds a portfolio from a
+trial and scores it by Sharpe ratio, returning a frozen `Study`.
+
+```python +RHIZA_SKIP
+from tinycta.hyper import optimize
+
+def suggest_portfolio(trial):
+    fast = trial.suggest_int("fast", 2, 20)
+    slow = trial.suggest_int("slow", fast + 1, 100)
+    # ... build and return a jquantstats Portfolio from the suggested params ...
+    return build_portfolio(fast, slow)
+
+study = optimize(suggest_portfolio, n_trials=100, seed=42)
+print(study.best_params, study.best_value)
+```
+
 ## 📚 API Reference
 
 ### Signal Processing (`tinycta.osc`, `tinycta.ewma`, `tinycta.util`)
@@ -123,6 +162,17 @@ print(np.round(solution, 10) + 0)
 - `a_norm(vector, matrix=None)` — matrix-norm of a vector
 - `inv_a_norm(vector, matrix=None)` — inverse matrix-norm of a vector
 - `solve(matrix, rhs)` — solve a linear system, handling matrices with NaN values
+
+### Position-Sizing Engine (`tinycta.engine`, `tinycta.config`)
+
+- `Config(vola, corr, clip, shrink)` — frozen Pydantic config; `corr >= vola`, `vola`/`corr`/`clip > 0`, `shrink ∈ [0, 1]`
+- `Engine(prices, mu, cfg)` — correlation-aware position optimizer; `.cash_position` returns per-asset cash positions
+  - `.assets`, `.ret_adj`, `.vola`, `.cor` — intermediate per-asset/per-timestamp quantities
+
+### Hyperparameter Optimization (`tinycta.hyper`)
+
+- `optimize(suggest_portfolio_fn, n_trials=100, seed=42)` — run an Optuna study scored by Sharpe; returns a `Study`
+- `Study` — frozen result wrapper exposing `best_params`, `best_value`, `n_completed`, `n_trials`, and `.plot(output_dir)`
 
 ## 🛠️ Development
 
