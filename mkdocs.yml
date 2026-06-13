@@ -10,8 +10,14 @@ docs_dir: docs
 nav:
   - Home: index.md
   - API Reference:
+      - Oscillator: api/osc.md
+      - EWMA: api/ewma.md
+      - Utilities: api/util.md
       - Signal: api/signal.md
       - Linear Algebra: api/linalg.md
+      - Config: api/config.md
+      - Engine: api/engine.md
+      - Hyperparameter Optimisation: api/hyper.md
   - Development:
       - Tests: development/TESTS.md
   - CI/CD:
