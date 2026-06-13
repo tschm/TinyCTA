@@ -26,13 +26,17 @@ class Engine:
     def __post_init__(self) -> None:
         """Validate that prices and mu are aligned and both contain a date column."""
         if "date" not in self.prices.columns:
-            raise ValueError
+            msg = "prices must contain a 'date' column"
+            raise ValueError(msg)
         if "date" not in self.mu.columns:
-            raise ValueError
+            msg = "mu must contain a 'date' column"
+            raise ValueError(msg)
         if self.prices.shape != self.mu.shape:
-            raise ValueError
-        if not set(self.prices.columns) == set(self.mu.columns):
-            raise ValueError
+            msg = f"prices and mu must share the same shape, got {self.prices.shape} and {self.mu.shape}"
+            raise ValueError(msg)
+        if set(self.prices.columns) != set(self.mu.columns):
+            msg = "prices and mu must share identical columns"
+            raise ValueError(msg)
 
     @property
     def assets(self) -> list[str]:

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import contextlib
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import optuna
 from jquantstats import Portfolio
+from loguru import logger
 
 
 @dataclass(frozen=True)
@@ -58,8 +58,11 @@ class Study:
         }
         for name, fig in figures.items():
             fig.write_html(str(output_dir / f"{name}.html"))
-            with contextlib.suppress(Exception):
+            try:
                 fig.write_image(str(output_dir / f"{name}.png"), scale=2)
+            except (ValueError, ImportError) as exc:
+                # PNG export needs the optional `kaleido` backend; skip if unavailable.
+                logger.debug(f"Skipping PNG export for {name}: {exc}")
 
 
 def _sharpe(portfolio: Portfolio) -> float:
