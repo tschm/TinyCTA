@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _load_workflow(name: str) -> dict[str, object]:
+def _load_workflow(name: str) -> dict[str, Any]:
     path = ROOT / ".github" / "workflows" / name
     workflow = yaml.safe_load(path.read_text())
     if True in workflow and "on" not in workflow:

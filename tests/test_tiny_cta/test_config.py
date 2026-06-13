@@ -84,4 +84,4 @@ def test_config_is_frozen():
 def test_extra_fields_forbidden():
     """Config rejects unknown extra fields."""
     with pytest.raises(ValidationError):
-        Config(vola=50, corr=200, clip=4.2, shrink=0.5, aum=1e6)  # type: ignore[call-arg]
+        Config(vola=50, corr=200, clip=4.2, shrink=0.5, aum=1e6)  # ty: ignore[unknown-argument]

@@ -128,7 +128,7 @@ class TestMakefile:
         proc = run_make(logger, ["typecheck"])
         out = proc.stdout
         # Check for uv run command
-        assert "uv run ty check src" in out
+        assert "uv run ty check src tests" in out
 
     def test_test_target_dry_run(self, logger):
         """Test target should invoke pytest via uv with coverage and HTML outputs in dry-run output."""

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 import math
+import os
 
 import optuna
 import pytest
@@ -224,14 +225,14 @@ def test_plot_uses_expected_filenames_and_scale(mocker, tmp_path):
     output_dir = tmp_path / "plots"
     study.plot(output_dir)
 
-    html_names = {p[0][0].rsplit("/", 1)[-1] for p in mock_fig.write_html.call_args_list}
+    html_names = {os.path.basename(p[0][0]) for p in mock_fig.write_html.call_args_list}
     assert html_names == {
         "optuna_history.html",
         "optuna_importance.html",
         "optuna_parallel.html",
         "optuna_contour.html",
     }
-    png_names = {c.args[0].rsplit("/", 1)[-1] for c in mock_fig.write_image.call_args_list}
+    png_names = {os.path.basename(c.args[0]) for c in mock_fig.write_image.call_args_list}
     assert png_names == {
         "optuna_history.png",
         "optuna_importance.png",

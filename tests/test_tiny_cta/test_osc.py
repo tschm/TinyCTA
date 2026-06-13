@@ -104,9 +104,9 @@ def test_osc_non_integer_params_raise(frame):
     """Non-integer fast or slow should raise TypeError with the exact message."""
     df = frame.head(32)
     with pytest.raises(TypeError) as fast_exc:
-        _ = df.with_columns(osc(pl.col("A"), fast=2.0, slow=8).alias("osc"))
+        _ = df.with_columns(osc(pl.col("A"), fast=2.0, slow=8).alias("osc"))  # ty: ignore[invalid-argument-type]
     assert str(fast_exc.value) == "fast must be an integer"
 
     with pytest.raises(TypeError) as slow_exc:
-        _ = df.with_columns(osc(pl.col("A"), fast=2, slow=8.0).alias("osc"))
+        _ = df.with_columns(osc(pl.col("A"), fast=2, slow=8.0).alias("osc"))  # ty: ignore[invalid-argument-type]
     assert str(slow_exc.value) == "slow must be an integer"

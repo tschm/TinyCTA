@@ -122,7 +122,7 @@ def test_late_starting_asset_does_not_drop_dates() -> None:
     df = pl.DataFrame({"date": list(range(n)), "A": a_vals, "B": b_vals})
     res = ewm_covariance(df, ["A", "B"], "date", window=5)
     # Dates from the A-only period should still appear
-    early_keys = [k for k in res if k < 10]
+    early_keys = [k for k in res if k < 10]  # ty: ignore[unsupported-operator]
     assert len(early_keys) > 0
 
 
@@ -157,9 +157,9 @@ def test_matches_pandas_ewm_cov() -> None:
     pandas_cov = pdf.ewm(span=5).cov(bias=True)
 
     for t, mat in res.items():
-        expected_aa = pandas_cov.loc[(t, "A"), "A"]
-        expected_bb = pandas_cov.loc[(t, "B"), "B"]
-        expected_ab = pandas_cov.loc[(t, "A"), "B"]
+        expected_aa = pandas_cov.loc[(t, "A"), "A"]  # ty: ignore[invalid-argument-type]
+        expected_bb = pandas_cov.loc[(t, "B"), "B"]  # ty: ignore[invalid-argument-type]
+        expected_ab = pandas_cov.loc[(t, "A"), "B"]  # ty: ignore[invalid-argument-type]
         if np.isfinite(expected_aa):
             assert mat[0, 0] == pytest.approx(expected_aa, rel=1e-6)
         if np.isfinite(expected_bb):
