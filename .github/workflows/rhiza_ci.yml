@@ -20,11 +20,13 @@ on:
     paths-ignore:
       - "**/*.md"
       - "docs/**"
+      - "book/**"
       - "mkdocs.yml"
   pull_request:
     paths-ignore:
       - "**/*.md"
       - "docs/**"
+      - "book/**"
       - "mkdocs.yml"
 
 concurrency:
