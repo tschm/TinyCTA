@@ -80,13 +80,14 @@ def test_sharpe_raises_on_nan(mocker):
 
 
 def test_study_plot_writes_html_and_swallows_image_error(mocker, tmp_path):
-    """Plot writes HTML for each figure and silently ignores write_image failures."""
+    """Plot writes HTML for each figure and skips write_image failures (missing kaleido)."""
     s = optuna.create_study(direction="maximize")
     s.optimize(lambda trial: float(trial.suggest_int("x", 0, 5)), n_trials=1)
     study = Study.from_optuna(s)
 
     mock_fig = mocker.MagicMock()
-    mock_fig.write_image.side_effect = Exception("kaleido not installed")
+    # plotly raises ValueError when the optional kaleido image backend is missing.
+    mock_fig.write_image.side_effect = ValueError("kaleido not installed")
     for fn in (
         "optuna.visualization.plot_optimization_history",
         "optuna.visualization.plot_param_importances",

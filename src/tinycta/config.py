@@ -19,5 +19,6 @@ class Config(BaseModel):
         """Enforce corr >= vola for numerical stability."""
         vola = info.data.get("vola") if hasattr(info, "data") else None
         if vola is not None and v < vola:
-            raise ValueError
+            msg = f"corr ({v}) must be >= vola ({vola}) for numerical stability"
+            raise ValueError(msg)
         return v
