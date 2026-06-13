@@ -12,6 +12,8 @@ from datetime import date, timedelta
 
 import numpy as np
 import polars as pl
+import polars.testing as pt
+import pytest
 
 from tinycta.util import adj_log_prices, vol_adj
 
@@ -26,6 +28,42 @@ def _make_prices(n: int = 50, seed: int = 0) -> pl.DataFrame:
     end = start + timedelta(days=n - 1)
     dates = pl.date_range(start=start, end=end, interval="1d", eager=True)
     return pl.DataFrame({"date": dates, "P": prices}).with_columns(pl.col("P").cast(pl.Float64))
+
+
+def test_vol_adj_matches_exact_reference_formula():
+    """vol_adj equals ``log_returns / ewm_std(com=vola-1, adjust=True)`` clipped.
+
+    Uses a high clip so the clamp never binds, exposing the exact ``com``,
+    ``adjust`` and division (rather than multiplication) used internally. A
+    separate test pins the clip bounds.
+    """
+    df = _make_prices(n=80, seed=3)
+    vola, clip, min_samples = 10, 1e9, 1
+
+    out = df.with_columns(vol_adj(pl.col("P"), vola=vola, clip=clip, min_samples=min_samples).alias("va")).select(
+        ["date", "va"]
+    )
+
+    log_returns = pl.col("P").log().diff()
+    vol = log_returns.ewm_std(com=vola - 1, adjust=True, min_samples=min_samples)
+    ref = df.with_columns((log_returns / vol).clip(-clip, clip).alias("va")).select(["date", "va"])
+
+    pt.assert_frame_equal(out, ref)
+
+
+def test_vol_adj_clip_is_symmetric_lower_bound():
+    """The lower clip bound is ``-clip`` (negative), not ``+clip``.
+
+    With a tiny clip many standardized returns exceed it in magnitude. The
+    minimum must reach ``-clip``; if the lower bound were ``+clip`` every value
+    would collapse to the constant ``clip``.
+    """
+    df = _make_prices(n=80, seed=4)
+    clip = 0.5
+    out = df.with_columns(vol_adj(pl.col("P"), vola=10, clip=clip).alias("va"))
+    vals = out["va"].drop_nulls().to_numpy()
+    assert vals.min() == pytest.approx(-clip)
+    assert vals.min() < vals.max()  # not collapsed to a constant
 
 
 def test_vol_adj_clips_and_is_finite():

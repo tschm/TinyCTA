@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import dataclasses
 import math
+import os
 
 import optuna
 import pytest
@@ -134,3 +136,187 @@ def test_optimize_returns_frozen_study(mocker):
     assert isinstance(result, Study)
     assert result.n_completed == 1
     assert result.best_value == 1.0
+
+
+# --------------------------------------------------------------------------- #
+# Mutation-killing tests: pin structure, formatting and defaults exactly.
+# --------------------------------------------------------------------------- #
+def _completed_study(best_params: dict, best_value: float, n_completed: int, n_trials: int) -> Study:
+    """Build a Study with explicit fields and a real (empty) optuna study."""
+    return Study(
+        best_params=best_params,
+        best_value=best_value,
+        n_completed=n_completed,
+        n_trials=n_trials,
+        optuna_study=optuna.create_study(direction="maximize"),
+    )
+
+
+def test_study_is_frozen():
+    """Study is an immutable (frozen) dataclass."""
+    study = _completed_study({"fast": 3}, 1.0, 1, 1)
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        study.best_value = 2.0  # ty: ignore[invalid-assignment]
+
+
+def test_optuna_study_excluded_from_repr():
+    """The optuna_study field is hidden from repr (field(repr=False))."""
+    study = _completed_study({"fast": 3}, 1.0, 1, 1)
+    assert "optuna_study" not in repr(study)
+
+
+def test_optuna_study_is_a_required_field():
+    """optuna_study has no default; constructing without it raises TypeError."""
+    with pytest.raises(TypeError):
+        Study(best_params={}, best_value=1.0, n_completed=1, n_trials=1)  # ty: ignore[missing-argument]
+
+
+def test_str_completed_is_exact():
+    """__str__ formatting (labels, Sharpe precision, newline join) is exact."""
+    study = _completed_study({"fast": 3, "slow": 9}, 1.2345, 2, 3)
+    expected = "\n".join(
+        [
+            "=== Best parameters ===",
+            f"  {'fast':<12} = {3}",
+            f"  {'slow':<12} = {9}",
+            f"  {'Sharpe':<12} = {1.2345:.4f}",
+            f"  {'Completed':<12} = {2} / {3} trials",
+        ]
+    )
+    assert str(study) == expected
+
+
+def test_plot_creates_nested_dirs_and_overwrites(mocker, tmp_path):
+    """Plot creates parent dirs (parents=True) and tolerates an existing dir (exist_ok=True)."""
+    s = optuna.create_study(direction="maximize")
+    s.optimize(lambda trial: float(trial.suggest_int("x", 0, 5)), n_trials=1)
+    study = Study.from_optuna(s)
+
+    mock_fig = mocker.MagicMock()
+    for fn in (
+        "optuna.visualization.plot_optimization_history",
+        "optuna.visualization.plot_param_importances",
+        "optuna.visualization.plot_parallel_coordinate",
+        "optuna.visualization.plot_contour",
+    ):
+        mocker.patch(fn, return_value=mock_fig)
+
+    nested = tmp_path / "deep" / "plots"  # parent "deep" does not exist yet -> needs parents=True
+    study.plot(nested)
+    study.plot(nested)  # second call into the existing dir -> needs exist_ok=True
+    assert nested.is_dir()
+
+
+def test_plot_uses_expected_filenames_and_scale(mocker, tmp_path):
+    """Figure keys map to exact .html/.png filenames and PNG uses scale=2."""
+    s = optuna.create_study(direction="maximize")
+    s.optimize(lambda trial: float(trial.suggest_int("x", 0, 5)), n_trials=1)
+    study = Study.from_optuna(s)
+
+    mock_fig = mocker.MagicMock()
+    for fn in (
+        "optuna.visualization.plot_optimization_history",
+        "optuna.visualization.plot_param_importances",
+        "optuna.visualization.plot_parallel_coordinate",
+        "optuna.visualization.plot_contour",
+    ):
+        mocker.patch(fn, return_value=mock_fig)
+
+    output_dir = tmp_path / "plots"
+    study.plot(output_dir)
+
+    html_names = {os.path.basename(p[0][0]) for p in mock_fig.write_html.call_args_list}
+    assert html_names == {
+        "optuna_history.html",
+        "optuna_importance.html",
+        "optuna_parallel.html",
+        "optuna_contour.html",
+    }
+    png_names = {os.path.basename(c.args[0]) for c in mock_fig.write_image.call_args_list}
+    assert png_names == {
+        "optuna_history.png",
+        "optuna_importance.png",
+        "optuna_parallel.png",
+        "optuna_contour.png",
+    }
+    for c in mock_fig.write_image.call_args_list:
+        assert c.kwargs["scale"] == 2
+
+
+def test_plot_logs_exact_message_on_image_failure(mocker, tmp_path):
+    """The PNG-export failure is logged with the exact (unwrapped) debug message."""
+    from loguru import logger
+
+    s = optuna.create_study(direction="maximize")
+    s.optimize(lambda trial: float(trial.suggest_int("x", 0, 5)), n_trials=1)
+    study = Study.from_optuna(s)
+
+    mock_fig = mocker.MagicMock()
+    mock_fig.write_image.side_effect = ValueError("kaleido not installed")
+    for fn in (
+        "optuna.visualization.plot_optimization_history",
+        "optuna.visualization.plot_param_importances",
+        "optuna.visualization.plot_parallel_coordinate",
+        "optuna.visualization.plot_contour",
+    ):
+        mocker.patch(fn, return_value=mock_fig)
+
+    captured: list[str] = []
+    sink_id = logger.add(captured.append, level="DEBUG", format="{message}")
+    try:
+        study.plot(tmp_path / "plots")
+    finally:
+        logger.remove(sink_id)
+
+    messages = [m.strip() for m in captured]
+    assert "Skipping PNG export for optuna_history: kaleido not installed" in messages
+
+
+def test_run_study_default_n_trials_is_100():
+    """_run_study defaults to 100 trials."""
+    study = _run_study(lambda trial: float(trial.suggest_int("x", 0, 5)), name="defaults_n")
+    assert len(study.trials) == 100
+
+
+def test_run_study_default_seed_is_42():
+    """_run_study defaults to seed 42 (identical sampling sequence to explicit 42)."""
+    obj = lambda trial: float(trial.suggest_int("x", 0, 100))  # noqa: E731
+    default = _run_study(obj, n_trials=12, name="seed_default")
+    explicit = _run_study(obj, n_trials=12, seed=42, name="seed_explicit")
+    assert [t.params for t in default.trials] == [t.params for t in explicit.trials]
+
+
+def test_run_study_disables_progress_bar(mocker):
+    """_run_study calls optimize with show_progress_bar=False."""
+    fake_study = mocker.MagicMock()
+    mocker.patch("optuna.create_study", return_value=fake_study)
+    _run_study(lambda trial: 1.0, n_trials=1)
+    assert fake_study.optimize.call_args.kwargs["show_progress_bar"] is False
+
+
+def test_optimize_default_n_trials_is_100(mocker):
+    """Optimize defaults to 100 trials."""
+    mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
+    result = optimize(lambda trial: None)
+    assert result.n_trials == 100
+
+
+def test_optimize_default_seed_is_42(mocker):
+    """Optimize defaults to seed 42 (identical sampling sequence to explicit 42)."""
+    mocker.patch(
+        "tinycta.hyper._study._build_objective",
+        return_value=lambda trial: float(trial.suggest_int("x", 0, 100)),
+    )
+    default = optimize(lambda trial: None, n_trials=12)
+    explicit = optimize(lambda trial: None, n_trials=12, seed=42)
+    seqs_default = [t.params for t in default.optuna_study.trials]
+    seqs_explicit = [t.params for t in explicit.optuna_study.trials]
+    assert seqs_default == seqs_explicit
+
+
+def test_optimize_prints_the_study(mocker, capsys):
+    """Optimize prints the Study summary (not None) before returning."""
+    mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
+    optimize(lambda trial: None, n_trials=1)
+    out = capsys.readouterr().out
+    assert "=== Best parameters ===" in out

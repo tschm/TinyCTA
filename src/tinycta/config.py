@@ -14,7 +14,7 @@ class Config(BaseModel):
     model_config = {"frozen": True, "extra": "forbid"}
 
     @field_validator("corr")
-    @classmethod
+    @classmethod  # pragma: no mutate - pydantic field_validator behaves identically without classmethod
     def corr_greater_than_vola(cls, v: int, info: ValidationInfo) -> int:
         """Enforce corr >= vola for numerical stability."""
         vola = info.data.get("vola") if hasattr(info, "data") else None

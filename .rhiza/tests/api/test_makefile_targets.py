@@ -161,6 +161,23 @@ class TestMakefile:
         assert "uv run pytest" in out
         assert "--html=_tests/html-report/report.html" in out
 
+    def test_mutation_target_dry_run(self, logger):
+        """Mutation target should run mutmut over the package and gate on a survivor budget."""
+        proc = run_make(logger, ["mutation"])
+        out = proc.stdout
+        assert "uv run mutmut run" in out
+        assert '--paths-to-mutate="src/tinycta"' in out
+        assert '--tests-dir="tests"' in out
+        # The budget is enforced by counting survivors, not via a mutmut CLI flag
+        # (mutmut has no such flag); default budget is 0.
+        assert "--suspicious-surviving-mutations-budget" not in out
+        assert '-gt "0"' in out
+
+    def test_mutation_target_budget_is_configurable(self, logger):
+        """Mutation target should honor MUTATION_SURVIVOR_BUDGET overrides."""
+        proc = run_make(logger, ["mutation", "MUTATION_SURVIVOR_BUDGET=2"])
+        assert '-gt "2"' in proc.stdout
+
     def test_python_version_defaults_to_3_13_if_missing(self, logger, tmp_path):
         """`PYTHON_VERSION` should default to `3.13` if .python-version is missing."""
         # Ensure .python-version does not exist
