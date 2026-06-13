@@ -5,20 +5,33 @@ Tests mathematical invariants for linalg and signal modules.
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
+import polars as pl
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 
+from tinycta.ewma import ma_cross
 from tinycta.linalg import a_norm, inv_a_norm, solve, valid
+from tinycta.osc import osc
 from tinycta.signal import shrink2id
+from tinycta.util import adj_log_prices, vol_adj
 
 # Strategy for positive-definite diagonal matrices (safe for norm/solve tests)
 _pos_diag = arrays(
     dtype=np.float64,
     shape=st.integers(min_value=1, max_value=8),
     elements=st.floats(min_value=0.1, max_value=1e3, allow_nan=False, allow_infinity=False),
+)
+
+# Strategy for strictly-positive finite price series (safe for log/EWMA tests).
+_prices = st.lists(
+    st.floats(min_value=1.0, max_value=1e4, allow_nan=False, allow_infinity=False),
+    min_size=5,
+    max_size=60,
 )
 
 
@@ -115,3 +128,47 @@ def test_shrink2id_lamb_one_preserves_matrix(n: int) -> None:
     mat = rng.standard_normal((n, n))
     result = shrink2id(matrix=mat, lamb=1.0)
     np.testing.assert_array_equal(result, mat)
+
+
+@pytest.mark.property
+@given(prices=_prices)
+@settings(max_examples=50)
+def test_ma_cross_is_sign_valued(prices: list[float]) -> None:
+    """ma_cross only ever emits -1, 0, or +1 (the sign of an EWM difference)."""
+    df = pl.DataFrame({"p": prices}).with_columns(ma_cross(pl.col("p"), fast=2, slow=6).alias("s"))
+    values = [v for v in df["s"].to_list() if v is not None]
+    assert all(v in (-1.0, 0.0, 1.0) for v in values)
+
+
+@pytest.mark.property
+@given(
+    prices=_prices,
+    clip=st.floats(min_value=0.5, max_value=10.0, allow_nan=False, allow_infinity=False),
+)
+@settings(max_examples=50)
+def test_vol_adj_respects_clip_bound(prices: list[float], clip: float) -> None:
+    """Every finite vol_adj value lies within the symmetric clip bound."""
+    df = pl.DataFrame({"p": prices}).with_columns(vol_adj(pl.col("p"), vola=5, clip=clip).alias("v"))
+    finite = [v for v in df["v"].to_list() if v is not None and math.isfinite(v)]
+    assert all(abs(v) <= clip + 1e-9 for v in finite)
+
+
+@pytest.mark.property
+@given(prices=_prices)
+@settings(max_examples=50)
+def test_adj_log_prices_integrates_vol_adj(prices: list[float]) -> None:
+    """adj_log_prices is the cumulative sum of vol_adj (its first difference recovers vol_adj)."""
+    df = pl.DataFrame({"p": prices})
+    va = df.with_columns(vol_adj(pl.col("p"), vola=5, clip=4.2).alias("x"))["x"]
+    al = df.with_columns(adj_log_prices(pl.col("p"), vola=5, clip=4.2).alias("y"))["y"]
+    np.testing.assert_allclose(al.to_numpy(), va.cum_sum().to_numpy(), rtol=1e-9, equal_nan=True)
+
+
+@pytest.mark.property
+@given(prices=_prices)
+@settings(max_examples=50)
+def test_osc_is_finite(prices: list[float]) -> None:
+    """Osc produces only finite values for finite, strictly-positive price series."""
+    df = pl.DataFrame({"p": prices}).with_columns(osc(pl.col("p"), fast=2, slow=6).alias("o"))
+    values = df["o"].to_list()
+    assert all(v is not None and math.isfinite(v) for v in values)

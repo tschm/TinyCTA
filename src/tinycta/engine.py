@@ -76,7 +76,38 @@ class Engine:
 
     @property
     def cash_position(self) -> pl.DataFrame:
-        """Correlation-shrinkage-optimized cash positions for each timestamp."""
+        """Correlation-shrinkage-optimized cash positions for each timestamp.
+
+        Walks forward through time, and at each timestamp ``t``:
+
+        1. **Mask** assets with a finite price at ``t`` so the optimisation only
+           sees currently-tradable instruments.
+        2. **Shrink** the EWMA correlation matrix towards the identity by
+           ``cfg.shrink`` (via :func:`~tinycta.signal.shrink2id`) for numerical
+           stability, then restrict it to the masked assets.
+        3. **Solve** the shrunk system for the expected returns ``mu`` and
+           normalise by ``inv_a_norm(mu, matrix)`` so the raw risk position has
+           unit norm under the correlation metric (zeroed when the denominator
+           is non-finite/degenerate or ``mu`` is all-zero).
+        4. **Scale** the risk position by a running EWMA estimate of realised
+           profit variance (decay ``lamb=0.99``), which down-weights positions
+           after volatile P&L, then divide by per-asset EWMA volatility
+           (``self.vola``) to convert the risk position into a cash position.
+
+        Returns:
+            pl.DataFrame: The input ``prices`` frame (including its ``date``
+                column) with each asset column replaced by its per-timestamp
+                cash position. Warmup rows are ``NaN``.
+
+        Example:
+            >>> import polars as pl
+            >>> from tinycta.config import Config
+            >>> from tinycta.engine import Engine
+            >>> prices = pl.DataFrame({"date": [1, 2, 3], "A": [100.0, 101.0, 102.0]})
+            >>> mu = pl.DataFrame({"date": [1, 2, 3], "A": [0.0, 0.1, 0.2]})
+            >>> engine = Engine(prices=prices, mu=mu, cfg=Config(vola=2, corr=2, clip=4.2, shrink=0.5))
+            >>> positions = engine.cash_position
+        """
         cor = self.cor
         assets = self.assets
 
