@@ -35,5 +35,5 @@ concurrency:
 
 jobs:
   ci:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_ci.yml@e75ff66dd4d5560be544132420e1953798826d84 # v0.18.8
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_ci.yml@v0.18.9
     secrets: inherit
