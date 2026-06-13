@@ -17,11 +17,25 @@ permissions:
 
 on:
   push:
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "book/**"
+      - "mkdocs.yml"
   pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "book/**"
+      - "mkdocs.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_ci.yml@v0.18.8
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_ci.yml@v0.18.9
     secrets: inherit
 
   mutation:

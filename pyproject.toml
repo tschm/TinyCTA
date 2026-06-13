@@ -85,3 +85,5 @@ marimo = "marimo"
 pydantic = "pydantic"
 pyyaml = "yaml"
 
+[tool.coverage.run]
+branch = true

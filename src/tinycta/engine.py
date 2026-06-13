@@ -15,6 +15,61 @@ from .signal import shrink2id as _shrink2id
 from .util import vol_adj as _vol_adj
 
 
+def _risk_position(corr: np.ndarray, mu_row: np.ndarray, mask: np.ndarray, shrink: float) -> np.ndarray:
+    """Solve the shrunk correlation system for one timestamp's tradable assets.
+
+    Shrinks ``corr`` towards the identity by ``shrink`` (via
+    :func:`~tinycta.signal.shrink2id`), restricts it to the masked assets, solves
+    for the expected returns ``mu_row`` and normalises by ``inv_a_norm`` so the raw
+    risk position has unit norm under the correlation metric. Returns zeros when the
+    normaliser is non-finite/degenerate or ``mu_row`` is all-zero.
+
+    Args:
+        corr: Full EWMA correlation matrix for the timestamp.
+        mu_row: Expected returns for every asset at the timestamp (NaNs tolerated).
+        mask: Boolean mask of currently-tradable assets.
+        shrink: Identity-shrinkage weight in ``[0, 1]``.
+
+    Returns:
+        np.ndarray: The normalised risk position over the masked assets.
+    """
+    matrix = _shrink2id(corr, lamb=shrink)[np.ix_(mask, mask)]
+    expected_mu = np.nan_to_num(mu_row[mask])
+    denom = _inv_a_norm(expected_mu, matrix)
+    if denom is None or not np.isfinite(denom) or denom <= 1e-12 or np.allclose(expected_mu, 0.0):
+        return np.zeros_like(expected_mu)
+    return _solve(matrix, expected_mu) / denom
+
+
+def _update_profit_variance(
+    profit_variance: float,
+    cash_pos_prev: np.ndarray,
+    returns_row: np.ndarray,
+    ret_mask: np.ndarray,
+    lamb: float,
+) -> float:
+    """EWMA-update the running profit-variance estimate with one period's P&L.
+
+    Realised profit is the previous cash position dotted with the current returns
+    over the jointly-finite assets; the variance decays towards the new squared
+    profit by ``1 - lamb``.
+
+    Args:
+        profit_variance: Previous running profit-variance estimate.
+        cash_pos_prev: Previous timestamp's cash position (NaNs tolerated).
+        returns_row: Current timestamp's simple returns (NaNs tolerated).
+        ret_mask: Boolean mask of assets finite in both rows.
+        lamb: EWMA decay factor.
+
+    Returns:
+        float: The updated profit-variance estimate.
+    """
+    lhs = np.nan_to_num(cash_pos_prev[ret_mask], nan=0.0)
+    rhs = np.nan_to_num(returns_row[ret_mask], nan=0.0)
+    profit = lhs @ rhs
+    return lamb * profit_variance + (1 - lamb) * profit**2
+
+
 @dataclasses.dataclass(frozen=True)
 class Engine:
     """Correlation-aware risk position optimizer (Basanos engine)."""
@@ -134,24 +189,14 @@ class Engine:
                 ret_mask = np.isfinite(returns_num[i]) & mask
                 if ret_mask.any():
                     cash_pos_np[i - 1] = risk_pos_np[i - 1] / vola_np[i - 1]
-                    lhs = np.nan_to_num(cash_pos_np[i - 1, ret_mask], nan=0.0)
-                    rhs = np.nan_to_num(returns_num[i, ret_mask], nan=0.0)
-                    profit = lhs @ rhs
-                    profit_variance = lamb * profit_variance + (1 - lamb) * profit**2
+                    profit_variance = _update_profit_variance(
+                        profit_variance, cash_pos_np[i - 1], returns_num[i], ret_mask, lamb
+                    )
 
             if not mask.any():
                 continue
 
-            corr_n = cor[t]
-            matrix = _shrink2id(corr_n, lamb=self.cfg.shrink)[np.ix_(mask, mask)]
-            expected_mu = np.nan_to_num(mu[i][mask])
-            denom = _inv_a_norm(expected_mu, matrix)
-
-            if denom is None or not np.isfinite(denom) or denom <= 1e-12 or np.allclose(expected_mu, 0.0):
-                pos = np.zeros_like(expected_mu)
-            else:
-                pos = _solve(matrix, expected_mu) / denom
-
+            pos = _risk_position(cor[t], mu[i], mask, self.cfg.shrink)
             risk_pos_np[i, mask] = pos / profit_variance
             cash_pos_np[i, mask] = risk_pos_np[i, mask] / vola_np[i, mask]
 
