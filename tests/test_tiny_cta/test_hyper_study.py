@@ -8,6 +8,7 @@ import os
 
 import optuna
 import pytest
+from jquantstats import Portfolio
 
 from tinycta.hyper import Study, optimize
 from tinycta.hyper._study import _build_objective, _run_study, _sharpe
@@ -17,6 +18,12 @@ def _dummy_objective(trial) -> float:
     fast = trial.suggest_int("fast", 2, 10)
     slow = trial.suggest_int("slow", fast + 2, 20)
     return float(slow - fast)
+
+
+def _unused_suggest(trial: optuna.Trial) -> Portfolio:
+    """Placeholder suggest-fn for tests that mock `_build_objective` (never invoked)."""
+    msg = "suggest_portfolio_fn should be mocked, not invoked"
+    raise AssertionError(msg)
 
 
 def test_run_study_returns_optuna_study():
@@ -131,7 +138,7 @@ def test_optimize_returns_frozen_study(mocker):
     """Optimize wraps the optuna study in a frozen Study and returns it."""
     mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
 
-    result = optimize(lambda trial: None, n_trials=1)
+    result = optimize(_unused_suggest, n_trials=1)
 
     assert isinstance(result, Study)
     assert result.n_completed == 1
@@ -297,7 +304,7 @@ def test_run_study_disables_progress_bar(mocker):
 def test_optimize_default_n_trials_is_100(mocker):
     """Optimize defaults to 100 trials."""
     mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
-    result = optimize(lambda trial: None)
+    result = optimize(_unused_suggest)
     assert result.n_trials == 100
 
 
@@ -307,8 +314,8 @@ def test_optimize_default_seed_is_42(mocker):
         "tinycta.hyper._study._build_objective",
         return_value=lambda trial: float(trial.suggest_int("x", 0, 100)),
     )
-    default = optimize(lambda trial: None, n_trials=12)
-    explicit = optimize(lambda trial: None, n_trials=12, seed=42)
+    default = optimize(_unused_suggest, n_trials=12)
+    explicit = optimize(_unused_suggest, n_trials=12, seed=42)
     seqs_default = [t.params for t in default.optuna_study.trials]
     seqs_explicit = [t.params for t in explicit.optuna_study.trials]
     assert seqs_default == seqs_explicit
@@ -317,6 +324,6 @@ def test_optimize_default_seed_is_42(mocker):
 def test_optimize_prints_the_study(mocker, capsys):
     """Optimize prints the Study summary (not None) before returning."""
     mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
-    optimize(lambda trial: None, n_trials=1)
+    optimize(_unused_suggest, n_trials=1)
     out = capsys.readouterr().out
     assert "=== Best parameters ===" in out

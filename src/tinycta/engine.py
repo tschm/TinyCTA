@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Hashable
 
 import numpy as np
 import polars as pl
@@ -14,15 +15,16 @@ from .linalg import solve as _solve
 from .signal import shrink2id as _shrink2id
 from .util import vol_adj as _vol_adj
 
+# Arbitrary epsilon floor for the correlation-norm denominator: any nearby
+# threshold value or a ``<`` vs ``<=`` boundary behaves identically for
+# realistic denominators, so this comparison is intentionally excluded from
+# mutation.
+_DENOM_EPSILON = 1e-12
+
 
 def _denominator_is_degenerate(denom: float) -> bool:
-    """Return True when the correlation-norm denominator is effectively zero.
-
-    ``1e-12`` is an arbitrary epsilon floor: any nearby threshold value or a
-    ``<`` vs ``<=`` boundary behaves identically for realistic denominators, so
-    this comparison is intentionally excluded from mutation.
-    """
-    return denom <= 1e-12  # pragma: no mutate
+    """Return True when the correlation-norm denominator is effectively zero."""
+    return denom <= _DENOM_EPSILON  # pragma: no mutate
 
 
 def _risk_position(corr: np.ndarray, mu_row: np.ndarray, mask: np.ndarray, shrink: float) -> np.ndarray:
@@ -127,8 +129,32 @@ class Engine:
         )
 
     @property
-    def cor(self) -> dict[object, np.ndarray]:
-        """Per-timestamp EWMA correlation matrices, returned as a date-keyed dict."""
+    def cor(self) -> dict[Hashable, np.ndarray]:
+        """Per-timestamp EWMA correlation matrices, keyed by the ``date`` value.
+
+        Each key is the value of the ``date`` column for that timestamp (a
+        ``datetime.date`` in normal use, though any hashable index value such as
+        an integer is accepted), and each value is the square symmetric
+        correlation matrix over :attr:`assets`, in column order.
+
+        The correlation matrix is derived from the EWMA covariance
+        (:func:`~tinycta.ewm_cov.ewm_covariance`) with span ``2 * cfg.corr + 1``
+        and a ``cfg.corr`` warmup.
+
+        Contract:
+
+        - **Warmup.** Timestamps before any asset pair has accumulated
+          ``cfg.corr`` common observations are absent from the dict entirely
+          (the underlying covariance drops all-NaN dates).
+        - **NaN cells.** A cell is ``NaN`` whenever its variance is
+          non-positive (e.g. an asset that has not yet warmed up, or a
+          late-starting asset); the date is still present as long as at least
+          one cell is finite. Downstream, :attr:`cash_position` masks to the
+          currently-tradable assets, so these ``NaN`` cells are not solved.
+
+        Returns:
+            dict[Hashable, np.ndarray]: Date-keyed correlation matrices.
+        """
         cov = _ewm_covariance(
             self.ret_adj,
             assets=self.assets,
