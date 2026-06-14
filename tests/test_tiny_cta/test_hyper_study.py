@@ -8,6 +8,7 @@ import os
 
 import optuna
 import pytest
+from jquantstats import Portfolio
 
 from tinycta.hyper import Study, optimize
 from tinycta.hyper._study import _build_objective, _run_study, _sharpe
@@ -17,6 +18,12 @@ def _dummy_objective(trial) -> float:
     fast = trial.suggest_int("fast", 2, 10)
     slow = trial.suggest_int("slow", fast + 2, 20)
     return float(slow - fast)
+
+
+def _unused_suggest(trial: optuna.Trial) -> Portfolio:
+    """Placeholder suggest-fn for tests that mock `_build_objective` (never invoked)."""
+    msg = "suggest_portfolio_fn should be mocked, not invoked"
+    raise AssertionError(msg)
 
 
 def test_run_study_returns_optuna_study():

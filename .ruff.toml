@@ -1,0 +1,59 @@
+# Project-level Ruff overrides layered on top of the rhiza-managed `ruff.toml`.
+#
+# `ruff.toml` is template-managed by the Rhiza framework and is overwritten on
+# sync, so project-specific rule choices live here instead. Ruff discovers
+# `.ruff.toml` ahead of `ruff.toml`, and `extend` pulls in the managed base so
+# both layers apply together.
+extend = "ruff.toml"
+
+[lint]
+# Additional rule sets beyond the rhiza base (see issue #778).
+extend-select = [
+    "ANN",  # flake8-annotations - Type annotation checks
+    "ARG",  # flake8-unused-arguments - Unused arguments
+    "PIE",  # flake8-pie - Miscellaneous lints
+    "PL",   # Pylint rules
+    "RET",  # flake8-return - Return statement checks
+    "TID",  # flake8-tidy-imports - Import tidying
+]
+
+# NOTE: ruff *replaces* (does not merge) the `per-file-ignores` table across an
+# `extend` chain, so the rhiza-base entries below are reproduced verbatim and
+# the new-rule relaxations for tests are appended to them.
+[lint.per-file-ignores]
+# Test files - allow assert statements and subprocess calls for testing, and
+# relax the newly-enabled annotation / argument / style rules that add noise
+# without value in tests.
+"**/tests/**/*.py" = [
+    "S101",     # Allow assert statements in tests
+    "S603",     # Allow subprocess calls without shell=False check
+    "S607",     # Allow starting processes with partial paths in tests
+    "PLW1510",  # Allow subprocess without explicit check parameter
+    "ANN",      # Test functions need not be annotated
+    "ARG",      # Unused args are common in fixtures / placeholder callbacks
+    "PLR2004",  # Allow magic values in test comparisons
+    "PLC0206",  # Allow dict index without .items()
+    "PLC0415",  # Allow imports outside top-level in tests
+]
+"tests/**/*.py" = [
+    "ERA001",   # Allow commented out code in project tests
+    "PLR2004",  # Allow magic values in project tests
+    "RUF002",   # Allow ambiguous unicode in project tests
+    "RUF012",   # Allow mutable class attributes in project tests
+]
+# Marimo notebooks - allow flexible coding patterns for interactive exploration
+"**/notebooks/*.py" = [
+    "D100",    # No module docstring - marimo requires `import marimo` as the first statement
+    "N803",    # Allow non-lowercase variable names in notebooks
+    "S101",    # Allow assert statements in notebooks
+    "PLC0415", # Allow imports not at top-level in notebooks
+    "B018",    # Allow useless expressions in notebooks
+    "RUF001",  # Allow ambiguous unicode in notebooks
+    "RUF002",  # Allow ambiguous unicode in notebooks
+]
+# Internal utility scripts - specific exceptions for internal tooling
+".rhiza/utils/*.py" = [
+    "PLW2901",  # Allow loop variable overwriting in utility scripts
+    "TRY003",   # Allow long exception messages in utility scripts
+    "PLW1510",  # subprocess.run guards returncode explicitly (check=False implied)
+]
