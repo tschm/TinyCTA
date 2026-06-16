@@ -277,18 +277,23 @@ def _cash_position_reference(eng: Engine) -> pl.DataFrame:
     cash = np.full_like(mu, np.nan, dtype=float)
     profit_variance = 1.0
     lamb = 0.99
-    for i, t in enumerate(cor.keys()):
-        mask = np.isfinite(prices_num[i])
-        if i > 0:
-            ret_mask = np.isfinite(returns_num[i]) & mask
+    row_of = {date: idx for idx, date in enumerate(eng.prices["date"].to_list())}
+    prev_row = None
+    for t in cor:
+        row = row_of[t]
+        mask = np.isfinite(prices_num[row])
+        if prev_row is not None:
+            ret_mask = np.isfinite(returns_num[row]) & mask
             if ret_mask.any():
-                cash[i - 1] = risk[i - 1] / vola_np[i - 1]
-                profit_variance = _update_profit_variance(profit_variance, cash[i - 1], returns_num[i], ret_mask, lamb)
-        if not mask.any():
-            continue
-        pos = _risk_position(cor[t], mu[i], mask, eng.cfg.shrink)
-        risk[i, mask] = pos / profit_variance
-        cash[i, mask] = risk[i, mask] / vola_np[i, mask]
+                cash[prev_row] = risk[prev_row] / vola_np[prev_row]
+                profit_variance = _update_profit_variance(
+                    profit_variance, cash[prev_row], returns_num[row], ret_mask, lamb
+                )
+        if mask.any():
+            pos = _risk_position(cor[t], mu[row], mask, eng.cfg.shrink)
+            risk[row, mask] = pos / profit_variance
+            cash[row, mask] = risk[row, mask] / vola_np[row, mask]
+        prev_row = row
     return eng.prices.with_columns([pl.lit(cash[:, i]).alias(a) for i, a in enumerate(assets)])
 
 
@@ -304,3 +309,60 @@ def test_cash_position_matches_reference_with_missing_row(cfg: Config):
     prices, mu, _ = _prices_and_mu(n=40, seed=2, with_gap=True)
     eng = Engine(prices=prices, mu=mu, cfg=cfg)
     pt.assert_frame_equal(eng.cash_position, _cash_position_reference(eng))
+
+
+def test_cash_position_skips_degenerate_cor_key(cfg: Config, mocker):
+    """A cor key whose price row is fully missing is skipped without error.
+
+    Date-aligned iteration only visits rows that ``ewm_covariance`` deems
+    computable, so an all-NaN price row is never a real cor key. This forces such
+    a degenerate key to pin the two defensive guards in the forward loop: the
+    all-False ``mask`` skips ``_risk_position`` and storage, and the all-False
+    ``ret_mask`` skips the profit-variance update. The injected row stays NaN
+    while a normal preceding row remains finite.
+    """
+    n = 12
+    assets = ["A", "B", "C"]
+    rng = np.random.default_rng(0)
+    dates = [datetime.date(2020, 1, 1) + datetime.timedelta(days=i) for i in range(n)]
+    arr = 100 * np.exp(np.cumsum(rng.normal(0.0002, 0.02, size=(n, len(assets))), axis=0))
+    pdata: dict = {"date": dates}
+    mdata: dict = {"date": dates}
+    for j, a in enumerate(assets):
+        vals = arr[:, j].tolist()
+        vals[8] = float("nan")  # row 8: every asset missing -> mask all-False
+        pdata[a] = vals
+        mdata[a] = rng.normal(0.001, 0.01, size=n).tolist()
+    prices = pl.DataFrame(pdata).with_columns(pl.col("date").cast(pl.Date))
+    mu = pl.DataFrame(mdata).with_columns(pl.col("date").cast(pl.Date))
+    eng = Engine(prices=prices, mu=mu, cfg=cfg)
+
+    # Force a finite date (seeds prev_row) followed by the all-NaN date as cor keys.
+    forced = {dates[7]: np.eye(len(assets)), dates[8]: np.eye(len(assets))}
+    mocker.patch.object(Engine, "cor", new_callable=mocker.PropertyMock, return_value=forced)
+
+    result = eng.cash_position
+    assert all(np.isfinite(result[a][7]) for a in assets)  # normal row processed
+    assert all(not np.isfinite(result[a][8]) for a in assets)  # degenerate row skipped
+
+
+def test_cash_position_is_date_aligned_through_latest_row(cfg: Config):
+    """Positions are populated across the whole post-warmup range, incl. the last row.
+
+    Regression guard for the date-alignment bug: ``cash_position`` previously paired
+    each correlation matrix (keyed by a post-warmup date) with a row offset by
+    ``corr`` via positional ``enumerate`` indexing, so the most recent ``corr`` dates
+    were always NaN. The matrix for date ``t`` must drive the position stored at ``t``.
+    """
+    prices, mu, assets = _prices_and_mu(n=40, seed=3)
+    eng = Engine(prices=prices, mu=mu, cfg=cfg)
+    result = eng.cash_position
+
+    # The final (most recent) row must carry finite positions for every asset.
+    last = result.tail(1)
+    assert all(np.isfinite(last[a][0]) for a in assets)
+
+    # Finite positions cover exactly the dates present in ``cor`` (the post-warmup
+    # range), confirming each cor key maps to its own date rather than an offset.
+    finite_dates = set(result.filter(pl.col(assets[0]).is_finite())["date"].to_list())
+    assert finite_dates == set(eng.cor.keys())

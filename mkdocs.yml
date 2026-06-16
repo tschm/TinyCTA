@@ -9,6 +9,7 @@ docs_dir: docs
 
 nav:
   - Home: index.md
+  - Tutorial: tutorial.md
   - API Reference:
       - Oscillator: api/osc.md
       - EWMA: api/ewma.md

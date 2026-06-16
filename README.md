@@ -28,6 +28,9 @@ particularly for trend-following strategies. The package includes:
 This package is designed to be the foundation for implementing CTA strategies
 in just a few lines of code, hence the name "TinyCTA".
 
+📖 New here? Follow the [end-to-end CTA tutorial](https://tschm.github.io/TinyCTA/tutorial/)
+to go from raw prices through signals and the `Engine` to cash positions.
+
 ## 🚀 Installation
 
 ### Using pip

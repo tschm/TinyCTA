@@ -189,25 +189,33 @@ class Engine:
         cash_pos_np = np.full_like(mu, fill_value=np.nan, dtype=float)
         vola_np = self.vola.select(assets).to_numpy()
 
+        # ``cor`` is keyed by the post-warmup dates. Map each key back to its row
+        # in prices/mu/vola so the correlation matrix for date ``t`` is paired with
+        # (and stored at) that same date, rather than at a positional offset of
+        # ``corr`` rows — otherwise the most recent dates never receive a position.
+        row_of = {date: idx for idx, date in enumerate(self.prices["date"].to_list())}
+
         profit_variance = 1.0
         lamb = 0.99
 
-        for i, t in enumerate(cor.keys()):
-            mask = np.isfinite(prices_num[i])
+        prev_row: int | None = None
+        for t in cor:
+            row = row_of[t]
+            mask = np.isfinite(prices_num[row])
 
-            if i > 0:
-                ret_mask = np.isfinite(returns_num[i]) & mask
+            if prev_row is not None:
+                ret_mask = np.isfinite(returns_num[row]) & mask
                 if ret_mask.any():
-                    cash_pos_np[i - 1] = risk_pos_np[i - 1] / vola_np[i - 1]
+                    cash_pos_np[prev_row] = risk_pos_np[prev_row] / vola_np[prev_row]
                     profit_variance = _update_profit_variance(
-                        profit_variance, cash_pos_np[i - 1], returns_num[i], ret_mask, lamb
+                        profit_variance, cash_pos_np[prev_row], returns_num[row], ret_mask, lamb
                     )
 
-            if not mask.any():
-                continue
+            if mask.any():
+                pos = _risk_position(cor[t], mu[row], mask, self.cfg.shrink)
+                risk_pos_np[row, mask] = pos / profit_variance
+                cash_pos_np[row, mask] = risk_pos_np[row, mask] / vola_np[row, mask]
 
-            pos = _risk_position(cor[t], mu[i], mask, self.cfg.shrink)
-            risk_pos_np[i, mask] = pos / profit_variance
-            cash_pos_np[i, mask] = risk_pos_np[i, mask] / vola_np[i, mask]
+            prev_row = row
 
         return self.prices.with_columns([(pl.lit(cash_pos_np[:, i]).alias(asset)) for i, asset in enumerate(assets)])
