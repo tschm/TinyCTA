@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import optuna
 from jquantstats import Portfolio
@@ -14,7 +16,7 @@ from loguru import logger
 class Study:
     """Frozen wrapper around a completed Optuna study."""
 
-    best_params: dict
+    best_params: dict[str, Any]
     best_value: float
     n_completed: int
     n_trials: int
@@ -75,7 +77,7 @@ def _sharpe(portfolio: Portfolio) -> float:
 
 
 def _run_study(
-    objective,
+    objective: Callable[[optuna.Trial], float],
     *,
     n_trials: int = 100,
     seed: int = 42,
@@ -88,7 +90,9 @@ def _run_study(
     return s
 
 
-def _build_objective(suggest_portfolio_fn):
+def _build_objective(
+    suggest_portfolio_fn: Callable[[optuna.Trial], Portfolio],
+) -> Callable[[optuna.Trial], float]:
     """Objective factory: wraps a portfolio-returning function with Sharpe scoring."""
 
     def objective(trial: optuna.Trial) -> float:
@@ -98,7 +102,11 @@ def _build_objective(suggest_portfolio_fn):
     return objective
 
 
-def optimize(suggest_portfolio_fn, n_trials: int = 100, seed: int = 42) -> Study:
+def optimize(
+    suggest_portfolio_fn: Callable[[optuna.Trial], Portfolio],
+    n_trials: int = 100,
+    seed: int = 42,
+) -> Study:
     """Build objective, run study, print and return a frozen Study."""
     s = _run_study(_build_objective(suggest_portfolio_fn), n_trials=n_trials, seed=seed)
     study = Study.from_optuna(s)

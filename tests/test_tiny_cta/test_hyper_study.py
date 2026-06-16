@@ -14,6 +14,7 @@ from tinycta.hyper._study import _build_objective, _run_study, _sharpe
 
 
 def _dummy_objective(trial) -> float:
+    """Trivial Optuna objective: suggest fast/slow ints and return their gap."""
     fast = trial.suggest_int("fast", 2, 10)
     slow = trial.suggest_int("slow", fast + 2, 20)
     return float(slow - fast)

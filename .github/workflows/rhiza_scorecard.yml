@@ -11,6 +11,10 @@
 #          force-enable on private repos, 'false' to disable, or leave unset
 #          for auto-detect (public repositories only).
 #
+#          Thin stub: the analysis logic and its enablement/visibility gate
+#          live in the reusable workflow in jebel-quant/rhiza; this file only
+#          wires up the triggers and grants the token scopes Scorecard needs.
+#
 # Trigger: Weekly schedule, pushes to main, branch-protection changes, and
 #          manual dispatch.
 
@@ -26,58 +30,16 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
-# Cancel superseded in-progress runs of this workflow for the same ref.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-# Least privilege by default; the job grants itself only what Scorecard needs.
+# Least privilege by default; the called workflow grants its job only what
+# Scorecard needs (see the job-level permissions below).
 permissions: read-all
 
 jobs:
-  analysis:
-    name: Scorecard analysis
-    runs-on: ubuntu-latest
-    # Publishing results and the public score only work on public repositories.
-    if: |
-      vars.SCORECARD_ENABLED == 'true' ||
-      (vars.SCORECARD_ENABLED != 'false' && github.event.repository.visibility == 'public')
+  scorecard:
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_scorecard.yml@v0.19.3
+    secrets: inherit
     permissions:
-      # Needed to upload the SARIF results to code scanning.
-      security-events: write
-      # Needed to publish results to the OpenSSF REST API (badge support).
-      id-token: write
+      security-events: write   # Upload the SARIF results to code scanning
+      id-token: write          # Publish results to the OpenSSF REST API (badge)
       contents: read
       actions: read
-
-    steps:
-      - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
-
-      - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - name: Run Scorecard analysis
-        uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
-        with:
-          results_file: results.sarif
-          results_format: sarif
-          # Publish to the OpenSSF REST API so the score is externally
-          # verifiable and the README badge stays current (public repos only).
-          publish_results: true
-
-      - name: Upload Scorecard results artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: scorecard-results
-          path: results.sarif
-          retention-days: 5
-
-      - name: Upload results to code scanning
-        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
-        with:
-          sarif_file: results.sarif
