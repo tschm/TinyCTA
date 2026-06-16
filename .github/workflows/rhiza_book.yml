@@ -22,6 +22,9 @@ on:
       - main
       - master
 
+permissions:
+  contents: read
+
 jobs:
   book:
     uses: jebel-quant/rhiza/.github/workflows/rhiza_book.yml@v0.19.1
