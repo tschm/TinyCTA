@@ -1,6 +1,6 @@
 [project]
 name = "TinyCTA"
-version = "0.13.2"
+version = "0.13.3"
 description = "A lightweight Python package for Commodity Trading Advisor (CTA) strategies"
 readme = "README.md"
 license = "MIT"
