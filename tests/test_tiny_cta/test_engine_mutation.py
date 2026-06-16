@@ -89,6 +89,7 @@ _CORR = np.array([[1.0, 0.2, 0.1], [0.2, 1.0, 0.3], [0.1, 0.3, 1.0]])
 
 
 def _risk_reference(corr, mu_row, mask, shrink):
+    """Reference risk position: shrink the correlation, then solve for the masked subset."""
     matrix = shrink2id(corr, lamb=shrink)[np.ix_(mask, mask)]
     emu = np.nan_to_num(mu_row[mask])
     denom = inv_a_norm(emu, matrix)
