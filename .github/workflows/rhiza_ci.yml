@@ -35,7 +35,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_ci.yml@v0.18.9
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_ci.yml@v0.19.1
     secrets: inherit
 
   mutation:
@@ -44,7 +44,7 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
         with:
           lfs: true
 
@@ -55,7 +55,7 @@ jobs:
           python-version: "3.12"
 
       - name: Configure git auth for private packages
-        uses: jebel-quant/rhiza/.github/actions/configure-git-auth@v0.18.5
+        uses: jebel-quant/rhiza/.github/actions/configure-git-auth@v0.19.1
         with:
           token: ${{ secrets.GH_PAT }}
 
