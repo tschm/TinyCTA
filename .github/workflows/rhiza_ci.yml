@@ -40,7 +40,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_ci.yml@v0.19.1
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_ci.yml@v0.19.3
     secrets: inherit
 
   mutation:

@@ -1,15 +1,16 @@
-sha: a1ed3dfa30b461413bfee24a784cff718f7b944f
+sha: 99827da43cc32c135388641897fede359dfce4a4
 repo: jebel-quant/rhiza
 host: github
-ref: v0.19.1
+ref: v0.19.3
 include: []
 exclude: []
 templates:
 - legal
 files:
 - .bandit
-- .claude/commands/book.md
-- .claude/commands/rhiza.md
+- .claude/commands/rhiza_book.md
+- .claude/commands/rhiza_quality.md
+- .claude/commands/rhiza_update.md
 - .editorconfig
 - .github/CONFIG.md
 - .github/DISCUSSION_TEMPLATE/help-wanted.yml
@@ -101,5 +102,5 @@ files:
 - ruff.toml
 profiles:
 - github-project
-synced_at: '2026-06-16T12:34:58Z'
+synced_at: '2026-06-16T12:57:58Z'
 strategy: merge
