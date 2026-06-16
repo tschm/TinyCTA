@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Hashable
 
 import numpy as np
 import polars as pl
@@ -127,8 +128,22 @@ class Engine:
         )
 
     @property
-    def cor(self) -> dict[object, np.ndarray]:
-        """Per-timestamp EWMA correlation matrices, returned as a date-keyed dict."""
+    def cor(self) -> dict[Hashable, np.ndarray]:
+        """Per-timestamp EWMA correlation matrices, keyed by index value.
+
+        Each key is a value of the ``date`` column (a ``datetime.date`` in normal
+        use, but any hashable index value such as an integer is supported, hence
+        the ``Hashable`` key type). Each value is the EWMA covariance matrix at
+        that timestamp normalised to a correlation matrix (unit diagonal).
+
+        Contract:
+            - **Warmup:** the first ``cfg.corr`` timestamps are omitted — a key
+              exists only once at least one matrix cell is finite (see
+              :func:`~tinycta.ewm_cov.ewm_covariance`).
+            - **NaN cells:** a cell is ``NaN`` while either asset is still in its
+              own warmup, and a zero-variance asset (``outer == 0``) yields ``NaN``
+              correlations rather than a divide-by-zero.
+        """
         cov = _ewm_covariance(
             self.ret_adj,
             assets=self.assets,
@@ -136,11 +151,14 @@ class Engine:
             window=2 * self.cfg.corr + 1,
             warmup=self.cfg.corr,
         )
-        result = {}
+        result: dict[Hashable, np.ndarray] = {}
         for k, mat in cov.items():
             std = np.sqrt(np.abs(np.diag(mat)))
             outer = np.outer(std, std)
-            result[k] = np.where(outer > 0, mat / outer, np.nan)
+            # Divide only where the variance product is positive; zero-variance
+            # cells stay NaN. Computing ``mat / outer`` eagerly (before masking)
+            # would divide by zero on those cells and emit a spurious RuntimeWarning.
+            result[k] = np.divide(mat, outer, out=np.full(mat.shape, np.nan), where=outer > 0)
         return result
 
     @property
