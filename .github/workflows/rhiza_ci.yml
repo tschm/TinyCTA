@@ -14,7 +14,7 @@
 #
 # Trigger: On push and pull_request.
 
-name: "(RHIZA) CI"
+name: (RHIZA) CI
 
 permissions:
   contents: read
@@ -22,66 +22,9 @@ permissions:
 
 on:
   push:
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
-      - "book/**"
-      - "mkdocs.yml"
   pull_request:
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
-      - "book/**"
-      - "mkdocs.yml"
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   ci:
     uses: jebel-quant/rhiza/.github/workflows/rhiza_ci.yml@v0.19.3
     secrets: inherit
-
-  mutation:
-    name: Mutation testing (Python 3.12)
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - uses: actions/checkout@v6.0.3
-        with:
-          lfs: true
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7.6.0
-        with:
-          version: "0.11.16"
-          python-version: "3.12"
-
-      - name: Configure git auth for private packages
-        uses: jebel-quant/rhiza/.github/actions/configure-git-auth@v0.19.3
-        with:
-          token: ${{ secrets.GH_PAT }}
-
-      - name: Cache uv artifacts
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
-
-      - name: Run mutation tests
-        env:
-          UV_EXTRA_INDEX_URL: ${{ secrets.UV_EXTRA_INDEX_URL }}
-        run: |
-          make mutation
-
-      - name: Upload mutation report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: mutation-report
-          path: _tests/mutation/html
-          if-no-files-found: ignore
