@@ -15,12 +15,12 @@ class ExperimentConfig(NamedTuple):
 
     name: str
     logger: Any
-    params: dict | None = None
-    optuna: dict | None = None
-    data: dict | None = None
+    params: dict[str, Any] | None = None
+    optuna: dict[str, Any] | None = None
+    data: dict[str, Any] | None = None
 
 
-def _load_yaml(path: Path) -> dict:
+def _load_yaml(path: Path) -> dict[str, Any]:
     """Load a YAML file, returning an empty dict if the file does not exist."""
     if not path.exists():
         return {}

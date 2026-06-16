@@ -40,6 +40,7 @@ dev = [
     "marimo==0.23.9",
     "pandas>=2.2.3",
     "pandas-stubs>=2.2",
+    "types-PyYAML>=6.0",
 ]
 # Mirrors the [project.optional-dependencies] hyper extra. The dev/CI environment
 # needs it so the tinycta.hyper test suite can be collected and run; it is wired
@@ -89,6 +90,7 @@ pre-commit = "pre_commit"
 marimo = "marimo"
 pydantic = "pydantic"
 pyyaml = "yaml"
+types-pyyaml = []
 
 [tool.coverage.run]
 branch = true

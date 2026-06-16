@@ -77,7 +77,7 @@ def _update_profit_variance(
     lhs = np.nan_to_num(cash_pos_prev[ret_mask], nan=0.0)
     rhs = np.nan_to_num(returns_row[ret_mask], nan=0.0)
     profit = lhs @ rhs
-    return lamb * profit_variance + (1 - lamb) * profit**2
+    return float(lamb * profit_variance + (1 - lamb) * profit**2)
 
 
 @dataclasses.dataclass(frozen=True)
