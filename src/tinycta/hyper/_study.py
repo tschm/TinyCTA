@@ -107,8 +107,8 @@ def optimize(
     n_trials: int = 100,
     seed: int = 42,
 ) -> Study:
-    """Build objective, run study, print and return a frozen Study."""
+    """Build objective, run study, log the summary and return a frozen Study."""
     s = _run_study(_build_objective(suggest_portfolio_fn), n_trials=n_trials, seed=seed)
     study = Study.from_optuna(s)
-    print(study)
+    logger.info(str(study))
     return study

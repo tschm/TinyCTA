@@ -315,9 +315,15 @@ def test_optimize_default_seed_is_42(mocker):
     assert seqs_default == seqs_explicit
 
 
-def test_optimize_prints_the_study(mocker, capsys):
-    """Optimize prints the Study summary (not None) before returning."""
+def test_optimize_logs_the_study(mocker):
+    """Optimize logs the Study summary (not None) before returning."""
+    from loguru import logger
+
     mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
-    optimize(lambda trial: None, n_trials=1)
-    out = capsys.readouterr().out
-    assert "=== Best parameters ===" in out
+    captured: list[str] = []
+    sink_id = logger.add(captured.append, level="INFO", format="{message}")
+    try:
+        optimize(lambda trial: None, n_trials=1)
+    finally:
+        logger.remove(sink_id)
+    assert any("=== Best parameters ===" in message for message in captured)
