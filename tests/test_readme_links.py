@@ -10,6 +10,6 @@ README = ROOT / "README.md"
 
 def test_license_badge_uses_main_branch() -> None:
     """The README license badge should point at LICENSE on the main branch."""
-    readme = README.read_text()
+    readme = README.read_text(encoding="utf-8")
     badge = "[![MIT License](https://img.shields.io/badge/License-MIT-brightgreen.svg)]"
     assert f"{badge}(https://github.com/tschm/TinyCTA/blob/main/LICENSE)" in readme
