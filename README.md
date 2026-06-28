@@ -3,7 +3,7 @@
 A Lightweight Python Package for Commodity Trading Advisor Strategies.
 
 [![PyPI version](https://badge.fury.io/py/tinycta.svg)](https://badge.fury.io/py/tinycta)
-[![MIT License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/tschm/tinycta/blob/main/LICENSE)
+[![MIT License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/tschm/TinyCTA/blob/main/LICENSE)
 [![Coverage](https://tschm.github.io/TinyCTA/coverage-badge.svg)](https://tschm.github.io/TinyCTA/reports/html-coverage/index.html)
 [![Downloads](https://static.pepy.tech/personalized-badge/tinycta?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/tinycta)
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/TinyCTA/badge)](https://www.codefactor.io/repository/github/tschm/TinyCTA)
