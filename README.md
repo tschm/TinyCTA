@@ -165,7 +165,7 @@ print(study.best_params, study.best_value)
 
 ### Signal Utilities (`tinycta.signal`)
 
-- `moving_absolute_deviation(price, com=32)` — robust rolling volatility estimate via median absolute deviation (pandas)
+- `moving_absolute_deviation(price, com=32)` — robust rolling volatility estimate via median absolute deviation (Polars)
 - `shrink2id(matrix, lamb=1.0)` — shrink a matrix towards the identity matrix
 
 ### Linear Algebra (`tinycta.linalg`)
