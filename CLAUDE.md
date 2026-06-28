@@ -23,12 +23,12 @@ make marimo     # Start Marimo notebook server
 
 To run a single test file:
 ```bash
-.venv/bin/python -m pytest tests/test_tiny_cta/test_osc.py
+uv run pytest tests/test_tiny_cta/test_osc.py
 ```
 
 To run a specific test:
 ```bash
-.venv/bin/python -m pytest tests/test_tiny_cta/test_osc.py::test_name -v
+uv run pytest tests/test_tiny_cta/test_osc.py::test_name -v
 ```
 
 ## Project Structure
