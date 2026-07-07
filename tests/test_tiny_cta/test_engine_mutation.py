@@ -52,15 +52,26 @@ def _prices_and_mu(n: int = 40, seed: int = 0, with_gap: bool = False):
 # --------------------------------------------------------------------------- #
 # _update_profit_variance
 # --------------------------------------------------------------------------- #
-def test_update_profit_variance_exact_value():
-    """EWMA profit-variance update equals lamb*pv + (1-lamb)*profit**2."""
+def _profit_variance_reference(pv, cash_prev, returns, ret_mask, lamb):
+    """Documented contract: EWMA-decay ``pv`` towards the squared masked profit.
+
+    Realised profit is the previous cash position dotted with the current returns
+    over the masked assets, with NaNs on either side coerced to zero. Independent
+    re-derivation of the public formula so operator/constant mutations diverge.
+    """
+    profit = np.nan_to_num(cash_prev[ret_mask]) @ np.nan_to_num(returns[ret_mask])
+    return lamb * pv + (1 - lamb) * profit**2
+
+
+def test_update_profit_variance_matches_contract():
+    """The update reproduces the documented lamb*pv + (1-lamb)*profit**2 contract."""
     pv, lamb = 0.5, 0.9
     cash_prev = np.array([1.0, 2.0, np.nan])  # NaN must be treated as 0 on the lhs
     returns = np.array([0.1, 0.2, 0.3])
     ret_mask = np.array([True, True, True])
-    # profit = [1, 2, 0] @ [0.1, 0.2, 0.3] = 0.5
-    # result = 0.9 * 0.5 + 0.1 * 0.5**2 = 0.475
-    assert _update_profit_variance(pv, cash_prev, returns, ret_mask, lamb) == pytest.approx(0.475)
+    got = _update_profit_variance(pv, cash_prev, returns, ret_mask, lamb)
+    assert got == pytest.approx(_profit_variance_reference(pv, cash_prev, returns, ret_mask, lamb))
+    assert got != pytest.approx(pv)  # the update genuinely moved the estimate
 
 
 def test_update_profit_variance_nan_returns_treated_as_zero():
@@ -68,9 +79,8 @@ def test_update_profit_variance_nan_returns_treated_as_zero():
     cash_prev = np.array([1.0, 2.0, 3.0])
     returns = np.array([0.1, 0.2, np.nan])
     ret_mask = np.array([True, True, True])
-    # profit = [1,2,3] @ [0.1,0.2,0] = 0.5 ; result = 0*1.0 ... use lamb=0 to isolate profit
-    result = _update_profit_variance(1.0, cash_prev, returns, ret_mask, 0.0)
-    assert result == pytest.approx(0.5**2)
+    got = _update_profit_variance(1.0, cash_prev, returns, ret_mask, 0.0)  # lamb=0 isolates profit
+    assert got == pytest.approx(_profit_variance_reference(1.0, cash_prev, returns, ret_mask, 0.0))
 
 
 def test_update_profit_variance_mask_selects_entries():
@@ -78,8 +88,10 @@ def test_update_profit_variance_mask_selects_entries():
     cash_prev = np.array([1.0, 99.0, 3.0])
     returns = np.array([0.1, 99.0, 0.3])
     ret_mask = np.array([True, False, True])
-    # profit = [1,3] @ [0.1,0.3] = 1.0 ; lamb=0 -> result = profit**2 = 1.0
-    assert _update_profit_variance(1.0, cash_prev, returns, ret_mask, 0.0) == pytest.approx(1.0)
+    got = _update_profit_variance(1.0, cash_prev, returns, ret_mask, 0.0)  # lamb=0 isolates profit
+    assert got == pytest.approx(_profit_variance_reference(1.0, cash_prev, returns, ret_mask, 0.0))
+    # The masked-out (index 1) entry must not leak into the result.
+    assert got != pytest.approx(_profit_variance_reference(1.0, cash_prev, returns, np.array([True, True, True]), 0.0))
 
 
 # --------------------------------------------------------------------------- #

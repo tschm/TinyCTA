@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 import tinycta.hyper._setup as setup_mod
 from tinycta.hyper._setup import ExperimentConfig, _load_yaml, get_config
 
@@ -88,6 +90,34 @@ class TestGetConfig:
         assert cfg.params == {"fast": 12}
         assert cfg.optuna == {"n_trials": 5}
         assert cfg.data == {"output_path": "out"}
+
+
+class TestOutputPathConfinement:
+    """A config-supplied output_path must stay within the notebooks directory."""
+
+    def test_relative_traversal_output_path_raises(self, tmp_path, monkeypatch):
+        """A ``../`` output_path that escapes the base dir raises ValueError."""
+        monkeypatch.delenv("NOTEBOOK_OUTPUT_FOLDER", raising=False)
+        (tmp_path / "config.yml").write_text("data:\n  output_path: ../../escape\n")
+        with pytest.raises(ValueError, match="escapes the notebooks directory"):
+            get_config("exp_escape", config_path=tmp_path / "config.yml")
+
+    def test_absolute_output_path_raises(self, tmp_path, monkeypatch):
+        """An absolute output_path outside the base dir raises ValueError."""
+        monkeypatch.delenv("NOTEBOOK_OUTPUT_FOLDER", raising=False)
+        outside = tmp_path.parent / "outside_abs"
+        (tmp_path / "config.yml").write_text(f"data:\n  output_path: {outside}\n")
+        with pytest.raises(ValueError, match="escapes the notebooks directory"):
+            get_config("exp_abs", config_path=tmp_path / "config.yml")
+        assert not (outside / "exp_abs").exists()  # nothing was created outside base
+
+    def test_env_override_may_point_outside_base(self, tmp_path, monkeypatch):
+        """The explicit env override is trusted and not confined to the base dir."""
+        env_dir = tmp_path.parent / "trusted_env_out"
+        monkeypatch.setenv("NOTEBOOK_OUTPUT_FOLDER", str(env_dir))
+        (tmp_path / "config.yml").write_text("")
+        get_config("exp_env_outside", config_path=tmp_path / "config.yml")
+        assert env_dir.exists()
 
 
 class TestExperimentConfigDefaults:
