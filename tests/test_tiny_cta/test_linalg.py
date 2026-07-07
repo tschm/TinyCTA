@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from cvx.linalg.exceptions import DimensionMismatchError, NonSquareMatrixError
+from cvx.linalg import DimensionMismatchError, NonSquareMatrixError
 
 from tinycta.linalg import a_norm, inv_a_norm, solve, valid
 
