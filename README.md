@@ -154,6 +154,38 @@ study = optimize(suggest_portfolio, n_trials=100, seed=42)
 print(study.best_params, study.best_value)
 ```
 
+### Experiment setup (`get_config`)
+
+`tinycta.hyper.get_config` bundles the config sections and a configured logger for a notebook
+experiment. It reads a shared `config.yml` and, for an experiment named `name`, an optional
+experiment-specific `config/{name}.yml`; each `data` / `params` / `optuna` section is taken from
+`config.yml` when present, otherwise from the sibling file. All three sections are optional.
+
+```yaml
+# config.yml — every section is optional
+data:
+  output_path: output   # output dir, relative to the notebooks directory (default: "output")
+params:
+  fast: 12              # arbitrary experiment parameters
+optuna:
+  n_trials: 100         # arbitrary Optuna settings
+```
+
+Paths resolve relative to the **notebooks directory** — the parent of `config.yml`, or its
+grandparent when `config.yml` lives inside a `config/` subdirectory. Outputs are written to
+`{notebooks}/{output_path}/{name}/`, and a config-supplied `output_path` is confined to the
+notebooks directory (a traversing or absolute path raises `ValueError`). Set the
+`NOTEBOOK_OUTPUT_FOLDER` environment variable to override the output directory entirely — this
+explicit operator override is trusted and not confined.
+
+```python +RHIZA_SKIP
+from tinycta.hyper import get_config
+
+cfg = get_config("my_experiment")            # reads ./config.yml (+ ./config/my_experiment.yml)
+cfg.logger.info("run starting")              # loguru logger, also writing to output.log
+fast = cfg.params["fast"]                    # config sections as plain dicts
+```
+
 ## 📚 API Reference
 
 ### Signal Processing (`tinycta.osc`, `tinycta.ewma`, `tinycta.util`)
@@ -185,6 +217,8 @@ print(study.best_params, study.best_value)
 
 - `optimize(suggest_portfolio_fn, n_trials=100, seed=42)` — run an Optuna study scored by Sharpe; returns a `Study`
 - `Study` — frozen result wrapper exposing `best_params`, `best_value`, `n_completed`, `n_trials`, and `.plot(output_dir)`
+- `get_config(name, config_path=None)` — load merged `data`/`params`/`optuna` sections and a configured logger; returns an `ExperimentConfig`
+- `ExperimentConfig` — `NamedTuple` bundling `name`, `logger`, and the optional `params`, `optuna` and `data` sections
 
 ## 🛠️ Development
 
