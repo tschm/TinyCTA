@@ -37,7 +37,7 @@ Repository = "https://github.com/tschm/tinycta"
 [dependency-groups]
 dev = [
     "pre-commit==4.6.0",
-    "marimo==0.23.11",
+    "marimo==0.23.13",
     "pandas>=2.2.3",
     "pandas-stubs>=2.2",
     "types-PyYAML>=6.0",
