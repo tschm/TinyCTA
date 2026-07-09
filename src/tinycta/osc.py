@@ -11,6 +11,34 @@ import math
 import polars as pl
 
 
+def _validate_windows(fast: int, slow: int) -> None:
+    """Validate the fast/slow EWMA window parameters.
+
+    Args:
+        fast: Fast EWMA length. Must be an integer greater than 1.
+        slow: Slow EWMA length. Must be an integer greater than 1 and ``> fast``.
+
+    Raises:
+        TypeError: If ``fast`` or ``slow`` are not integers.
+        ValueError: If ``fast <= 1``, ``slow <= 1``, or ``fast >= slow``.
+    """
+    if not isinstance(fast, int):
+        msg = "fast must be an integer"
+        raise TypeError(msg)
+    if not isinstance(slow, int):
+        msg = "slow must be an integer"
+        raise TypeError(msg)
+    if fast <= 1:
+        msg = "fast must be greater than 1"
+        raise ValueError(msg)
+    if slow <= 1:
+        msg = "slow must be greater than 1"
+        raise ValueError(msg)
+    if fast >= slow:
+        msg = "fast must be less than slow"
+        raise ValueError(msg)
+
+
 def osc(x: pl.Expr, fast: int, slow: int, min_samples: int = 1) -> pl.Expr:
     """Compute an analytically scaled EWMA-difference oscillator.
 
@@ -42,21 +70,7 @@ def osc(x: pl.Expr, fast: int, slow: int, min_samples: int = 1) -> pl.Expr:
         >>> prices = pl.DataFrame({"A": [1,2,3,4,5,6,7,8,9,10]})
         >>> df = prices.with_columns(osc(pl.col("A"), fast=2, slow=6).alias("osc_A"))
     """
-    if not isinstance(fast, int):
-        msg = "fast must be an integer"
-        raise TypeError(msg)
-    if not isinstance(slow, int):
-        msg = "slow must be an integer"
-        raise TypeError(msg)
-    if fast <= 1:
-        msg = "fast must be greater than 1"
-        raise ValueError(msg)
-    if slow <= 1:
-        msg = "slow must be greater than 1"
-        raise ValueError(msg)
-    if fast >= slow:
-        msg = "fast must be less than slow"
-        raise ValueError(msg)
+    _validate_windows(fast, slow)
 
     f, g = 1 - 1 / fast, 1 - 1 / slow
     s = math.sqrt(1.0 / (1 - f * f) - 2.0 / (1 - f * g) + 1.0 / (1 - g * g))

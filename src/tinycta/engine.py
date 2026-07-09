@@ -213,6 +213,38 @@ class Engine:
         # ``corr`` rows — otherwise the most recent dates never receive a position.
         row_of = {date: idx for idx, date in enumerate(self.prices["date"].to_list())}
 
+        self._forward_walk(cor, prices_num, returns_num, mu, vola_np, risk_pos_np, cash_pos_np, row_of)
+
+        return self.prices.with_columns([(pl.lit(cash_pos_np[:, i]).alias(asset)) for i, asset in enumerate(assets)])
+
+    def _forward_walk(
+        self,
+        cor: dict[Hashable, np.ndarray],
+        prices_num: np.ndarray,
+        returns_num: np.ndarray,
+        mu: np.ndarray,
+        vola_np: np.ndarray,
+        risk_pos_np: np.ndarray,
+        cash_pos_np: np.ndarray,
+        row_of: dict[Hashable, int],
+    ) -> None:
+        """Walk forward through the post-warmup timestamps, filling positions in place.
+
+        Mutates ``risk_pos_np`` and ``cash_pos_np`` row-by-row. At each timestamp the
+        previous period's realised P&L EWMA-updates a running profit-variance estimate
+        (decay ``lamb=0.99``), which scales the freshly-solved risk position before it is
+        divided by per-asset volatility to yield the cash position.
+
+        Args:
+            cor: Per-timestamp correlation matrices, keyed by ``date`` value.
+            prices_num: Asset prices as a ``(rows, assets)`` array (NaNs tolerated).
+            returns_num: Simple returns aligned to ``prices_num``.
+            mu: Expected returns aligned to ``prices_num``.
+            vola_np: Per-asset EWMA volatility aligned to ``prices_num``.
+            risk_pos_np: Output risk-position buffer, mutated in place.
+            cash_pos_np: Output cash-position buffer, mutated in place.
+            row_of: Map from a ``cor`` key back to its row index.
+        """
         profit_variance = 1.0
         lamb = 0.99
 
@@ -235,5 +267,3 @@ class Engine:
                 cash_pos_np[row, mask] = risk_pos_np[row, mask] / vola_np[row, mask]
 
             prev_row = row
-
-        return self.prices.with_columns([(pl.lit(cash_pos_np[:, i]).alias(asset)) for i, asset in enumerate(assets)])
