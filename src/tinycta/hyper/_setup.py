@@ -48,10 +48,12 @@ def _merge_sections(
     Returns:
         tuple: ``(data, params, optuna)`` section dicts.
     """
-    data = cfg.get("data") or sibling.get("data") or {}
-    params = cfg.get("params") or sibling.get("params") or {}
-    optuna_cfg = cfg.get("optuna") or sibling.get("optuna") or {}
-    return data, params, optuna_cfg
+
+    def pick(section: str) -> dict[str, Any]:
+        """Return ``section`` from ``cfg`` if truthy, else ``sibling``, else an empty dict."""
+        return cfg.get(section) or sibling.get(section) or {}
+
+    return pick("data"), pick("params"), pick("optuna")
 
 
 def _output_dir(base: Path, data: dict[str, Any], name: str) -> Path:
