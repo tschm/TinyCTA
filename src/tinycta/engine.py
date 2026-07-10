@@ -7,6 +7,7 @@ from collections.abc import Hashable
 
 import numpy as np
 import polars as pl
+from loguru import logger
 
 from .config import Config
 from .ewm_cov import ewm_covariance as _ewm_covariance
@@ -48,6 +49,12 @@ def _risk_position(corr: np.ndarray, mu_row: np.ndarray, mask: np.ndarray, shrin
     expected_mu = np.nan_to_num(mu_row[mask])
     denom = _inv_a_norm(expected_mu, matrix)
     if denom is None or not np.isfinite(denom) or _denominator_is_degenerate(denom) or np.allclose(expected_mu, 0.0):
+        logger.debug(
+            "Risk position zeroed for {} masked asset(s): degenerate correlation-norm "
+            "denominator (denom={}) or all-zero expected returns.",
+            int(mask.sum()),
+            denom,
+        )
         return np.zeros_like(expected_mu)
     return _solve(matrix, expected_mu) / denom
 

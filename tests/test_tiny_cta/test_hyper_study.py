@@ -20,6 +20,29 @@ def _dummy_objective(trial) -> float:
     return float(slow - fast)
 
 
+class _FakeStats:
+    """Minimal stand-in for jquantstats stats exposing sharpe()."""
+
+    def __init__(self, value: float | dict) -> None:
+        self._value = value
+
+    def sharpe(self) -> float | dict:
+        """Return the configured Sharpe value (scalar or ``{'returns': ...}``)."""
+        return self._value
+
+
+class _FakePortfolio:
+    """Lightweight Portfolio stand-in so tests exercise the real _sharpe logic.
+
+    Prefer this over ``MagicMock`` for the Sharpe/objective/optimize paths: a real
+    object with a fixed contract asserts behaviour and returned values rather than
+    auto-vivifying attributes and pinning internal call order.
+    """
+
+    def __init__(self, sharpe_value: float | dict) -> None:
+        self.stats = _FakeStats(sharpe_value)
+
+
 def test_run_study_returns_optuna_study():
     """_run_study returns an optuna.Study with the expected number of trials."""
     study = _run_study(_dummy_objective, n_trials=2, name="test_study")
@@ -60,26 +83,20 @@ def test_study_from_optuna_and_str():
     assert "Sharpe" in text
 
 
-def test_sharpe_float_return(mocker):
+def test_sharpe_float_return():
     """_sharpe returns float when portfolio.stats.sharpe() returns a scalar."""
-    portfolio = mocker.MagicMock()
-    portfolio.stats.sharpe.return_value = 1.5
-    assert _sharpe(portfolio) == 1.5
+    assert _sharpe(_FakePortfolio(1.5)) == 1.5
 
 
-def test_sharpe_dict_return(mocker):
+def test_sharpe_dict_return():
     """_sharpe extracts 'returns' key when portfolio.stats.sharpe() returns a dict."""
-    portfolio = mocker.MagicMock()
-    portfolio.stats.sharpe.return_value = {"returns": 2.0}
-    assert _sharpe(portfolio) == 2.0
+    assert _sharpe(_FakePortfolio({"returns": 2.0})) == 2.0
 
 
-def test_sharpe_raises_on_nan(mocker):
+def test_sharpe_raises_on_nan():
     """_sharpe raises TrialPruned when Sharpe is NaN."""
-    portfolio = mocker.MagicMock()
-    portfolio.stats.sharpe.return_value = float("nan")
     with pytest.raises(optuna.exceptions.TrialPruned):
-        _sharpe(portfolio)
+        _sharpe(_FakePortfolio(float("nan")))
 
 
 def test_study_plot_writes_html_and_swallows_image_error(mocker, tmp_path):
@@ -107,15 +124,15 @@ def test_study_plot_writes_html_and_swallows_image_error(mocker, tmp_path):
     assert mock_fig.write_image.call_count == 4
 
 
-def test_build_objective_inner_calls_sharpe(mocker):
-    """The objective closure built by _build_objective passes the portfolio to _sharpe."""
-    mock_portfolio = mocker.MagicMock()
-    mocker.patch("tinycta.hyper._study._sharpe", return_value=1.23)
+def test_build_objective_scores_portfolio_with_sharpe():
+    """The objective from _build_objective scores its portfolio's real Sharpe.
 
-    objective_fn = _build_objective(lambda trial: mock_portfolio)
-    result = objective_fn(mocker.MagicMock())
-
-    assert result == 1.23
+    Runs the objective through a real optuna study (no patched internals) so the
+    _build_objective -> _sharpe chain is exercised end to end.
+    """
+    study = optuna.create_study(direction="maximize")
+    study.optimize(_build_objective(lambda trial: _FakePortfolio(1.23)), n_trials=1)
+    assert study.best_value == 1.23
 
 
 def test_from_optuna_no_completed_trials():
@@ -128,11 +145,9 @@ def test_from_optuna_no_completed_trials():
     assert math.isnan(study.best_value)
 
 
-def test_optimize_returns_frozen_study(mocker):
-    """Optimize wraps the optuna study in a frozen Study and returns it."""
-    mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
-
-    result = optimize(lambda trial: None, n_trials=1)
+def test_optimize_returns_frozen_study():
+    """Optimize runs the real objective chain and wraps the result in a frozen Study."""
+    result = optimize(lambda trial: _FakePortfolio(1.0), n_trials=1)
 
     assert isinstance(result, Study)
     assert result.n_completed == 1
@@ -295,35 +310,30 @@ def test_run_study_disables_progress_bar(mocker):
     assert fake_study.optimize.call_args.kwargs["show_progress_bar"] is False
 
 
-def test_optimize_default_n_trials_is_100(mocker):
+def test_optimize_default_n_trials_is_100():
     """Optimize defaults to 100 trials."""
-    mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
-    result = optimize(lambda trial: None)
+    result = optimize(lambda trial: _FakePortfolio(1.0))
     assert result.n_trials == 100
 
 
-def test_optimize_default_seed_is_42(mocker):
+def test_optimize_default_seed_is_42():
     """Optimize defaults to seed 42 (identical sampling sequence to explicit 42)."""
-    mocker.patch(
-        "tinycta.hyper._study._build_objective",
-        return_value=lambda trial: float(trial.suggest_int("x", 0, 100)),
-    )
-    default = optimize(lambda trial: None, n_trials=12)
-    explicit = optimize(lambda trial: None, n_trials=12, seed=42)
+    fn = lambda trial: _FakePortfolio(float(trial.suggest_int("x", 0, 100)))  # noqa: E731
+    default = optimize(fn, n_trials=12)
+    explicit = optimize(fn, n_trials=12, seed=42)
     seqs_default = [t.params for t in default.optuna_study.trials]
     seqs_explicit = [t.params for t in explicit.optuna_study.trials]
     assert seqs_default == seqs_explicit
 
 
-def test_optimize_logs_the_study(mocker):
+def test_optimize_logs_the_study():
     """Optimize logs the Study summary (not None) before returning."""
     from loguru import logger
 
-    mocker.patch("tinycta.hyper._study._build_objective", return_value=lambda trial: 1.0)
     captured: list[str] = []
     sink_id = logger.add(captured.append, level="INFO", format="{message}")
     try:
-        optimize(lambda trial: None, n_trials=1)
+        optimize(lambda trial: _FakePortfolio(1.0), n_trials=1)
     finally:
         logger.remove(sink_id)
     assert any("=== Best parameters ===" in message for message in captured)
