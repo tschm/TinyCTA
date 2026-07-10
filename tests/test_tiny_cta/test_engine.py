@@ -9,7 +9,7 @@ import polars as pl
 import pytest
 
 from tinycta.config import Config
-from tinycta.engine import Engine
+from tinycta.engine import Engine, _risk_position
 
 
 def _synthetic_prices(n_days: int = 500, assets: list[str] | None = None) -> pl.DataFrame:
@@ -72,6 +72,28 @@ class TestEngineValidation:
         mu = pl.DataFrame({"date": [1, 2], "B": [1.0, 2.0]})
         with pytest.raises(ValueError):  # noqa: PT011
             Engine(prices=prices, mu=mu, cfg=cfg)
+
+
+class TestRiskPositionDegenerate:
+    """The degenerate/all-zero fallback in _risk_position is observable, not silent."""
+
+    def test_all_zero_mu_returns_zeros_and_logs_reason(self):
+        """All-zero expected returns yield a zero position and a debug reason."""
+        from loguru import logger
+
+        corr = np.eye(2)
+        mu_row = np.zeros(2)
+        mask = np.array([True, True])
+
+        captured: list[str] = []
+        sink_id = logger.add(captured.append, level="DEBUG", format="{message}")
+        try:
+            pos = _risk_position(corr, mu_row, mask, shrink=0.5)
+        finally:
+            logger.remove(sink_id)
+
+        assert np.array_equal(pos, np.zeros(2))
+        assert any("Risk position zeroed for 2 masked asset(s)" in m for m in captured)
 
 
 class TestEngineCashPosition:
