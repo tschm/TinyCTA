@@ -17,8 +17,9 @@ import polars as pl
 import polars.testing as pt
 import pytest
 
+from tinycta._kernel import _risk_position, _update_profit_variance
 from tinycta.config import Config
-from tinycta.engine import Engine, _risk_position, _update_profit_variance
+from tinycta.engine import Engine
 from tinycta.ewm_cov import ewm_covariance
 from tinycta.linalg import inv_a_norm, solve
 from tinycta.signal import shrink2id

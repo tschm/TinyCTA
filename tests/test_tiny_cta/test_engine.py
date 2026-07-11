@@ -8,8 +8,9 @@ import numpy as np
 import polars as pl
 import pytest
 
+from tinycta._kernel import _risk_position
 from tinycta.config import Config
-from tinycta.engine import Engine, _risk_position
+from tinycta.engine import Engine
 
 
 def _synthetic_prices(n_days: int = 500, assets: list[str] | None = None) -> pl.DataFrame:
