@@ -22,21 +22,19 @@ def _validate_windows(fast: int, slow: int) -> None:
         TypeError: If ``fast`` or ``slow`` are not integers.
         ValueError: If ``fast <= 1``, ``slow <= 1``, or ``fast >= slow``.
     """
-    if not isinstance(fast, int):
-        msg = "fast must be an integer"
-        raise TypeError(msg)
-    if not isinstance(slow, int):
-        msg = "slow must be an integer"
-        raise TypeError(msg)
-    if fast <= 1:
-        msg = "fast must be greater than 1"
-        raise ValueError(msg)
-    if slow <= 1:
-        msg = "slow must be greater than 1"
-        raise ValueError(msg)
-    if fast >= slow:
-        msg = "fast must be less than slow"
-        raise ValueError(msg)
+    for value, name in ((fast, "fast"), (slow, "slow")):
+        if not isinstance(value, int):
+            msg = f"{name} must be an integer"
+            raise TypeError(msg)
+
+    value_checks = (
+        (fast <= 1, "fast must be greater than 1"),
+        (slow <= 1, "slow must be greater than 1"),
+        (fast >= slow, "fast must be less than slow"),
+    )
+    for failed, msg in value_checks:
+        if failed:
+            raise ValueError(msg)
 
 
 def osc(x: pl.Expr, fast: int, slow: int, min_samples: int = 1) -> pl.Expr:
