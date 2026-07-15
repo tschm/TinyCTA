@@ -5,4 +5,4 @@ profiles:
   - github-project
 
 templates:
-    - legal
+  - legal
