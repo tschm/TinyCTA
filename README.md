@@ -120,17 +120,26 @@ print(np.round(solution, 10) + 0)
 The `Engine` turns aligned price and expected-return (`mu`) frames into
 correlation-shrinkage-optimized cash positions. It is configured by a validated `Config`.
 
-```python +RHIZA_SKIP
+```python
 import polars as pl
 from tinycta.config import Config
 from tinycta.engine import Engine
 
-prices = pl.DataFrame({"date": [1, 2, 3, 4], "A": [100.0, 101.0, 102.0, 103.0]})
-mu = pl.DataFrame({"date": [1, 2, 3, 4], "A": [0.0, 0.1, 0.2, 0.1]})
+dates = list(range(1, 9))
+prices = pl.DataFrame({"date": dates, "A": [100.0, 101.0, 102.0, 101.5, 103.0, 104.0, 103.5, 105.0]})
+mu = pl.DataFrame({"date": dates, "A": [0.0, 0.1, 0.2, 0.1, 0.2, 0.3, 0.2, 0.3]})
 
-cfg = Config(vola=2, corr=2, clip=4.2, shrink=0.5)
-engine = Engine(prices=prices, mu=mu, cfg=cfg)
-positions = engine.cash_position  # Polars DataFrame of per-asset cash positions
+cfg = Config(vola=3, corr=3, clip=4.2, shrink=0.5)
+positions = Engine(prices=prices, mu=mu, cfg=cfg).cash_position
+
+# .cash_position mirrors the input frame: one row per date, one column per asset.
+print(sorted(positions.columns))
+print(positions.shape)
+```
+
+```result
+['A', 'date']
+(8, 2)
 ```
 
 `Config` is a frozen Pydantic model: `vola`, `corr` (must be `>= vola`) and `clip` must be
