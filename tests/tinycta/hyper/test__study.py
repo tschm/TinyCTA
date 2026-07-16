@@ -362,6 +362,7 @@ class TestStudy:
         """n_completed ignores pruned trials while n_trials counts every attempt."""
 
         def objective(trial):
+            """Suggest x in [0, 9] and prune the lower half, completing only x >= 5."""
             x = trial.suggest_int("x", 0, 9)
             if x < 5:  # prune the lower half
                 raise optuna.exceptions.TrialPruned
