@@ -337,3 +337,42 @@ def test_optimize_logs_the_study():
     finally:
         logger.remove(sink_id)
     assert any("=== Best parameters ===" in message for message in captured)
+
+
+class TestStudy:
+    """Behavioural tests for the Study result wrapper's observable contract.
+
+    Named to mirror ``tinycta.hyper._study.Study``. These assert what a caller can
+    observe (which trial is selected as best, how completed trials are counted)
+    rather than internal wiring, so they survive a behaviour-preserving refactor.
+    """
+
+    def test_from_optuna_selects_the_max_sharpe_trial(self):
+        """For a maximize study, best_value/best_params reflect the argmax trial."""
+        s = optuna.create_study(direction="maximize")
+        # Objective is monotonic in x, so the largest suggested x is the best trial.
+        s.optimize(lambda trial: float(trial.suggest_int("x", 0, 20)), n_trials=15)
+        study = Study.from_optuna(s)
+
+        best_x = study.best_params["x"]
+        assert study.best_value == float(best_x)
+        assert best_x == max(t.params["x"] for t in s.trials)
+
+    def test_n_completed_counts_only_completed_trials(self):
+        """n_completed ignores pruned trials while n_trials counts every attempt."""
+
+        def objective(trial):
+            """Suggest x in [0, 9] and prune the lower half, completing only x >= 5."""
+            x = trial.suggest_int("x", 0, 9)
+            if x < 5:  # prune the lower half
+                raise optuna.exceptions.TrialPruned
+            return float(x)
+
+        s = optuna.create_study(direction="maximize")
+        s.optimize(objective, n_trials=10)
+        study = Study.from_optuna(s)
+
+        completed = [t for t in s.trials if t.state == optuna.trial.TrialState.COMPLETE]
+        assert study.n_trials == 10
+        assert study.n_completed == len(completed)
+        assert study.n_completed <= study.n_trials

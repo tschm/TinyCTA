@@ -120,7 +120,7 @@ class TestOutputPathConfinement:
         assert env_dir.exists()
 
 
-class TestExperimentConfigDefaults:
+class TestExperimentConfig:
     """The optional config sections default to None on the NamedTuple."""
 
     def test_optional_sections_default_to_none(self):

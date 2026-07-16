@@ -23,12 +23,12 @@ make marimo     # Start Marimo notebook server
 
 To run a single test file:
 ```bash
-uv run pytest tests/test_tiny_cta/test_osc.py
+uv run pytest tests/tinycta/test_osc.py
 ```
 
 To run a specific test:
 ```bash
-uv run pytest tests/test_tiny_cta/test_osc.py::test_name -v
+uv run pytest tests/tinycta/test_osc.py::test_name -v
 ```
 
 ## Project Structure
@@ -45,7 +45,7 @@ uv run pytest tests/test_tiny_cta/test_osc.py::test_name -v
   - `hyper/` - Optuna-based hyperparameter optimisation
     - `_study.py` - frozen `Study` result wrapper and `optimize()` entry point
     - `_setup.py` - `get_config()` / `ExperimentConfig` notebook experiment setup helpers
-- `tests/test_tiny_cta/` - Package tests
+- `tests/tinycta/` - Package tests
 - `tests/property/` - Hypothesis property-based tests
 - `.rhiza/tests/` - Rhiza framework infrastructure tests
 - `book/` - Documentation source

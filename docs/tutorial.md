@@ -8,7 +8,7 @@ prices ──▶ signal (osc / ma_cross) ──▶ mu ──▶ Engine ──▶
 ```
 
 Every Python block on this page is executed and its output checked in the test suite
-(`tests/test_tiny_cta/test_tutorial.py`), so the walkthrough stays runnable as the code
+(`tests/tinycta/test_tutorial.py`), so the walkthrough stays runnable as the code
 evolves. The illustrative table dumps (marked `+RHIZA_SKIP`) show representative output
 and are not part of the validated run.
 
