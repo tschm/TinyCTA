@@ -5,6 +5,50 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 and entries are generated from [Conventional Commits](https://www.conventionalcommits.org).
 
+## [0.14.0] - 2026-07-17
+
+### New Features
+- Add ClusterFuzzLite fuzzing scaffold for tinycta (#809)
+
+### Bug Fixes
+- *(deps)* Support cvx-linalg 0.9+/1.0 module layout (#835)
+- Address scorecard findings #853, #854, #855 (#856)
+
+### Documentation
+- *(readme)* Correct moving_absolute_deviation tag to Polars (#819)
+- *(claude)* Use uv run pytest per Rhiza command policy (#820)
+- *(readme)* Point License badge at main branch (#824)
+- Add runnable README snippets for tinycta.signal (#862)
+
+### Maintenance
+- Chore(deps)(deps): bump the python-dependencies group with 4 updates (#808)
+- Chore(deps)(deps): bump the python-dependencies group with 2 updates (#812)
+- Chore(deps)(deps): bump the github-actions group with 3 updates (#811)
+- *(hyper)* Log Study summary instead of print() in optimize() (#821)
+- Update rhiza to v1.0.0 (#825)
+- Update rhiza to v1.0.1 (#827)
+- Chore(deps)(deps): bump polars in the python-dependencies group (#826)
+- *(hyper)* Address rhiza-quality findings #828–#831 (#832)
+- Chore(deps)(deps): bump the python-dependencies group with 3 updates (#834)
+- Update rhiza to v1.1.1 (#838)
+- Update rhiza to v1.1.2 (#841)
+- *(engine)* Extract numeric kernel from engine.py (#843) (#844)
+- Update rhiza to v1.1.3 (#842)
+- *(osc)* Simplify _validate_windows to CC grade A (#845) (#846)
+- Chore(deps)(deps): bump docker/login-action in the github-actions group (#847)
+- Normalize .rhiza/template.yml (repository/ref notation, legal templates) (#848)
+- Drop rhiza-tools tooling from make targets (#849)
+- Remove rhiza benchmark and mutation workflows (#850)
+- Remove .rhiza/make.d/releasing.mk (#851)
+- Update rhiza to v1.2.1 (#857)
+- Add Python 3.14 classifier (#861)
+
+### Other Changes
+- Sync Rhiza template v0.19.3 → v0.19.4 (#807)
+- Sync Rhiza template v0.19.4 → v0.19.6 (#810)
+- Sync Rhiza template v0.19.6 → v0.19.9 (#815)
+- Fix README license badge link to main branch (#823)
+
 ## [0.13.3] - 2026-06-16
 
 ### New Features
@@ -48,6 +92,7 @@ and entries are generated from [Conventional Commits](https://www.conventionalco
 - Pin ty and extend typecheck to tests (#790)
 - Sync Rhiza template v0.18.8 → v0.19.3 (#800)
 - Fix docs book build: install tinycta into mkdocstrings uvx env (#801)
+- Bump version 0.13.2 → 0.13.3
 
 ## [0.13.2] - 2026-06-06
 
