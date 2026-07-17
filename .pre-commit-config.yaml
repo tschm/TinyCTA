@@ -30,6 +30,13 @@ repos:
         language: system
         pass_filenames: false
 
+      - id: check-test-layout
+        name: Tests mirror sources 1:1 (with allowlisted meta/auxiliary suites)
+        entry: python3 scripts/check_test_layout.py --src src --tests tests
+        language: system
+        pass_filenames: false
+        files: '^(src/.*\.py|tests/.*\.py|scripts/check_test_layout\.py)$'
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: 'v0.15.21'
     hooks:
