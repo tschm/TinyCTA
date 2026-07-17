@@ -99,6 +99,35 @@ result = prices.with_columns(
 )
 ```
 
+### Robust volatility and matrix shrinkage (`tinycta.signal`)
+
+`moving_absolute_deviation` is an outlier-resistant rolling volatility estimate (a scaled
+rolling median absolute deviation of log returns), and `shrink2id` blends a square matrix
+towards the identity — a common regulariser for noisy covariance/correlation matrices.
+
+```python
+import numpy as np
+import polars as pl
+from tinycta.signal import moving_absolute_deviation, shrink2id
+
+prices = pl.DataFrame({"A": [100.0, 101.0, 99.0, 102.0, 98.0, 103.0, 97.0, 104.0]})
+vol = prices.with_columns(
+    moving_absolute_deviation(pl.col("A"), com=2).alias("vol_A")
+)
+print(sorted(vol.columns))
+print(vol.shape)
+
+cov = np.array([[4.0, 1.0], [1.0, 9.0]])
+print(shrink2id(cov, lamb=0.5))  # blend halfway towards the identity
+```
+
+```result
+['A', 'vol_A']
+(8, 2)
+[[2.5 0.5]
+ [0.5 5. ]]
+```
+
 ### Linear algebra operations
 
 ```python
