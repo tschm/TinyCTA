@@ -76,9 +76,11 @@ class Engine:
         that timestamp normalised to a correlation matrix (unit diagonal).
 
         Contract:
-            - **Warmup:** the first ``cfg.corr`` timestamps are omitted — a key
-              exists only once at least one matrix cell is finite (see
-              :func:`~tinycta.ewm_cov.ewm_covariance`).
+            - **Warmup:** the first ``cfg.corr + 1`` timestamps are omitted — a
+              key exists only once at least one matrix cell is finite (see
+              :func:`~tinycta.ewm_cov.ewm_covariance`). That takes ``cfg.corr``
+              observations of :attr:`ret_adj`, which itself starts on the third
+              row because ``vol_adj`` needs two log returns to standardise one.
             - **NaN cells:** a cell is ``NaN`` while either asset is still in its
               own warmup, and a zero-variance asset (``outer == 0``) yields ``NaN``
               correlations rather than a divide-by-zero.

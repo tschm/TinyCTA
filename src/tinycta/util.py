@@ -22,6 +22,9 @@ def vol_adj(x: pl.Expr, vola: int, clip: float, min_samples: int = 1) -> pl.Expr
         vola: EWMA lookback (span-equivalent) for std.
         clip: Symmetric clipping threshold applied after standardization.
         min_samples: Minimum samples required by EWM to yield non-null values.
+            Note that ``ewm_std`` is undefined for a single observation, so the
+            first log return is null regardless of this value — the output
+            therefore starts at the *second* log return.
 
     Returns:
         pl.Expr: Standardized and clipped log returns.

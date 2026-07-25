@@ -17,7 +17,9 @@ classifiers = [
 dependencies = [
     "cvx-linalg>=0.9.0",
     "numpy>=2.0.0",
-    "polars>=1.21.0",
+    # >=1.43.0: ewm_std yields null (not 0.0) for a single observation, which fixes
+    # vol_adj's first log return and makes the engine's warmup length determinate.
+    "polars>=1.43.0",
     "pydantic>=2.13.3",
 ]
 
