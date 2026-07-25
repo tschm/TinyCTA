@@ -115,16 +115,18 @@ print(engine.assets)
 ## 5. Read off the cash positions
 
 `cash_position` returns the original frame (keeping `date`) with each asset column replaced
-by its per-timestamp cash position. The first `corr` rows are warmup and come back as `NaN`;
-every date **after** the warmup — including the most recent one — carries a position.
+by its per-timestamp cash position. The first `corr + 1` rows are warmup and come back as
+`NaN`: volatility-adjusting a return needs two log returns, so the adjusted-return series
+starts on the third row, and the EWMA correlation then needs `corr` observations of it. Every
+date **after** the warmup — including the most recent one — carries a position.
 
 ```python
 positions = engine.cash_position
 print(positions.shape)
 
-# Warmup leaves the first `corr` dates as NaN; the rest are populated.
+# Warmup leaves the first `corr + 1` dates as NaN; the rest are populated.
 n_finite = positions.filter(pl.col("A").is_finite()).height
-print(n_finite, n_finite == n_days - cfg.corr)
+print(n_finite, n_finite == n_days - cfg.corr - 1)
 
 # The latest date always has a position you could trade on.
 print(bool(np.isfinite(positions["A"][-1])))
@@ -132,7 +134,7 @@ print(bool(np.isfinite(positions["A"][-1])))
 
 ```result
 (60, 4)
-40 True
+39 True
 True
 ```
 

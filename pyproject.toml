@@ -17,7 +17,9 @@ classifiers = [
 dependencies = [
     "cvx-linalg>=0.9.0",
     "numpy>=2.0.0",
-    "polars>=1.21.0",
+    # >=1.43.0: ewm_std yields null (not 0.0) for a single observation, which fixes
+    # vol_adj's first log return and makes the engine's warmup length determinate.
+    "polars>=1.43.0",
     "pydantic>=2.13.3",
 ]
 
@@ -38,7 +40,7 @@ Repository = "https://github.com/tschm/tinycta"
 [dependency-groups]
 dev = [
     "pre-commit==4.6.0",
-    "marimo==0.23.13",
+    "marimo==0.23.14",
     "pandas>=2.2.3",
     "pandas-stubs>=2.2",
     "types-PyYAML>=6.0",
