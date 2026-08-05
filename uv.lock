@@ -1696,9 +1696,6 @@ hyper = [
     { name = "optuna" },
     { name = "pyyaml" },
 ]
-lint = [
-    { name = "pre-commit" },
-]
 test = [
     { name = "hypothesis" },
     { name = "pytest" },
@@ -1737,7 +1734,6 @@ hyper = [
     { name = "optuna", specifier = ">=4.8.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
 ]
-lint = [{ name = "pre-commit", specifier = "==4.6.1" }]
 test = [
     { name = "hypothesis", specifier = ">=6.155.3" },
     { name = "pytest", specifier = ">=9.1.0" },
