@@ -118,7 +118,10 @@ tag = false
 # allowlisted. Per-module coverage is guaranteed independently by the 100%
 # statement-and-branch coverage gate.
 enforce = false
-reason = "Enforced by scripts/check_test_layout.py (pre-commit): strict forward mirroring plus a documented allowlist for meta/property/auxiliary suites; per-module coverage guaranteed by the 100% coverage gate."
+# No "%" anywhere in this value: radon reads every [tool.*] table in this file
+# through configparser, whose interpolation treats "%" as a sigil and raises
+# "invalid interpolation syntax" before radon can run at all.
+reason = "Enforced by scripts/check_test_layout.py (pre-commit): strict forward mirroring plus a documented allowlist for meta/property/auxiliary suites; per-module coverage guaranteed by the full statement-and-branch coverage gate."
 
 [tool.coverage.run]
 branch = true
