@@ -50,6 +50,41 @@ def _risk_position(corr: np.ndarray, mu_row: np.ndarray, mask: np.ndarray, shrin
 
     Returns:
         np.ndarray: The normalised risk position over the masked assets.
+
+    Example:
+        >>> import numpy as np
+        >>> from tinycta._kernel import _risk_position
+        >>> both = np.array([True, True])
+
+        With an identity correlation the solve is trivial: the asset carrying the
+        expected return takes the whole (unit-norm) position and the other takes none.
+
+        >>> _risk_position(np.eye(2), np.array([1.0, 0.0]), both, shrink=1.0)
+        array([1., 0.])
+
+        A correlated pair tilts against the correlation — holding the second asset
+        short hedges the first, and the norm stays unit under the shrunk metric:
+
+        >>> corr = np.array([[1.0, 0.8], [0.8, 1.0]])
+        >>> _risk_position(corr, np.array([1.0, 0.0]), both, shrink=0.5).round(4)
+        array([ 1.0911, -0.4364])
+
+        An all-zero ``mu`` is degenerate and falls back to zeros rather than
+        dividing by a vanishing normaliser:
+
+        >>> _risk_position(np.eye(2), np.array([0.0, 0.0]), both, shrink=1.0)
+        array([0., 0.])
+
+        ``NaN`` expected returns are tolerated — they are zeroed, not propagated:
+
+        >>> _risk_position(np.eye(2), np.array([1.0, np.nan]), both, shrink=1.0)
+        array([1., 0.])
+
+        The result spans only the masked assets, so an untradable asset is absent
+        from the output rather than present as a zero:
+
+        >>> _risk_position(corr, np.array([1.0, 2.0]), np.array([True, False]), shrink=1.0)
+        array([1.])
     """
     matrix = _shrink2id(corr, lamb=shrink)[np.ix_(mask, mask)]
     expected_mu = np.nan_to_num(mu_row[mask])
@@ -81,6 +116,28 @@ def _update_profit_variance(
 
     Returns:
         float: The updated profit-variance estimate.
+
+    Example:
+        >>> import numpy as np
+        >>> from tinycta._kernel import _update_profit_variance
+        >>> both = np.array([True, True])
+
+        A position of 2.0 against a 10% return realises a profit of 0.2, so the
+        estimate decays towards ``0.2 ** 2`` by ``1 - lamb``:
+
+        >>> _update_profit_variance(1.0, np.array([2.0, 0.0]), np.array([0.1, 0.0]), both, lamb=0.99)
+        0.9904
+
+        A flat book realises nothing, so the estimate simply decays:
+
+        >>> _update_profit_variance(1.0, np.array([0.0, 0.0]), np.array([0.1, 0.2]), both, lamb=0.99)
+        0.99
+
+        ``NaN`` on either side is zeroed rather than poisoning the estimate — here
+        the second asset contributes nothing and the result matches the first case:
+
+        >>> _update_profit_variance(1.0, np.array([2.0, np.nan]), np.array([0.1, 0.5]), both, lamb=0.99)
+        0.9904
     """
     lhs = np.nan_to_num(cash_pos_prev[ret_mask], nan=0.0)
     rhs = np.nan_to_num(returns_row[ret_mask], nan=0.0)
@@ -116,6 +173,44 @@ def forward_walk(
         cash_pos_np: Output cash-position buffer, mutated in place.
         row_of: Map from a ``cor`` key back to its row index.
         shrink: Identity-shrinkage weight in ``[0, 1]`` passed to :func:`_risk_position`.
+
+    Example:
+        >>> import numpy as np
+        >>> from tinycta._kernel import forward_walk
+        >>> prices = np.array([[100.0, 50.0], [101.0, 50.5], [102.0, 50.0]])
+        >>> returns = np.zeros_like(prices)
+        >>> returns[1:] = prices[1:] / prices[:-1] - 1.0
+        >>> mu = np.array([[1.0, 0.0], [1.0, 0.0], [1.0, 0.0]])
+        >>> vola = np.full((3, 2), 0.1)
+        >>> risk_pos = np.full((3, 2), np.nan)
+        >>> cash_pos = np.full((3, 2), np.nan)
+
+        Only rows named by ``cor`` are walked; here the first row is warmup and is
+        left untouched. The function returns nothing and writes into the buffers:
+
+        >>> forward_walk(
+        ...     {1: np.eye(2), 2: np.eye(2)},
+        ...     prices, returns, mu, vola, risk_pos, cash_pos,
+        ...     row_of={1: 1, 2: 2},
+        ...     shrink=1.0,
+        ... ) is None
+        True
+        >>> risk_pos[0]
+        array([nan, nan])
+
+        The first walked row starts from a profit variance of 1.0, so its risk
+        position is the raw solve, and the cash position divides it by volatility:
+
+        >>> risk_pos[1]
+        array([1., 0.])
+        >>> cash_pos[1]
+        array([10.,  0.])
+
+        By the next row the realised P&L has updated the profit-variance estimate,
+        which rescales the position:
+
+        >>> risk_pos[2].round(4)
+        array([1.01, 0.  ])
     """
     profit_variance = 1.0
     lamb = 0.99

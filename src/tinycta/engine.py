@@ -84,6 +84,50 @@ class Engine:
             - **NaN cells:** a cell is ``NaN`` while either asset is still in its
               own warmup, and a zero-variance asset (``outer == 0``) yields ``NaN``
               correlations rather than a divide-by-zero.
+
+        Example:
+            >>> import math
+            >>> import polars as pl
+            >>> from tinycta.config import Config
+            >>> from tinycta.engine import Engine
+            >>> dates = list(range(1, 11))
+            >>> prices = pl.DataFrame(
+            ...     {
+            ...         "date": dates,
+            ...         "A": [100.0, 101.5, 100.8, 102.3, 103.1, 102.0, 104.5, 105.2, 104.1, 106.0],
+            ...         "B": [50.0, 49.2, 50.4, 49.8, 51.1, 50.3, 49.5, 50.8, 51.6, 50.9],
+            ...     }
+            ... )
+            >>> mu = pl.DataFrame({"date": dates, "A": [0.1] * 10, "B": [-0.05] * 10})
+            >>> cfg = Config(vola=3, corr=3, clip=4.2, shrink=0.5)
+            >>> cor = Engine(prices=prices, mu=mu, cfg=cfg).cor
+
+            The first ``cfg.corr + 1`` timestamps are omitted, so the mapping is
+            keyed by the surviving dates rather than by position:
+
+            >>> sorted(cor)
+            [5, 6, 7, 8, 9, 10]
+
+            Each value is a correlation matrix with a unit diagonal:
+
+            >>> mat = cor[5]
+            >>> mat.shape
+            (2, 2)
+            >>> [round(float(v), 6) for v in mat.diagonal()]
+            [1.0, 1.0]
+            >>> bool(-1.0 <= mat[0, 1] <= 1.0)
+            True
+
+            A zero-variance asset yields ``NaN`` rather than a divide-by-zero. Here
+            ``B`` never moves, so every cell touching it is ``NaN`` while ``A`` keeps
+            its unit diagonal:
+
+            >>> flat = prices.with_columns(pl.lit(50.0).alias("B"))
+            >>> flat_cor = Engine(prices=flat, mu=mu, cfg=cfg).cor[5]
+            >>> math.isnan(flat_cor[1, 1]), math.isnan(flat_cor[0, 1])
+            (True, True)
+            >>> round(float(flat_cor[0, 0]), 6)
+            1.0
         """
         cov = _ewm_covariance(
             self.ret_adj,
