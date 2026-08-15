@@ -50,8 +50,11 @@ uv run pytest tests/tinycta/test_osc.py::test_name -v
     - `_setup.py` - `get_config()` / `ExperimentConfig` notebook experiment setup helpers
 - `tests/tinycta/` - Package tests
 - `tests/property/` - Hypothesis property-based tests
+- `tests/fuzz/` - Atheris fuzz targets (`fuzz_signal.py`), built by `.clusterfuzzlite/build.sh`
+  and driven by the `rhiza_fuzzing` workflow; not collected by `make test`
 - `.rhiza/tests/` - Rhiza framework infrastructure tests
-- `book/` - Documentation source
+- `docs/` - Documentation source (`index.md`, `tutorial.md`, `api/`, `development/`);
+  built by `make book` via the root `mkdocs.yml`
 - `.rhiza/` - Rhiza framework scripts and configurations
 
 ## Architecture Notes
@@ -95,7 +98,7 @@ import declared anywhere in the manifest, including in an extra.
 Hyper extra (`pip install "tinycta[hyper]"`, required by `tinycta.hyper` only):
 `jquantstats`, `loguru`, `optuna`, `pyyaml`
 
-Dev: `pre-commit`, `marimo`, `pandas`, `pandas-stubs`
+Dev: `pre-commit`, `marimo`, `pandas`, `pandas-stubs`, `types-PyYAML`
 
 Test: `pytest`, `pytest-cov`, `pytest-html`, `pytest-mock`, `pytest-xdist`, `pytest-timeout`,
 `hypothesis`, `pytest-benchmark`
