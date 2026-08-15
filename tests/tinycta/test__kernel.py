@@ -10,7 +10,6 @@ through the Polars orchestration layer.
 from __future__ import annotations
 
 import numpy as np
-from loguru import logger
 
 from tinycta._kernel import _denominator_is_degenerate, _risk_position, _update_profit_variance
 
@@ -50,25 +49,21 @@ class TestRiskPosition:
         assert pos[0] > 0.0
         assert pos[1] == 0.0
 
-    def test_all_zero_mu_returns_zeros_and_logs_reason(self):
-        """All-zero expected returns yield a zero position and a debug reason.
+    def test_all_zero_mu_returns_zeros(self):
+        """All-zero expected returns yield an exactly-zero position, not a silent NaN.
 
-        The degenerate/all-zero fallback must be observable (zeros + a logged
-        reason), not a silent NaN.
+        The degenerate/all-zero fallback is observable through the return value
+        alone: the kernel deliberately does not log, because it sits on the core
+        import path and ``loguru`` ships only with the optional ``hyper`` extra.
         """
         corr = np.eye(2)
         mu_row = np.zeros(2)
         mask = np.array([True, True])
 
-        captured: list[str] = []
-        sink_id = logger.add(captured.append, level="DEBUG", format="{message}")
-        try:
-            pos = _risk_position(corr, mu_row, mask, shrink=0.5)
-        finally:
-            logger.remove(sink_id)
+        pos = _risk_position(corr, mu_row, mask, shrink=0.5)
 
         assert np.array_equal(pos, np.zeros(2))
-        assert any("Risk position zeroed for 2 masked asset(s)" in m for m in captured)
+        assert not np.isnan(pos).any()
 
     def test_mask_restricts_the_solve_to_tradable_assets(self):
         """Only masked-in assets appear in the returned position."""

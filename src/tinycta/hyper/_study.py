@@ -14,7 +14,41 @@ from loguru import logger
 
 @dataclass(frozen=True)
 class Study:
-    """Frozen wrapper around a completed Optuna study."""
+    """Frozen wrapper around a completed Optuna study.
+
+    Example:
+        >>> import optuna
+        >>> from tinycta.hyper import Study
+        >>> optuna.logging.set_verbosity(optuna.logging.WARNING)
+        >>> s = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=0))
+        >>> s.optimize(lambda trial: trial.suggest_float("x", 0.0, 1.0), n_trials=5)
+        >>> study = Study.from_optuna(s)
+        >>> study.n_trials, study.n_completed
+        (5, 5)
+        >>> sorted(study.best_params)
+        ['x']
+
+        ``str`` renders the best trial as a report block:
+
+        >>> print(study)  # doctest: +ELLIPSIS
+        === Best parameters ===
+          x            = 0...
+          Sharpe       = 0...
+          Completed    = 5 / 5 trials
+
+        A study in which every trial was pruned (each scored a NaN Sharpe) is not an
+        error — it reports no best parameters and a NaN best value:
+
+        >>> pruned = optuna.create_study(direction="maximize")
+        >>> pruned.optimize(
+        ...     lambda trial: (_ for _ in ()).throw(optuna.exceptions.TrialPruned()), n_trials=2
+        ... )
+        >>> empty = Study.from_optuna(pruned)
+        >>> empty.n_completed, empty.best_params
+        (0, {})
+        >>> print(empty)
+        No completed trials — all returned NaN Sharpe.
+    """
 
     best_params: dict[str, Any]
     best_value: float
@@ -107,7 +141,37 @@ def optimize(
     n_trials: int = 100,
     seed: int = 42,
 ) -> Study:
-    """Build objective, run study, log the summary and return a frozen Study."""
+    """Build objective, run study, log the summary and return a frozen Study.
+
+    ``suggest_portfolio_fn`` draws its parameters from the trial and returns a
+    portfolio; the trial is then scored by that portfolio's Sharpe ratio, which
+    the study maximises. A trial whose Sharpe is NaN is pruned rather than fatal.
+
+    Example:
+        >>> from types import SimpleNamespace
+        >>> from tinycta.hyper import optimize
+
+        Any object exposing ``.stats.sharpe()`` works here; in real use that is a
+        ``jquantstats`` ``Portfolio`` built from the strategy's returns:
+
+        >>> def portfolio(sharpe):
+        ...     return SimpleNamespace(stats=SimpleNamespace(sharpe=lambda: sharpe))
+
+        The objective is maximised, so the best value is the highest Sharpe seen —
+        here the reward peaks where ``fast`` is largest:
+
+        >>> study = optimize(lambda trial: portfolio(trial.suggest_int("fast", 1, 8)), n_trials=12)
+        >>> study.best_value
+        8.0
+        >>> study.best_params
+        {'fast': 8}
+
+        Runs are seeded, so the same objective and seed reproduce the same result:
+
+        >>> repeat = optimize(lambda trial: portfolio(trial.suggest_int("fast", 1, 8)), n_trials=12)
+        >>> repeat.best_params == study.best_params
+        True
+    """
     s = _run_study(_build_objective(suggest_portfolio_fn), n_trials=n_trials, seed=seed)
     study = Study.from_optuna(s)
     logger.info(str(study))

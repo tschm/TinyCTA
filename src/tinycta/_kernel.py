@@ -4,6 +4,12 @@ Every function here operates on NumPy arrays only — no Polars, no :class:`~tin
 — so the Polars-facing orchestration in :mod:`tinycta.engine` stays a thin adapter that
 prepares arrays, delegates the timestamp walk to :func:`forward_walk`, and writes the result
 back into a DataFrame.
+
+This module is on the core import path (``tinycta.engine`` imports it at module level), so it
+must import nothing outside ``[project].dependencies``. In particular it does **not** log:
+``loguru`` ships only with the optional ``hyper`` extra, and importing it here would break
+``pip install tinycta`` for every user who never asked for that extra. Degenerate cases are
+made observable through return values instead — see :func:`_risk_position`.
 """
 
 from __future__ import annotations
@@ -11,7 +17,6 @@ from __future__ import annotations
 from collections.abc import Hashable
 
 import numpy as np
-from loguru import logger
 
 from .linalg import inv_a_norm as _inv_a_norm
 from .linalg import solve as _solve
@@ -50,12 +55,6 @@ def _risk_position(corr: np.ndarray, mu_row: np.ndarray, mask: np.ndarray, shrin
     expected_mu = np.nan_to_num(mu_row[mask])
     denom = _inv_a_norm(expected_mu, matrix)
     if denom is None or not np.isfinite(denom) or _denominator_is_degenerate(denom) or np.allclose(expected_mu, 0.0):
-        logger.debug(
-            "Risk position zeroed for {} masked asset(s): degenerate correlation-norm "
-            "denominator (denom={}) or all-zero expected returns.",
-            int(mask.sum()),
-            denom,
-        )
         return np.zeros_like(expected_mu)
     return _solve(matrix, expected_mu) / denom
 

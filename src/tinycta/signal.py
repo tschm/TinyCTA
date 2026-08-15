@@ -37,6 +37,26 @@ def moving_absolute_deviation(x: pl.Expr, com: int = 32) -> pl.Expr:
 
     Returns:
         Polars expression of scaled rolling MAD values consistent with std under normality.
+
+    Example:
+        >>> import polars as pl
+        >>> from tinycta.signal import moving_absolute_deviation
+        >>> prices = pl.DataFrame({"A": [100.0, 101.5, 100.8, 103.2, 102.1, 105.0, 104.2, 107.5]})
+        >>> mad = prices.with_columns(moving_absolute_deviation(pl.col("A"), com=2).alias("mad"))
+
+        Two rolling medians of ``window = 2 * com - 1`` are chained over a log-return
+        series that itself starts one row late, so the estimate needs
+        ``2 * window - 1`` rows of returns before it emits a value:
+
+        >>> mad["mad"].null_count()
+        5
+        >>> float(mad["mad"][5]) > 0.0
+        True
+
+        The estimate is a dispersion, so it never goes negative:
+
+        >>> all(v >= 0.0 for v in mad["mad"][5:])
+        True
     """
     window = 2 * com - 1
     r = x.log(base=math.e).diff()
@@ -54,5 +74,29 @@ def shrink2id(matrix: np.ndarray, lamb: float = 1.0) -> np.ndarray:
 
     Returns:
         The resulting matrix after applying the shrinkage transformation.
+
+    Example:
+        >>> import numpy as np
+        >>> from tinycta.signal import shrink2id
+        >>> corr = np.array([[1.0, 0.8], [0.8, 1.0]])
+
+        ``lamb=1.0`` keeps the matrix as it is:
+
+        >>> shrink2id(corr, lamb=1.0)
+        array([[1. , 0.8],
+               [0.8, 1. ]])
+
+        ``lamb=0.0`` replaces it entirely with the identity:
+
+        >>> shrink2id(corr, lamb=0.0)
+        array([[1., 0.],
+               [0., 1.]])
+
+        In between, the unit diagonal is preserved and the off-diagonal
+        correlation is pulled towards zero in proportion to ``1 - lamb``:
+
+        >>> shrink2id(corr, lamb=0.5)
+        array([[1. , 0.4],
+               [0.4, 1. ]])
     """
     return matrix * lamb + (1 - lamb) * np.eye(N=matrix.shape[0])
