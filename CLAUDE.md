@@ -83,7 +83,17 @@ portfolio-returning function scored by Sharpe ratio and returns a frozen `Study`
 
 ## Dependencies
 
-Core: `cvx-linalg`, `loguru`, `numpy>=2.0.0`, `jquantstats`, `optuna`, `polars`, `pydantic`, `pyyaml`
+Core (`[project].dependencies`, what `pip install tinycta` provides): `cvx-linalg`,
+`numpy>=2.0.0`, `polars>=1.43.0`, `pydantic`
+
+**Everything on the core import path must import only these four.** `tinycta.engine`
+imports `tinycta._kernel` at module level, so an import from the `hyper` extra anywhere
+outside `hyper/` breaks `pip install tinycta` — this is why `_kernel.py` does no logging.
+`tests/test_core_install.py` guards the contract; `deptry` cannot, because it accepts an
+import declared anywhere in the manifest, including in an extra.
+
+Hyper extra (`pip install "tinycta[hyper]"`, required by `tinycta.hyper` only):
+`jquantstats`, `loguru`, `optuna`, `pyyaml`
 
 Dev: `pre-commit`, `marimo`, `pandas`, `pandas-stubs`
 

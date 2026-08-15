@@ -11,7 +11,28 @@ _FILE_SINKS: dict[str, int] = {}
 
 
 class ExperimentConfig(NamedTuple):
-    """Resources bundled for a notebook experiment run."""
+    """Resources bundled for a notebook experiment run.
+
+    Example:
+        >>> from tinycta.hyper import ExperimentConfig
+        >>> cfg = ExperimentConfig(name="momentum", logger=None, params={"fast": 16, "slow": 64})
+        >>> cfg.name
+        'momentum'
+        >>> cfg.params
+        {'fast': 16, 'slow': 64}
+
+        The three config sections are optional and default to ``None``, so a
+        config file that omits one is not an error:
+
+        >>> cfg.optuna is None and cfg.data is None
+        True
+
+        Being a :class:`~typing.NamedTuple`, it also unpacks positionally:
+
+        >>> name, _logger, params, _optuna, _data = cfg
+        >>> name, sorted(params)
+        ('momentum', ['fast', 'slow'])
+    """
 
     name: str
     logger: Any
@@ -97,6 +118,44 @@ def get_config(name: str, config_path: Path | str | None = None) -> ExperimentCo
     ``NOTEBOOK_OUTPUT_FOLDER`` env var overrides the output directory used for
     the log file sink; otherwise the config-derived output directory is confined
     under the notebooks directory.
+
+    Example:
+        >>> import tempfile
+        >>> from pathlib import Path
+        >>> import yaml
+        >>> from tinycta.hyper import get_config
+
+        A shared ``config.yml`` supplies the sections directly:
+
+        >>> with tempfile.TemporaryDirectory() as tmp:
+        ...     config_path = Path(tmp) / "config.yml"
+        ...     _ = config_path.write_text(
+        ...         yaml.safe_dump({"params": {"fast": 16, "slow": 64}, "data": {"output_path": "out"}})
+        ...     )
+        ...     cfg = get_config("momentum", config_path=config_path)
+        ...     output_exists = (Path(tmp) / "out" / "momentum").is_dir()
+        >>> cfg.name
+        'momentum'
+        >>> cfg.params
+        {'fast': 16, 'slow': 64}
+
+        The output directory is created as a side effect, ready for the run's
+        artefacts and its ``output.log`` sink:
+
+        >>> output_exists
+        True
+
+        An ``output_path`` that would escape the notebooks directory is rejected
+        rather than followed:
+
+        >>> with tempfile.TemporaryDirectory() as tmp:
+        ...     config_path = Path(tmp) / "config.yml"
+        ...     _ = config_path.write_text(yaml.safe_dump({"data": {"output_path": "../../etc"}}))
+        ...     try:
+        ...         get_config("momentum", config_path=config_path)
+        ...     except ValueError:
+        ...         print("escaping output_path rejected")
+        escaping output_path rejected
     """
     config_path = Path(config_path) if config_path else Path.cwd() / "config.yml"
     cfg = _load_yaml(config_path)
