@@ -67,6 +67,17 @@ def osc(x: pl.Expr, fast: int, slow: int, min_samples: int = 1) -> pl.Expr:
     Example:
         >>> prices = pl.DataFrame({"A": [1,2,3,4,5,6,7,8,9,10]})
         >>> df = prices.with_columns(osc(pl.col("A"), fast=2, slow=6).alias("osc_A"))
+
+        With ``min_samples=1`` the first row is 0.0 (both EWMAs equal the first
+        observation), and the oscillator then rises as the fast mean pulls ahead
+        of the slow one on a trending series:
+
+        >>> df["osc_A"].round(4).to_list()
+        [0.0, 0.1117, 0.2836, 0.4985, 0.7389, 0.9898, 1.2398, 1.4809, 1.7086, 1.9202]
+
+        Note that the analytic scaling makes magnitudes comparable across
+        ``fast``/``slow`` choices only once the slower EWMA has warmed up; over a
+        span this short the slower pair is still in its transient.
     """
     _validate_windows(fast, slow)
 

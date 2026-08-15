@@ -131,13 +131,43 @@ class Engine:
                 cash position. Warmup rows are ``NaN``.
 
         Example:
+            >>> import math
             >>> import polars as pl
             >>> from tinycta.config import Config
             >>> from tinycta.engine import Engine
-            >>> prices = pl.DataFrame({"date": [1, 2, 3], "A": [100.0, 101.0, 102.0]})
-            >>> mu = pl.DataFrame({"date": [1, 2, 3], "A": [0.0, 0.1, 0.2]})
-            >>> engine = Engine(prices=prices, mu=mu, cfg=Config(vola=2, corr=2, clip=4.2, shrink=0.5))
+            >>> dates = list(range(1, 11))
+            >>> prices = pl.DataFrame(
+            ...     {
+            ...         "date": dates,
+            ...         "A": [100.0, 101.5, 100.8, 102.3, 103.1, 102.0, 104.5, 105.2, 104.1, 106.0],
+            ...         "B": [50.0, 49.2, 50.4, 49.8, 51.1, 50.3, 49.5, 50.8, 51.6, 50.9],
+            ...     }
+            ... )
+            >>> mu = pl.DataFrame({"date": dates, "A": [0.1] * 10, "B": [-0.05] * 10})
+            >>> engine = Engine(prices=prices, mu=mu, cfg=Config(vola=3, corr=3, clip=4.2, shrink=0.5))
             >>> positions = engine.cash_position
+
+            The frame keeps its shape and its ``date`` column; only the asset
+            columns are replaced:
+
+            >>> positions.shape
+            (10, 3)
+            >>> positions.columns
+            ['date', 'A', 'B']
+
+            The leading rows are warmup and come back ``NaN`` (here ``cfg.corr``
+            observations of :attr:`ret_adj`, which itself starts on the third row):
+
+            >>> sum(1 for v in positions["A"] if math.isnan(v))
+            4
+
+            After warmup the position takes the sign of the expected return, so a
+            positive ``mu`` is held long and a negative one short:
+
+            >>> [v > 0 for v in positions["A"][4:]]
+            [True, True, True, True, True, True]
+            >>> [v < 0 for v in positions["B"][4:]]
+            [True, True, True, True, True, True]
         """
         cor = self.cor
         assets = self.assets
