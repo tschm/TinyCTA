@@ -17,7 +17,7 @@ The project uses `make` and `uv` for development. Key commands:
 make install    # Install uv, create .venv, install dependencies
 make test       # Run pytest with coverage (outputs to _tests/)
 make fmt        # Run pre-commit hooks (ruff format, ruff check --fix)
-make deptry     # Check for missing/unused dependencies
+make deps       # Check for missing/unused dependencies (deptry)
 make marimo     # Start Marimo notebook server
 ```
 
@@ -41,7 +41,10 @@ uv run pytest tests/tinycta/test_osc.py::test_name -v
   - `linalg.py` - re-exports `valid()`, `a_norm()`, `inv_a_norm()`, `solve()` from `cvx.linalg`
   - `ewm_cov.py` - re-exports `ewm_covariance()` and `NegativeWarmupError` from `cvx.linalg.ewm_cov`
   - `config.py` - `Config`, a frozen Pydantic model validating the engine parameters
-  - `engine.py` - `Engine`, the correlation-aware risk/cash position optimizer ("Basanos" engine)
+  - `engine.py` - `Engine`, the correlation-aware risk/cash position optimizer ("Basanos" engine);
+    the Polars-facing orchestration layer
+  - `_kernel.py` - private pure-NumPy numeric kernel: `forward_walk()` and the per-timestamp
+    helpers `_risk_position()`, `_update_profit_variance()`, `_denominator_is_degenerate()`
   - `hyper/` - Optuna-based hyperparameter optimisation
     - `_study.py` - frozen `Study` result wrapper and `optimize()` entry point
     - `_setup.py` - `get_config()` / `ExperimentConfig` notebook experiment setup helpers
@@ -64,10 +67,16 @@ The package is organised in three layers:
    tolerate NaN values: `valid()` extracts the finite subset of a matrix, and `a_norm`, `inv_a_norm`,
    and `solve` work on that partial data.
 
-3. **Engine** (`config.py`, `engine.py`) - `Engine` consumes aligned `prices` and `mu` Polars
-   DataFrames plus a validated `Config` and produces correlation-shrinkage-optimized cash positions.
-   It combines volatility adjustment, EWMA correlation matrices, identity shrinkage, and the linalg
-   solver, scaling positions by a running profit-variance estimate.
+3. **Engine** (`config.py`, `engine.py`, `_kernel.py`) - `Engine` consumes aligned `prices` and `mu`
+   Polars DataFrames plus a validated `Config` and produces correlation-shrinkage-optimized cash
+   positions. It combines volatility adjustment, EWMA correlation matrices, identity shrinkage, and
+   the linalg solver, scaling positions by a running profit-variance estimate.
+
+   This layer is deliberately split in two. `engine.py` is a thin Polars-facing adapter: it
+   validates the frames, derives `ret_adj`/`vola`/`cor`, converts them to NumPy arrays, and writes
+   the result back into a DataFrame. The actual timestamp walk lives in `_kernel.py`, whose
+   functions touch **only** NumPy arrays — no Polars and no `Config`. Keep that boundary when
+   editing: numeric changes belong in `_kernel.py`, frame handling in `engine.py`.
 
 The optional **hyper** layer (`hyper/`) wraps Optuna: `optimize()` runs a study over a
 portfolio-returning function scored by Sharpe ratio and returns a frozen `Study`.

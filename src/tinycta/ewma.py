@@ -32,6 +32,13 @@ def ma_cross(prices: pl.Expr, fast: int, slow: int, min_samples: int = 1) -> pl.
         >>> df = prices.with_columns(
         ...     ma_cross(pl.col("A"), fast=2, slow=6, min_samples=3).alias("sig_A")
         ... )
+
+        The first ``min_samples - 1`` rows are null while the EWMs warm up; on a
+        monotonically rising series the fast mean stays above the slow one, so
+        every subsequent row is ``+1``:
+
+        >>> df["sig_A"].to_list()
+        [None, None, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
     """
     return (
         prices.ewm_mean(com=fast - 1, adjust=False, min_samples=min_samples)

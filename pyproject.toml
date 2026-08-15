@@ -91,5 +91,34 @@ pydantic = "pydantic"
 pyyaml = "yaml"
 types-pyyaml = []
 
+[tool.bumpversion]
+# Lives here, not in .rhiza/.cfg.toml: bump-my-version only auto-discovers
+# .bumpversion.toml, .bumpversion.cfg, setup.cfg and pyproject.toml. From a
+# path it never reads, it silently falls back to `git describe` and can cut a
+# release at a version that already exists.
+#
+# No current_version and no [[tool.bumpversion.files]] entry for the version:
+# bump-my-version reads and rewrites PEP 621 [project].version natively, so
+# naming it again is a second copy that goes stale.
+allow_dirty = false
+# /rhiza:release commits and tags itself so the changelog lands in the bump
+# commit; a bare `bump-my-version bump` would add a second commit and a
+# duplicate tag.
+commit = false
+tag = false
+
+[tool.check_test_layout]
+# Enforced by scripts/check_test_layout.py (wired into .pre-commit-config.yaml)
+# rather than by the strict upstream gate. That variant keeps the forward rule
+# intact — every source module needs a mirrored test file, every source class a
+# matching Test* class — and relaxes only the reverse orphan-class rule, because
+# tests here are grouped into behavioural classes (TestRiskPosition,
+# TestOutputPathConfinement) that describe a scenario around a source *function*.
+# Meta-tests, property/fuzz suites and three named auxiliary suites are
+# allowlisted. Per-module coverage is guaranteed independently by the 100%
+# statement-and-branch coverage gate.
+enforce = false
+reason = "Enforced by scripts/check_test_layout.py (pre-commit): strict forward mirroring plus a documented allowlist for meta/property/auxiliary suites; per-module coverage guaranteed by the 100% coverage gate."
+
 [tool.coverage.run]
 branch = true
