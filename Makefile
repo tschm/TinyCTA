@@ -1,7 +1,8 @@
 ## Makefile (repo-owned)
 # Keep this file small. It can be edited without breaking template sync.
 
-LOGO_FILE=.rhiza/assets/rhiza-logo.svg
+# No template default exists for this; without it `make mutation` sees an empty
+# path, the `[ ! -d ]` guard fires, and the target silently no-ops with a warning.
 MUTATION_SOURCE_FOLDER ?= src/tinycta
 
 # Override template default: include mkdocstrings plugin for API docs, plus the
