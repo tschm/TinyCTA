@@ -78,6 +78,46 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/tinycta"]
 
+[tool.rhiza-task]
+# Settings recovered from the make layer that rhiza v1.4.0 retired (.rhiza/rhiza.mk,
+# .rhiza/make.d/*.mk, .rhiza/.env). They have nowhere else to live now, and each one
+# below differs from the rhiza-task default — leaving it out silently weakens a gate.
+
+# make: `TYPECHECKER ?= both` (python.mk). CLI default: "ty" alone.
+# Without this the `typecheck` gate drops `mypy --strict src` and runs ty only.
+# Note it also gets stricter than the make layer was: the old shell `case` let mypy's
+# status decide, so a ty failure could pass. Both must now be green.
+typechecker = "both"
+
+# make: `RHIZA_CHECKS_VERSION ?= 0.2.1` (quality.mk). CLI default: the v0.2.0 git ref.
+# Without this the rhiza-test gate silently downgrades to the older check set.
+pytest-rhiza = "pytest-rhiza==0.2.1"
+
+# make: `MKDOCS_EXTRA_PACKAGES = --with 'mkdocstrings[python]' --with-editable '.[hyper]'`
+# (Makefile). CLI default: ["mkdocstrings[python]"] only. Each entry becomes one `--with`,
+# and naming the setting REPLACES the default list — so mkdocstrings is repeated here
+# deliberately rather than inherited. Without ".[hyper]" the isolated uvx env that builds
+# the book cannot import tinycta and `book` dies with
+# "ModuleNotFoundError: No module named 'tinycta'"; the hyper extra is required because
+# mkdocstrings/griffe imports tinycta.hyper, and tinycta.linalg pulls in cvx-linalg.
+mkdocs-extra-packages = ["mkdocstrings[python]", ".[hyper]"]
+
+# Not set, on purpose — the make layer's value already equals the rhiza-task default,
+# so pinning it here would only create a second place to drift:
+#   source-folder ("src"), tests-folder ("tests"), marimo-folder ("docs/notebooks"),
+#   coverage-fail-under (90 — and [tool.coverage.report] sets no fail-under to outrank it),
+#   book-output ("_book"), zensical-version (">=0.0.36"),
+#   uv-sync-args ("--all-extras --all-groups"), license-fail-on ("GPL;LGPL;AGPL").
+# ci-os-matrix is deliberately NOT set: .rhiza/.env carried a comment explaining that
+#   rhiza_ci.yml exports the matrix per caller, and pinning it here defeats that.
+# license-ignore-packages stays empty: the make layer's only entry was `+= docutils` from
+#   the template's own marimo.mk, and rhiza-task appends docutils itself when marimo is
+#   in the task registry.
+# rhiza-checks stays unset: the make layer accumulated five checks via `RHIZA_CHECKS +=`
+#   across python.mk/quality.mk/test.mk, and rhiza-task derives exactly those five from
+#   the layer set. Verified identical.
+# layers stays unset: it is detected from the manifests present, and resolves to "python".
+
 [tool.deptry.package_module_name_map]
 cvx-linalg = "cvx"
 loguru = "loguru"
