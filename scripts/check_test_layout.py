@@ -26,8 +26,7 @@ Deliberately **not** enforced (relaxed from the upstream strict checker):
 
 Allowlisted test files (no ``src/`` counterpart required):
 
-  * anything under ``tests/property/`` or ``tests/fuzz/`` — auxiliary
-    property/fuzz suites;
+  * anything under ``tests/property/`` — auxiliary property-based suites;
   * any top-level ``tests/test_*.py`` — repository meta-tests (pyproject,
     README links, CI workflows) that assert about the repo itself, not a module;
   * the explicitly listed package-level auxiliary suites in ``_EXEMPT_TESTS``
@@ -53,7 +52,7 @@ _IGNORED = {"__init__.py", "conftest.py"}
 
 # Path components (relative to the tests root) whose whole subtree is exempt
 # from the reverse "every test file mirrors a source module" rule.
-_EXEMPT_TEST_DIRS = {"property", "fuzz"}
+_EXEMPT_TEST_DIRS = {"property"}
 
 # Explicit package-level auxiliary test files (relative to the tests root) that
 # intentionally have no mirrored source module. Kept explicit so a genuinely
