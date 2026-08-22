@@ -50,8 +50,6 @@ uv run pytest tests/tinycta/test_osc.py::test_name -v
     - `_setup.py` - `get_config()` / `ExperimentConfig` notebook experiment setup helpers
 - `tests/tinycta/` - Package tests
 - `tests/property/` - Hypothesis property-based tests
-- `tests/fuzz/` - Atheris fuzz targets (`fuzz_signal.py`), built by `.clusterfuzzlite/build.sh`
-  and driven by the `rhiza_fuzzing` workflow; not collected by `make test`
 - `.rhiza/tests/` - Rhiza framework infrastructure tests
 - `docs/` - Documentation source (`index.md`, `tutorial.md`, `api/`, `development/`);
   built by `make book` via the root `mkdocs.yml`

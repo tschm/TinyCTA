@@ -154,7 +154,7 @@ tag = false
 # matching Test* class — and relaxes only the reverse orphan-class rule, because
 # tests here are grouped into behavioural classes (TestRiskPosition,
 # TestOutputPathConfinement) that describe a scenario around a source *function*.
-# Meta-tests, property/fuzz suites and three named auxiliary suites are
+# Meta-tests, property suites and three named auxiliary suites are
 # allowlisted. Per-module coverage is guaranteed independently by the full
 # statement-and-branch coverage gate.
 enforce = false
