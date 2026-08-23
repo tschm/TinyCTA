@@ -50,10 +50,9 @@ uv run pytest tests/tinycta/test_osc.py::test_name -v
     - `_setup.py` - `get_config()` / `ExperimentConfig` notebook experiment setup helpers
 - `tests/tinycta/` - Package tests
 - `tests/property/` - Hypothesis property-based tests
-- `.rhiza/tests/` - Rhiza framework infrastructure tests
 - `docs/` - Documentation source (`index.md`, `tutorial.md`, `api/`, `development/`);
   built by `make book` via the root `mkdocs.yml`
-- `.rhiza/` - Rhiza framework scripts and configurations
+- `.rhiza/` - Rhiza template config (`template.yml`, `template.lock`) and shared policy docs
 
 ## Architecture Notes
 
@@ -105,6 +104,9 @@ Managed via `uv add` and `pyproject.toml`.
 
 ## Rhiza Framework
 
-This project uses the Rhiza framework for standardized Python development. The main Makefile includes
-`.rhiza/rhiza.mk` which provides common targets. Do not modify `.rhiza/` files directly - they are
+This project uses the Rhiza framework for standardized Python development. Tasks and gates run
+through `uv run rhiza-task <task>`; the root `Makefile` is a template-owned shim that forwards to
+it, so `make test` and `make book` keep working. Repo-specific targets go in `local.mk`, and the
+settings where this repo departs from the CLI defaults live in `[tool.rhiza-task]` in
+`pyproject.toml`. Do not modify `.rhiza/` files or the `Makefile` directly - they are
 template-managed.
