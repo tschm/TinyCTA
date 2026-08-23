@@ -1,0 +1,490 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[round]{natbib}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\R}{\mathbb{R}}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\med}{med}
+
+\title{\code{TinyCTA}: An Analytically Scaled Trend Signal and
+Correlation-Aware Position Sizing in Nine Modules}
+
+\author{Thomas Schmelzer\thanks{\url{https://github.com/tschm/TinyCTA}}}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\code{TinyCTA} is a deliberately small library for building trend-following
+strategies: roughly 1{,}300 lines covering signal generation, robust volatility
+estimation, and a position-sizing engine that solves a shrunk correlation system
+at every timestamp. This paper documents the pipeline and derives the one piece
+of it that is stated in the code without proof --- the analytic scale factor of
+the oscillator. We show it is exactly the standard deviation of the EWMA
+difference under a driftless random walk with unit-variance increments, because
+the difference filter's coefficients sum to zero and its cumulative
+representation telescopes; the derivation takes four lines, and a simulation over
+$2 \times 10^5$ steps confirms unit output standard deviation across a decade of
+$(\mathrm{fast}, \mathrm{slow})$ pairs. We then run the full engine over a
+$49$-asset, $53$-year futures panel and report what the shrinkage parameter
+actually does. It is a numerical necessity rather than a performance lever: at
+$\lambda = 1$, where the correlation matrix is used unmodified, the engine raises
+\code{SingularMatrixError} --- the empirical correlation matrix over $47$ assets
+has condition number $2.8 \times 10^{18}$ --- and as $\lambda \to 1$ mean gross
+exposure grows elevenfold while the Sharpe ratio stays inside $[0.21, 0.33]$.
+We also flag that the parameter reads backwards: \code{shrink=1.0} means
+\emph{no} shrinkage, and it is the setting that fails.
+\end{abstract}
+
+\section{Introduction}
+
+A trend-following CTA is a short pipeline. Prices become a signal; the signal is
+treated as an expected return; expected returns become positions, sized by
+volatility and by the correlation structure of the universe; positions become
+P\&L. Each stage is a few lines of arithmetic, and the difficulty is not in any
+one of them but in the accumulated conventions --- which returns, which lookback,
+which normalisation, what happens to an asset that has not started trading yet.
+
+\code{TinyCTA} is an attempt to write that pipeline down at minimum size and to
+keep every convention explicit. It is nine modules \citep{tinycta}: two signal
+generators, volatility and matrix utilities, a validated configuration object, a
+Polars-facing engine \citep{polars}, a pure-NumPy numeric kernel
+\citep{harris2020}, and an optional Optuna \citep{akiba2019} layer for parameter
+search. The core has four runtime dependencies and no plotting, no data loading,
+and no backtest framework.
+
+The empirical literature on time-series momentum is large
+\citep{moskowitz2012,hurst2017,baltas2013} and this paper adds nothing to it.
+The contribution here is narrower and, we think, more useful: a precise account
+of what this implementation computes, a derivation of the one formula it asserts,
+and a measurement of the one parameter whose effect is not obvious.
+
+\section{Signals}
+
+Both signal generators are Polars expressions, so they compose inside a single
+\code{with\_columns} call and run column-wise over a wide price frame.
+
+\subsection{Moving-average crossover}
+
+The discrete signal is the sign of an EWMA difference,
+\begin{equation}
+  s_t = \sign\bigl( \mathrm{EWMA}_{\mathrm{fast}}(x)_t - \mathrm{EWMA}_{\mathrm{slow}}(x)_t \bigr)
+  \in \{-1, 0, +1\},
+\end{equation}
+with the lengths interpreted as centres of mass, $\mathrm{com} = \mathrm{length}
+- 1$, so that the decay factor is $1 - 1/\mathrm{length}$. It is computed with
+\code{adjust=False}, the recursive form, and emits nulls until
+\code{min\_samples} observations have accumulated.
+
+\subsection{The oscillator and its scale factor}
+
+The continuous signal is the same difference, divided by a constant:
+\begin{equation}
+  \mathrm{osc}_t
+  = \frac{\mathrm{EWMA}_{\mathrm{fast}}(x)_t - \mathrm{EWMA}_{\mathrm{slow}}(x)_t}{s},
+  \qquad
+  s = \sqrt{\frac{1}{1-f^2} - \frac{2}{1-fg} + \frac{1}{1-g^2}},
+  \label{eq:osc}
+\end{equation}
+where $f = 1 - 1/\mathrm{fast}$ and $g = 1 - 1/\mathrm{slow}$. Here the EWMAs use
+\code{adjust=True}, the normalised form, whose steady-state weights are
+$(1-f)f^k$.
+
+The code states $s$ without derivation. It is worth having, because it is what
+makes oscillator magnitudes comparable across parameter choices --- the property
+the whole design rests on.
+
+\paragraph{Claim.}
+Let $x$ be a driftless random walk, $x_t = \sum_{j \le t} \varepsilon_j$ with
+$\varepsilon_j$ uncorrelated of unit variance. Then the numerator of
+Eq.~\eqref{eq:osc} has standard deviation exactly $s$.
+
+\paragraph{Proof.}
+In steady state the numerator is a linear filter of the price history,
+\begin{equation}
+  y_t = \sum_{k \ge 0} \bigl[ (1-f)f^k - (1-g)g^k \bigr] x_{t-k},
+\end{equation}
+whose coefficients sum to $1 - 1 = 0$. A filter with coefficients summing to zero
+annihilates the unit root, so $y_t$ is stationary even though $x_t$ is not.
+Rewriting in terms of the increments and collecting the coefficient of
+$\varepsilon_{t-m}$ gives a telescoping partial sum,
+\begin{equation}
+  c_m = \sum_{k=0}^{m} \bigl[ (1-f)f^k - (1-g)g^k \bigr]
+      = \bigl(1 - f^{m+1}\bigr) - \bigl(1 - g^{m+1}\bigr)
+      = g^{m+1} - f^{m+1},
+\end{equation}
+so that $y_t = \sum_{m \ge 0} c_m \varepsilon_{t-m}$ and
+\begin{equation}
+  \operatorname{Var}(y_t)
+  = \sum_{m \ge 1} \bigl( g^{m} - f^{m} \bigr)^2
+  = \frac{g^2}{1-g^2} - \frac{2fg}{1-fg} + \frac{f^2}{1-f^2} .
+\end{equation}
+Adding and subtracting the $m=0$ term, $(1 - 2 + 1) = 0$, turns each
+$z^2/(1-z^2)$ into $1/(1-z^2)$ and recovers $s^2$ exactly as written in
+Eq.~\eqref{eq:osc}. \hfill$\square$
+
+So the oscillator is a $t$-statistic of trend: numerator in units of price
+moves, denominator the standard deviation those moves would have if the price
+were a random walk. Under the null of no trend its output has unit variance,
+whatever \code{fast} and \code{slow} are, which is what allows a signal
+parameterised at $(8, 24)$ and one at $(64, 192)$ to be added, compared or
+blended without a per-parameter rescaling.
+
+\begin{table}[t]
+\centering
+\caption{Analytic scale factor against the realised standard deviation of the
+oscillator on a simulated driftless random walk with unit-variance Gaussian
+increments ($2 \times 10^5$ steps, seed $0$). The analytic factor varies by more
+than a factor of five across these parameter pairs; the output does not.}
+\label{tab:osc}
+\begin{tabular}{rrrr}
+\toprule
+fast & slow & $s$ (analytic) & $\operatorname{sd}(\mathrm{osc})$ \\
+\midrule
+$2$  & $6$   & $1.0851$ & $0.9983$ \\
+$4$  & $12$  & $1.4651$ & $1.0008$ \\
+$8$  & $24$  & $2.0334$ & $1.0053$ \\
+$16$ & $48$  & $2.8513$ & $1.0106$ \\
+$32$ & $96$  & $4.0159$ & $1.0133$ \\
+$64$ & $192$ & $5.6680$ & $1.0083$ \\
+$8$  & $96$  & $6.1323$ & $1.0117$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:osc} is the numerical check. The realised standard deviation sits
+within $1.4\%$ of unity for every pair tested, including the deliberately
+mismatched $(8, 96)$. The small positive bias is a finite-sample effect: the
+steady-state weights assumed above are only approached after the slower EWMA has
+warmed up.
+
+\section{Volatility and matrix utilities}
+
+\paragraph{Volatility-adjusted returns.}
+\code{vol\_adj} standardises log returns by an EWMA standard deviation and clips
+the result,
+\begin{equation}
+  \tilde{r}_t = \operatorname{clip}\!\left( \frac{r_t}{\hat{\sigma}_t},\; -c,\; +c \right),
+  \qquad r_t = \log x_t - \log x_{t-1},
+\end{equation}
+with $\hat\sigma$ an EWMA of $r$ at centre of mass $\mathrm{vola}-1$. The clip
+is what keeps a single gap or a bad print from dominating everything downstream;
+the default in the engine is $c = 4.2$. \code{adj\_log\_prices} integrates
+$\tilde{r}$ by cumulative sum, giving a price-like series of roughly unit
+volatility --- the natural input when a signal should see moves in risk units
+rather than in currency.
+
+Note the warmup: an EWMA standard deviation is undefined for a single
+observation, so the first log return produces no value and the output starts at
+the second, irrespective of \code{min\_samples}.
+
+\paragraph{Robust volatility.}
+\code{moving\_absolute\_deviation} is a doubly-robust alternative: both the
+centre and the dispersion are rolling medians of log returns,
+\begin{equation}
+  \hat\sigma^{\mathrm{MAD}}_t
+  = \frac{1}{0.6745} \,
+    \med_{w}\Bigl( \bigl| r_t - \med_{w}(r_t) \bigr| \Bigr),
+  \qquad w = 2\,\mathrm{com} - 1 .
+\end{equation}
+The constant $0.6745$ is the third quartile of the standard normal, so the
+estimator is consistent for the standard deviation under normality while
+retaining the median's breakdown point of $50\%$ \citep{huber2009}. Chaining two
+rolling medians over a differenced series costs $2w - 1$ returns of warmup before
+the first value appears.
+
+\paragraph{Shrinkage towards the identity.}
+\begin{equation}
+  \mathrm{shrink2id}(M, \lambda) = \lambda M + (1-\lambda) I .
+  \label{eq:shrink}
+\end{equation}
+For a correlation matrix this preserves the unit diagonal and pulls every
+off-diagonal entry towards zero in proportion to $1-\lambda$; it is the
+identity-target special case of the classical shrinkage estimator
+\citep{ledoit2004}.
+
+\paragraph{A warning about the parameter's direction.}
+Equation~\eqref{eq:shrink} reads $\lambda = 1 \Rightarrow$ no shrinkage and
+$\lambda = 0 \Rightarrow$ complete shrinkage, and the engine's configuration
+field carrying $\lambda$ is named \code{shrink}. So \code{shrink=1.0} applies
+\emph{no} shrinkage and \code{shrink=0.0} discards the correlations entirely ---
+the opposite of how the name reads. Section~\ref{sec:shrink} shows this is not a
+cosmetic complaint: \code{shrink=1.0} is exactly the setting that fails on real
+data.
+
+\section{The position engine}
+
+\subsection{Configuration}
+
+Four parameters, validated by a frozen Pydantic model that rejects unknown keys:
+\code{vola} and \code{corr} (the two lookbacks, both positive), \code{clip}
+(positive), and \code{shrink} $\in [0,1]$. One cross-field constraint is
+enforced: $\mathrm{corr} \ge \mathrm{vola}$, on the grounds that estimating a
+correlation matrix over a shorter window than the volatilities it is built from
+is numerically unstable. Freezing the model means a validated configuration
+cannot drift between construction and use.
+
+\subsection{Per-timestamp sizing}
+
+The engine consumes two aligned wide frames --- \code{prices} and \code{mu}, the
+expected returns, with identical shapes and columns and a \code{date} column in
+each --- and produces a frame of cash positions of the same shape.
+
+Internally it derives clipped volatility-adjusted returns, an EWMA covariance
+matrix per timestamp over a window of $2\,\mathrm{corr} + 1$ with $\mathrm{corr}$
+observations of warmup, and normalises each to a correlation matrix $C_t$ by its
+own diagonal. A zero-variance asset yields NaN rather than a division by zero.
+The forward walk is then delegated to a pure-NumPy kernel.
+
+At timestamp $t$, writing $\mathcal{A}_t$ for the set of assets with a finite
+price (so an instrument that has not started trading is absent, not zero),
+$\mu_t$ for the expected returns restricted to $\mathcal{A}_t$ with NaNs zeroed,
+and $\rho_t = \mathrm{shrink2id}(C_t, \lambda)$ restricted likewise:
+\begin{align}
+  u_t &= \frac{\rho_t^{-1} \mu_t}{\sqrt{\mu_t^{\top} \rho_t^{-1} \mu_t}},
+    \label{eq:risk} \\
+  \pi_t &= \frac{u_t}{v_t},
+    \label{eq:scale} \\
+  h_{t,i} &= \frac{\pi_{t,i}}{\hat\sigma_{t,i}} .
+    \label{eq:cash}
+\end{align}
+
+Equation~\eqref{eq:risk} is the informative step. It is a Markowitz direction
+\citep{markowitz1952} in correlation space, normalised so that
+$u_t^{\top} \rho_t u_t = 1$ --- one unit of risk under the metric $\rho_t$,
+exactly. The normaliser is computed as
+$\sqrt{\mu_t^{\top}\rho_t^{-1}\mu_t}$, and the position is zeroed rather than
+scaled when that quantity is non-finite, below $10^{-12}$, or when $\mu_t$
+vanishes.
+
+Equation~\eqref{eq:scale} is a feedback loop. Realised profit
+$p_t = h_{t-1}^{\top} r_t$ drives an EWMA of squared profit,
+\begin{equation}
+  v_t = \kappa \, v_{t-1} + (1-\kappa) \, p_t^2,
+  \qquad \kappa = 0.99, \quad v_0 = 1,
+  \label{eq:pv}
+\end{equation}
+and dividing by it shrinks the book after volatile P\&L and expands it after
+quiet P\&L --- a volatility target expressed in realised profit rather than in
+forecast risk. Note that $\kappa$ and $v_0$ are hard-coded, not configuration.
+
+Equation~\eqref{eq:cash} converts risk units to cash by dividing by each asset's
+own EWMA volatility of simple returns, so a given risk allocation buys fewer
+units of a volatile instrument.
+
+\paragraph{Scale is not pinned down.}
+Equation~\eqref{eq:pv} carries units. $p_t$ is a currency amount, so $v_t$ is a
+squared currency amount, while $u_t$ in Eq.~\eqref{eq:risk} is dimensionless;
+dividing one by the other leaves the overall size of the book determined jointly
+by $v_0 = 1$ and the numerical scale of the price series. There is no
+target-volatility or AUM parameter. The gross exposures in
+Table~\ref{tab:shrink} should therefore be read as relative, not as leverage
+against a stated capital base --- a caller who needs a specific risk level must
+rescale the output.
+
+\section{Empirical behaviour}
+\label{sec:empirical}
+
+We run the pipeline end to end on the futures panel shipped with the test suite:
+$13{,}909$ daily observations of $49$ instruments with hashed identifiers,
+spanning 1970-01-02 to 2023-04-26, with instruments entering over time (the
+median instrument has about $9{,}100$ observations; all $49$ are live at the
+end). Expected returns are $\mathrm{osc}(8, 24)$ per asset, nulls filled with
+zero. The configuration is $\mathrm{vola}=32$, $\mathrm{corr}=64$,
+$\mathrm{clip}=4.2$, and $\lambda$ varies. P\&L is
+$p_t = \sum_i h_{t-1,i} r_{t,i}$ with $r$ simple returns; the Sharpe ratio is
+$\operatorname{mean}(p)/\operatorname{sd}(p) \times \sqrt{252}$, gross of all
+costs.
+
+\subsection{What shrinkage does}
+\label{sec:shrink}
+
+\begin{table}[t]
+\centering
+\caption{The engine over the $49$-asset panel as $\lambda$ (\code{shrink})
+varies. Recall $\lambda = 1$ means the correlation matrix is used unmodified.
+Gross exposure is $\sum_i |h_{t,i}|$, in the units of the price series.}
+\label{tab:shrink}
+\begin{tabular}{lrrr}
+\toprule
+$\lambda$ & Sharpe & Mean gross & Max gross \\
+\midrule
+$0.00$ & $0.265$ & $128.9$   & $706.3$ \\
+$0.25$ & $0.225$ & $428.4$   & $4{,}436.8$ \\
+$0.50$ & $0.220$ & $629.7$   & $7{,}423.6$ \\
+$0.75$ & $0.255$ & $889.2$   & $9{,}891.2$ \\
+$0.90$ & $0.327$ & $1{,}168.7$ & $12{,}229.1$ \\
+$0.99$ & $0.206$ & $1{,}415.4$ & $219{,}767.6$ \\
+$1.00$ & \multicolumn{3}{c}{\code{SingularMatrixError}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:shrink} contains the paper's main empirical finding, and it is
+about numerics rather than returns.
+
+At $\lambda = 1$ the engine does not produce a worse result --- it produces no
+result. The solve behind Eq.~\eqref{eq:risk} raises
+\code{SingularMatrixError}: the Cholesky factorisation fails as not
+positive-definite and the fallback general solve reports a singular matrix. This
+is not a fluke of one timestamp. The final EWMA correlation matrix over the $47$
+assets with finite entries has condition number $2.79 \times 10^{18}$ and a
+smallest eigenvalue of $9.16 \times 10^{-17}$ --- numerically rank-deficient at
+double precision, notwithstanding an EWMA window ($129$) considerably longer
+than the cross-section ($49$). Clipping and the overlapping decay weights leave
+the effective sample far smaller than the nominal window.
+
+Shrinkage is therefore load-bearing infrastructure in this engine, not a tuning
+knob: any $\lambda < 1$ makes $\rho_t$ invertible, because
+Eq.~\eqref{eq:shrink} adds $(1-\lambda)$ to every eigenvalue.
+
+The route to that failure is visible in the exposure columns, and it is the more
+practically useful observation. Mean gross exposure rises elevenfold from
+$\lambda = 0$ to $\lambda = 0.99$, and maximum gross exposure rises by a factor
+of $311$, reaching $2.2 \times 10^5$ at $\lambda = 0.99$ against $706$ at
+$\lambda = 0$. Ill-conditioning does not announce itself as an exception until
+the very end; long before that it shows up as leverage, as
+$\rho_t^{-1}$ amplifies small differences between nearly collinear assets
+\citep{michaud1989}. A practitioner monitoring positions would see it; one
+monitoring only the Sharpe ratio would not.
+
+Because the Sharpe ratio does not see it. Across the whole feasible range it
+stays inside $[0.206, 0.327]$, non-monotone in $\lambda$, with the best value at
+$\lambda = 0.90$ --- and we would caution explicitly against reading that as a
+recommendation. The spread is well inside what $53$ years of one gross-of-costs
+configuration can distinguish \citep{harvey2018}, and the $\lambda = 0.99$
+column shows how a nominally similar Sharpe can be produced by a book two orders
+of magnitude larger at its peak. The honest summary is that correlation shrinkage
+buys invertibility and exposure control here, and that this naive configuration
+--- one signal, no costs, no turnover control, in-sample parameters --- has no
+evidence to offer about its effect on returns.
+
+\subsection{Parameter search}
+
+The optional \code{tinycta.hyper} layer wraps Optuna \citep{akiba2019} with a
+tree-structured Parzen estimator \citep{bergstra2011}, maximising the Sharpe
+ratio of a caller-supplied portfolio-suggestion function. Trials returning NaN
+are pruned rather than failed, which keeps the reported statistics clean. The
+layer is behind an extra (\code{pip install "tinycta[hyper]"}) and imports
+nothing that the core needs; the numeric kernel deliberately avoids even a
+logging dependency so that a core install stays at four packages.
+
+Given the width of the Sharpe band in Table~\ref{tab:shrink}, we note that the
+same caution applies with more force to any search over more parameters: an
+optimiser that maximises in-sample Sharpe over a four-dimensional configuration
+will find something, and this panel cannot tell whether it found a strategy.
+
+\section{Limitations}
+
+\paragraph{No trading frictions.} No transaction costs, no slippage, no market
+impact, no financing, and no turnover penalty. Positions can change arbitrarily
+between consecutive timestamps, and Eq.~\eqref{eq:risk} has no term that
+discourages it. Any Sharpe ratio quoted here is gross.
+
+\paragraph{No risk limits.} There are no position caps, no gross or net exposure
+limits, no drawdown control, and no leverage constraint. The only mechanism
+restraining size is the profit-variance feedback of Eq.~\eqref{eq:pv}, which
+reacts to realised P\&L after the fact and, as Table~\ref{tab:shrink} shows,
+permits gross exposure to move over two orders of magnitude.
+
+\paragraph{Memory.} The engine materialises one correlation matrix per
+post-warmup timestamp in a dictionary. On this panel that is roughly $13{,}800$
+matrices of $49 \times 49$ doubles --- about $265$ MB --- and it grows as $O(T
+n^2)$. The design is fine at CTA scale and will not survive a large
+cross-section or intraday data without being reworked into a streaming walk.
+
+\paragraph{Hard-coded constants.} The profit-variance decay $\kappa = 0.99$, its
+initial value $v_0 = 1$, and the degeneracy floor $10^{-12}$ are not
+configurable. The first two set the book's scale and its responsiveness, so they
+are choices a user might reasonably want to make.
+
+\paragraph{In-sample, single panel.} Every number in
+Section~\ref{sec:empirical} comes from one dataset with parameters chosen before
+looking at the result but evaluated on the whole history. Nothing here is a
+backtest with an out-of-sample period, and nothing here should be read as
+evidence that this configuration works.
+
+\section{Conclusion}
+
+The pipeline is small enough to state completely, which is the point of the
+package and the point of this paper. Two results are worth carrying away.
+
+The oscillator's scale factor is exact, not heuristic: it is the standard
+deviation of the EWMA difference under a random walk, provable in four lines
+because the difference filter's coefficients telescope, and confirmed to within
+$1.4\%$ in simulation across parameter pairs whose raw magnitudes differ by more
+than five times. Signals at different speeds really are comparable without
+further normalisation.
+
+Correlation shrinkage is not optional. At $\lambda = 1$ --- which, confusingly,
+is what \code{shrink=1.0} means --- the engine cannot run at all on a $49$-asset
+panel whose correlation matrix is numerically singular, and as $\lambda$
+approaches $1$ the deterioration shows up first as an eleven-fold growth in gross
+exposure rather than as an error or a worse Sharpe ratio. The parameter's name
+inverts its meaning, and its safe region is bounded away from the value the name
+suggests is safest.
+
+\appendix
+
+\section{Reproducibility}
+\label{app:repro}
+
+All numbers were produced with \code{TinyCTA} 0.14.0 and
+\path{tests/tinycta/resources/prices_hashed.csv}. Columns with long leading gaps
+are inferred as strings by default, hence the explicit cast.
+
+\begin{verbatim}
+import numpy as np, polars as pl
+from tinycta.config import Config
+from tinycta.engine import Engine
+from tinycta.osc import osc
+
+raw = pl.read_csv("tests/tinycta/resources/prices_hashed.csv",
+                  try_parse_dates=True, infer_schema_length=None)
+raw = raw.rename({raw.columns[0]: "date"})
+assets = [c for c in raw.columns if c != "date"]
+prices = raw.with_columns(pl.col(a).cast(pl.Float64) for a in assets)
+mu = prices.with_columns(osc(pl.col(a), fast=8, slow=24).alias(a)
+                         for a in assets)
+mu = mu.with_columns(pl.col(a).fill_null(0.0).fill_nan(0.0) for a in assets)
+
+P = prices.select(assets).to_numpy()
+ret = np.zeros_like(P); ret[1:] = P[1:] / P[:-1] - 1.0
+
+for shrink in (0.0, 0.25, 0.5, 0.75, 0.9, 0.99, 1.0):
+    cfg = Config(vola=32, corr=64, clip=4.2, shrink=shrink)
+    engine = Engine(prices=prices, mu=mu, cfg=cfg)
+    H = engine.cash_position.select(assets).to_numpy()
+    p = np.nansum(np.nan_to_num(H[:-1]) * np.nan_to_num(ret[1:]), axis=1)
+    gross = np.nansum(np.abs(H), axis=1)
+    print(shrink, p.mean() / p.std() * np.sqrt(252),
+          np.nanmean(gross), np.nanmax(gross))
+\end{verbatim}
+
+The $\lambda = 1.0$ row raises \code{cvx.linalg.core.exceptions.\allowbreak
+SingularMatrixError} from inside \code{Engine.cash\_position}. Condition numbers
+are of the last correlation matrix returned by \code{Engine.cor}, restricted to
+rows and columns that are finite throughout. Table~\ref{tab:osc} simulates
+\code{np.random.default\_rng(0).standard\_normal(200\_000)}, takes its cumulative
+sum, and compares \code{np.std} of the oscillator against $s$ evaluated
+directly.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
