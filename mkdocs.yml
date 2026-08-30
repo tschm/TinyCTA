@@ -20,8 +20,6 @@ nav:
       - Config: api/config.md
       - Engine: api/engine.md
       - Hyperparameter Optimisation: api/hyper.md
-  - Development:
-      - Tests: development/TESTS.md
   - CI/CD:
       - coverage: reports/html-coverage/index.html
       - report: reports/html-report/report.html
