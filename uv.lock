@@ -1684,7 +1684,6 @@ wheels = [
 
 [[package]]
 name = "tinycta"
-version = "0.14.0"
 source = { editable = "." }
 dependencies = [
     { name = "cvx-linalg" },

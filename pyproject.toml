@@ -1,6 +1,8 @@
 [project]
 name = "TinyCTA"
-version = "0.14.0"
+# Derived from the git tag by hatch-vcs (see [tool.hatch.version]) rather than written
+# here, so the tag is the single source of truth and no commit can disagree with it.
+dynamic = ["version"]
 description = "A lightweight Python package for Commodity Trading Advisor (CTA) strategies"
 readme = "README.md"
 license = "MIT"
@@ -72,11 +74,24 @@ test = [
 default-groups = ["dev", "hyper"]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tinycta"]
+
+[tool.hatch.version]
+# Resolves [project].dynamic = ["version"] from `git describe`. Tags are vX.Y.Z and
+# hatch-vcs strips the leading "v" by default, so v0.14.0 builds 0.14.0; a commit off
+# the tag builds a PEP 440 dev version (0.14.1.dev42+g<sha>).
+#
+# This makes the build history-dependent: a shallow clone that cannot see the tag does
+# not fail, it silently builds 0.1.dev1+g<sha>. rhiza_release.yml is the only workflow
+# that checks out in this repo (the rest are stubs delegating to jebel-quant/rhiza) and
+# each of its checkouts uses fetch-depth: 0. The backstop is its "Verify built
+# distribution version" step, which parses the filename in dist/ and fails the release
+# unless it carries the tag -- nothing earlier can catch a wrong derived version.
+source = "vcs"
 
 [tool.rhiza-task]
 # Settings recovered from the make layer that rhiza v1.4.0 retired (.rhiza/rhiza.mk,
@@ -91,7 +106,13 @@ typechecker = "both"
 
 # make: `RHIZA_CHECKS_VERSION ?= 0.2.1` (quality.mk). CLI default: the v0.2.0 git ref.
 # Without this the rhiza-test gate silently downgrades to the older check set.
-pytest-rhiza = "pytest-rhiza==0.2.1"
+#
+# Raised 0.2.1 -> 0.6.0 when [project].version became dynamic. Every release up to and
+# including 0.5.0 reads `project["version"]` unconditionally, so a derived version fails
+# test_version_follows_semver (empty string against the semver regex) and the git-tag
+# comparison (InvalidVersion on ""). 0.6.0 is the first release that asks whether the
+# version is dynamic and skips those two assertions; there is no older version to pin.
+pytest-rhiza = "pytest-rhiza==0.6.0"
 
 # make: `MKDOCS_EXTRA_PACKAGES = --with 'mkdocstrings[python]' --with-editable '.[hyper]'`
 # (Makefile). CLI default: ["mkdocstrings[python]"] only. Each entry becomes one `--with`,
@@ -138,8 +159,11 @@ types-pyyaml = []
 # release at a version that already exists.
 #
 # No current_version and no [[tool.bumpversion.files]] entry for the version:
-# bump-my-version reads and rewrites PEP 621 [project].version natively, so
-# naming it again is a second copy that goes stale.
+# there is no longer a version written anywhere to rewrite. [project].version is
+# dynamic (see [tool.hatch.version]), so the tag alone decides what gets built and
+# a release is a tag, not an edit. The table stays because bump-my-version still
+# has to *discover* a config -- from a path it never reads it falls back to
+# `git describe` -- and because the two settings below still bind if it is run.
 allow_dirty = false
 # /rhiza:release commits and tags itself so the changelog lands in the bump
 # commit; a bare `bump-my-version bump` would add a second commit and a
