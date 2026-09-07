@@ -81,9 +81,7 @@ import polars as pl
 from tinycta.ewma import ma_cross
 
 prices = pl.DataFrame({"A": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]})
-result = prices.with_columns(
-    ma_cross(pl.col("A"), fast=2, slow=6).alias("sig_A")
-)
+result = prices.with_columns(ma_cross(pl.col("A"), fast=2, slow=6).alias("sig_A"))
 ```
 
 ### Volatility-adjusted returns (Polars)
@@ -111,9 +109,7 @@ import polars as pl
 from tinycta.signal import moving_absolute_deviation, shrink2id
 
 prices = pl.DataFrame({"A": [100.0, 101.0, 99.0, 102.0, 98.0, 103.0, 97.0, 104.0]})
-vol = prices.with_columns(
-    moving_absolute_deviation(pl.col("A"), com=2).alias("vol_A")
-)
+vol = prices.with_columns(moving_absolute_deviation(pl.col("A"), com=2).alias("vol_A"))
 print(sorted(vol.columns))
 print(vol.shape)
 
@@ -182,11 +178,13 @@ trial and scores it by Sharpe ratio, returning a frozen `Study`.
 ```python +RHIZA_SKIP
 from tinycta.hyper import optimize
 
+
 def suggest_portfolio(trial):
     fast = trial.suggest_int("fast", 2, 20)
     slow = trial.suggest_int("slow", fast + 1, 100)
     # ... build and return a jquantstats Portfolio from the suggested params ...
     return build_portfolio(fast, slow)
+
 
 study = optimize(suggest_portfolio, n_trials=100, seed=42)
 print(study.best_params, study.best_value)
@@ -219,9 +217,9 @@ explicit operator override is trusted and not confined.
 ```python +RHIZA_SKIP
 from tinycta.hyper import get_config
 
-cfg = get_config("my_experiment")            # reads ./config.yml (+ ./config/my_experiment.yml)
-cfg.logger.info("run starting")              # loguru logger, also writing to output.log
-fast = cfg.params["fast"]                    # config sections as plain dicts
+cfg = get_config("my_experiment")  # reads ./config.yml (+ ./config/my_experiment.yml)
+cfg.logger.info("run starting")  # loguru logger, also writing to output.log
+fast = cfg.params["fast"]  # config sections as plain dicts
 ```
 
 ## 📚 API Reference
