@@ -30,6 +30,7 @@ from jquantstats import Portfolio
 
 prices = pl.read_parquet("prices.parquet")
 
+
 def suggest_portfolio(trial):
     fast = trial.suggest_int("fast", 2, 50)
     slow = trial.suggest_int("slow", fast + 5, 200)
@@ -57,9 +58,9 @@ print(study)
 #   Sharpe       = 0.8731
 #   Completed    = 187 / 200 trials
 
-print(study.best_params)   # {'fast': 12, 'slow': 48}
-print(study.best_value)    # 0.8731
-print(study.n_completed)   # number of non-pruned trials
+print(study.best_params)  # {'fast': 12, 'slow': 48}
+print(study.best_value)  # 0.8731
+print(study.n_completed)  # number of non-pruned trials
 ```
 
 ### 4. Save diagnostic plots
