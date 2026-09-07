@@ -42,7 +42,7 @@ repos:
         files: '^(src/.*\.py|tests/.*\.py|scripts/check_test_layout\.py)$'
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.16.4'
+    rev: 'v0.16.6'
     hooks:
       - id: ruff
         args: [ --fix, --exit-non-zero-on-fix, --unsafe-fixes ]
@@ -53,7 +53,7 @@ repos:
         groups: ["python", "format", "fast"]
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.49.0
+    rev: v0.49.1
     hooks:
       - id: markdownlint
         args: ["--disable", "MD013"]
@@ -97,7 +97,7 @@ repos:
         groups: ["security", "slow"]
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.6
+    rev: 0.12.10
     hooks:
       - id: uv-lock
         groups: ["python", "fast"]
