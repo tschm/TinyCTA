@@ -43,4 +43,7 @@ def prices(resource_dir: Path) -> pl.DataFrame:
         pl.DataFrame: A DataFrame containing price data with a date column.
     """
     df = pl.read_csv(resource_dir / "prices_hashed.csv", try_parse_dates=True)
-    return df.rename({df.columns[0]: "date"})
+    df = df.rename({df.columns[0]: "date"})
+    # Many assets have no history in the leading rows; polars>=2 infers such
+    # all-empty-at-the-start columns as String, so pin the price dtype explicitly.
+    return df.with_columns(pl.exclude("date").cast(pl.Float64))
