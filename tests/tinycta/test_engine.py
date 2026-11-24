@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 
 import numpy as np
 import polars as pl
@@ -17,7 +17,7 @@ def _synthetic_prices(n_days: int = 500, assets: list[str] | None = None) -> pl.
     if assets is None:
         assets = ["A", "B", "C"]
     rng = np.random.default_rng(42)
-    dates = [datetime.date(2020, 1, 1) + datetime.timedelta(days=i) for i in range(n_days)]
+    dates = [dt.date(2020, 1, 1) + dt.timedelta(days=i) for i in range(n_days)]
     data: dict = {"date": dates}
     for asset in assets:
         returns = rng.normal(0.0001, 0.02, size=n_days)
@@ -124,7 +124,7 @@ class TestEngine:
         cfg = Config(vola=3, corr=3, clip=4.2, shrink=0.5)
         n = 30
         rng = np.random.default_rng(7)
-        dates = [datetime.date(2020, 1, 1) + datetime.timedelta(days=i) for i in range(n)]
+        dates = [dt.date(2020, 1, 1) + dt.timedelta(days=i) for i in range(n)]
         price_arr = 100 * np.exp(np.cumsum(rng.normal(0.0001, 0.02, size=(n, len(assets))), axis=0))
         data: dict = {"date": dates}
         for j, a in enumerate(assets):
