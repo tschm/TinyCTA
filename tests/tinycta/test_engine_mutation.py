@@ -10,7 +10,7 @@ detected rather than silently tolerated.
 from __future__ import annotations
 
 import dataclasses
-import datetime
+import datetime as dt
 
 import numpy as np
 import polars as pl
@@ -35,7 +35,7 @@ def _prices_and_mu(n: int = 40, seed: int = 0, with_gap: bool = False):
     """Deterministic 3-asset prices and a non-zero mu sharing the same frame."""
     assets = ["A", "B", "C"]
     rng = np.random.default_rng(seed)
-    dates = [datetime.date(2020, 1, 1) + datetime.timedelta(days=i) for i in range(n)]
+    dates = [dt.date(2020, 1, 1) + dt.timedelta(days=i) for i in range(n)]
     price_arr = 100 * np.exp(np.cumsum(rng.normal(0.0002, 0.02, size=(n, len(assets))), axis=0))
     pdata: dict = {"date": dates}
     mdata: dict = {"date": dates}
@@ -245,7 +245,7 @@ def test_cor_zero_variance_asset_maps_to_nan(cfg: Config):
     """
     n = 40
     rng = np.random.default_rng(0)
-    dates = [datetime.date(2020, 1, 1) + datetime.timedelta(days=i) for i in range(n)]
+    dates = [dt.date(2020, 1, 1) + dt.timedelta(days=i) for i in range(n)]
     assets = ["A", "B", "C"]
     data: dict = {"date": dates}
     data["A"] = (100 * np.exp(np.cumsum(rng.normal(0.0002, 0.02, n)))).tolist()
@@ -337,7 +337,7 @@ def test_cash_position_skips_degenerate_cor_key(cfg: Config, mocker):
     n = 12
     assets = ["A", "B", "C"]
     rng = np.random.default_rng(0)
-    dates = [datetime.date(2020, 1, 1) + datetime.timedelta(days=i) for i in range(n)]
+    dates = [dt.date(2020, 1, 1) + dt.timedelta(days=i) for i in range(n)]
     arr = 100 * np.exp(np.cumsum(rng.normal(0.0002, 0.02, size=(n, len(assets))), axis=0))
     pdata: dict = {"date": dates}
     mdata: dict = {"date": dates}
